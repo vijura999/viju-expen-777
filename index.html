@@ -941,6 +941,284 @@ document.getElementById("dashboardDate").value=
   new Date().toISOString().slice(0,10);
 
 render();
+  /* PERSON FULL EXPENSE REPORT + SHARE */
+
+function renderPeople(){
+
+  document.getElementById("peopleList").innerHTML =
+    people.map(p=>{
+
+      let personTransactions = transactions
+        .filter(t=>t.person===p);
+
+      let totalExpense = personTransactions
+        .filter(t=>t.type==="expense")
+        .reduce((sum,t)=>sum+t.amount,0);
+
+      let totalIncome = personTransactions
+        .filter(t=>t.type==="income")
+        .reduce((sum,t)=>sum+t.amount,0);
+
+      let totalCredit = personTransactions
+        .filter(t=>t.type==="credit")
+        .reduce((sum,t)=>sum+t.amount,0);
+
+      let totalDebit = personTransactions
+        .filter(t=>t.type==="debit")
+        .reduce((sum,t)=>sum+t.amount,0);
+
+      return `
+      <div class="person">
+        <h3>👤 ${p}</h3>
+
+        <strong>Expenses: ${money(totalExpense)}</strong>
+
+        <br><br>
+
+        <button class="primary"
+          onclick="showPersonReport('${p.replace(/'/g,"\\'")}')">
+          📄 Full Report
+        </button>
+
+        <br><br>
+
+        <button class="danger"
+          onclick="deletePerson('${p.replace(/'/g,"\\'")}')">
+          Delete
+        </button>
+      </div>
+      `;
+
+    }).join("");
+
+  let old=document.getElementById("personReportPanel");
+
+  if(!old){
+
+    let peoplePage=document.getElementById("people");
+
+    let panel=document.createElement("div");
+
+    panel.className="panel";
+    panel.id="personReportPanel";
+
+    panel.innerHTML=`
+      <h2>📄 Person Expense Report</h2>
+      <div id="personReport"></div>
+    `;
+
+    peoplePage.appendChild(panel);
+  }
+}
+
+
+function showPersonReport(person){
+
+  let list=transactions
+    .filter(t=>t.person===person)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+
+  let expenses=list
+    .filter(t=>t.type==="expense");
+
+  let income=list
+    .filter(t=>t.type==="income")
+    .reduce((s,t)=>s+t.amount,0);
+
+  let credit=list
+    .filter(t=>t.type==="credit")
+    .reduce((s,t)=>s+t.amount,0);
+
+  let debit=list
+    .filter(t=>t.type==="debit")
+    .reduce((s,t)=>s+t.amount,0);
+
+  let expenseTotal=expenses
+    .reduce((s,t)=>s+t.amount,0);
+
+  let balance=income+credit-expenseTotal-debit;
+
+  let rows=list.map(t=>`
+    <tr>
+      <td>${t.date}</td>
+      <td>${t.type}</td>
+      <td>${t.category}</td>
+      <td>${t.payment}</td>
+      <td>${t.description||""}</td>
+      <td>${money(t.amount)}</td>
+    </tr>
+  `).join("");
+
+  let report=`
+    <div id="personReportContent">
+
+      <h2>👤 ${person}</h2>
+
+      <p><b>Report: All transactions till today</b></p>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>🧾 Expenses</h3>
+          <div class="amount expense">${money(expenseTotal)}</div>
+        </div>
+
+        <div class="card">
+          <h3>💰 Income</h3>
+          <div class="amount income">${money(income)}</div>
+        </div>
+
+        <div class="card">
+          <h3>💳 Credit</h3>
+          <div class="amount credit">${money(credit)}</div>
+        </div>
+
+        <div class="card">
+          <h3>💸 Debit</h3>
+          <div class="amount debit">${money(debit)}</div>
+        </div>
+
+        <div class="card">
+          <h3>💵 Balance</h3>
+          <div class="amount balance">${money(balance)}</div>
+        </div>
+
+      </div>
+
+      <br>
+
+      <button class="primary"
+        onclick="sharePersonReport('${person.replace(/'/g,"\\'")}')">
+        📤 Share Report
+      </button>
+
+      <button class="primary"
+        onclick="printPersonReport()">
+        🖨️ Print / PDF
+      </button>
+
+      <br><br>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Payment</th>
+              <th>Description</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${
+              rows ||
+              `<tr>
+                <td colspan="6">No transactions found.</td>
+              </tr>`
+            }
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+  `;
+
+  document.getElementById("personReport").innerHTML=report;
+
+  document.getElementById("personReportPanel")
+    .scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+}
+
+
+function sharePersonReport(person){
+
+  let list=transactions
+    .filter(t=>t.person===person)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+
+  let expenses=list
+    .filter(t=>t.type==="expense");
+
+  let expenseTotal=expenses
+    .reduce((s,t)=>s+t.amount,0);
+
+  let text=
+`EVR EXPENSE REPORT
+
+Person: ${person}
+Report: All expenses till today
+
+Total Expenses: ${money(expenseTotal)}
+
+--------------------------------
+DATE | CATEGORY | DESCRIPTION | AMOUNT
+--------------------------------
+
+`+
+expenses.map(t=>
+`${t.date} | ${t.category} | ${t.description||"-"} | ${money(t.amount)}`
+).join("\n")+
+`
+
+--------------------------------
+Total Expenses: ${money(expenseTotal)}
+`;
+
+  if(navigator.share){
+
+    navigator.share({
+      title:"EVR Expense Report - "+person,
+      text:text
+    }).catch(()=>{});
+
+  }else{
+
+    navigator.clipboard.writeText(text)
+      .then(()=>{
+        alert("Report copied. You can paste it into WhatsApp, Email, etc.");
+      })
+      .catch(()=>{
+        alert("Sharing is not supported on this device.");
+      });
+
+  }
+}
+
+
+function printPersonReport(){
+
+  let content=document.getElementById("personReportContent");
+
+  if(!content)return;
+
+  let original=document.body.innerHTML;
+
+  document.body.innerHTML=`
+    <div style="padding:25px;font-family:Arial">
+      ${content.outerHTML}
+    </div>
+  `;
+
+  window.print();
+
+  document.body.innerHTML=original;
+
+  render();
+}
+
+
+/* Re-render after adding the new report functions */
+renderPeople();
 
 </script>
 
