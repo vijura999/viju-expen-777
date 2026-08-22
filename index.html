@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVR Expenses</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f5f9;
+    color: #172033;
+}
+
+header {
+    background: #111827;
+    color: white;
+    padding: 18px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: #2f6df6;
+}
+
+.user {
+    font-size: 15px;
+}
+
+nav {
+    background: white;
+    display: flex;
+    gap: 8px;
+    padding: 12px 25px;
+    border-bottom: 1px solid #ddd;
+    overflow-x: auto;
+}
+
+nav button {
+    border: none;
+    background: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+nav button:hover,
+nav button.active {
+    background: #e8efff;
+    color: #2161e8;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #667085;
+    margin-bottom: 25px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.card .icon {
+    font-size: 28px;
+}
+
+.card h3 {
+    margin-top: 12px;
+    color: #667085;
+    font-size: 14px;
+}
+
+.amount {
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 7px;
+}
+
+.green {
+    color: #159447;
+}
+
+.red {
+    color: #d92d20;
+}
+
+.blue {
+    color: #2161e8;
+}
+
+.purple {
+    color: #7a3df0;
+}
+
+.section {
+    background: white;
+    padding: 24px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+}
+
+.people {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.person {
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.person:hover {
+    border-color: #2161e8;
+    transform: translateY(-2px);
+}
+
+.person .avatar {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.person h3 {
+    margin-bottom: 5px;
+}
+
+.categories {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.category {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+}
+
+.category-icon {
+    font-size: 34px;
+}
+
+.category h3 {
+    margin-top: 12px;
+}
+
+.category p {
+    color: #667085;
+    margin-top: 5px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input,
+select,
+textarea {
+    padding: 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+textarea {
+    min-height: 90px;
+}
+
+.btn {
+    margin-top: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2161e8;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #174bbd;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 13px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #f8f9fb;
+}
+
+.empty {
+    text-align: center;
+    padding: 35px;
+    color: #667085;
+}
+
+@media(max-width: 900px) {
+    .cards,
+    .categories,
+    .people {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 600px) {
+    header {
+        padding: 15px;
+    }
+
+    .container {
+        padding: 0 12px;
+    }
+
+    .cards,
+    .categories,
+    .people,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    nav {
+        padding: 8px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">EVR <span>Expenses</span></div>
+    <div class="user">Personal Finance Manager</div>
+</header>
+
+<nav>
+    <button class="active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+    <button onclick="showPage('expenses', this)">💸 Expenses</button>
+    <button onclick="showPage('income', this)">💰 Income</button>
+    <button onclick="showPage('credit', this)">💳 Credit</button>
+    <button onclick="showPage('transactions', this)">📋 Transactions</button>
+    <button onclick="showPage('categories', this)">📁 Categories</button>
+</nav>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+
+    <h1>Dashboard</h1>
+    <p class="subtitle">Your personal finance overview</p>
+
+    <div class="cards">
+
+        <div class="card">
+            <div class="icon">💰</div>
+            <h3>Total Income</h3>
+            <div class="amount green" id="totalIncome">€0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">💸</div>
+            <h3>Total Expenses</h3>
+            <div class="amount red" id="totalExpenses">€0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">💳</div>
+            <h3>Total Credit</h3>
+            <div class="amount purple" id="totalCredit">€0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">📊</div>
+            <h3>Balance</h3>
+            <div class="amount blue" id="balance">€0.00</div>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>👨‍👩‍👧 People</h2>
+        <br>
+
+        <div class="people">
+
+            <div class="person" onclick="selectPerson('Viju')">
+                <div class="avatar">👨</div>
+                <h3>Viju</h3>
+                <p>Personal</p>
+            </div>
+
+            <div class="person" onclick="selectPerson('Kittu')">
+                <div class="avatar">👦</div>
+                <h3>Kittu</h3>
+                <p>Personal</p>
+            </div>
+
+            <div class="person" onclick="selectPerson('Anu')">
+                <div class="avatar">👩</div>
+                <h3>Anu</h3>
+                <p>Personal</p>
+            </div>
+
+            <div class="person" onclick="selectPerson('Family')">
+                <div class="avatar">👨‍👩‍👧</div>
+                <h3>Family</h3>
+                <p>Family expenses</p>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+
+<!-- EXPENSES -->
+<section id="expenses" class="page">
+
+    <h1>💸 Expenses</h1>
+    <p class="subtitle">Add and manage your expenses</p>
+
+    <div class="section">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Person</label>
+                <select id="expensePerson">
+                    <option>Viju</option>
+                    <option>Kittu</option>
+                    <option>Anu</option>
+                    <option>Family</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="expenseCategory">
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Shopping</option>
+                    <option>Rent</option>
+                    <option>Utilities</option>
+                    <option>Health</option>
+                    <option>Travel</option>
+                    <option>Entertainment</option>
+                    <option>Education</option>
+                    <option>Mobile / Internet</option>
+                    <option>Business</option>
+                    <option>Bills</option>
+                    <option>Gifts</option>
+                    <option>Bank / Fees</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (€)</label>
+                <input type="number" id="expenseAmount" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="expenseDate">
+            </div>
+
+            <div class="form-group full">
+                <label>Description</label>
+                <textarea id="expenseDescription"
+                    placeholder="Enter description"></textarea>
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="addExpense()">➕ Add Expense</button>
+
+    </div>
+
+</section>
+
+
+<!-- INCOME -->
+<section id="income" class="page">
+
+    <h1>💰 Income</h1>
+    <p class="subtitle">Record your income</p>
+
+    <div class="section">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Person</label>
+                <select id="incomePerson">
+                    <option>Viju</option>
+                    <option>Kittu</option>
+                    <option>Anu</option>
+                    <option>Family</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Income Type</label>
+                <select id="incomeType">
+                    <option>Salary</option>
+                    <option>Business</option>
+                    <option>Freelance</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (€)</label>
+                <input type="number" id="incomeAmount" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="incomeDate">
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="addIncome()">➕ Add Income</button>
+
+    </div>
+
+</section>
+
+
+<!-- CREDIT -->
+<section id="credit" class="page">
+
+    <h1>💳 Credit</h1>
+    <p class="subtitle">Track credit and borrowed money</p>
+
+    <div class="section">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Person</label>
+                <select id="creditPerson">
+                    <option>Viju</option>
+                    <option>Kittu</option>
+                    <option>Anu</option>
+                    <option>Family</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Credit Type</label>
+                <select id="creditType">
+                    <option>Credit Card</option>
+                    <option>Loan</option>
+                    <option>Borrowed</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (€)</label>
+                <input type="number" id="creditAmount" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="creditDate">
+            </div>
+
+        </div>
+
+        <button class="btn" onclick="addCredit()">➕ Add Credit</button>
+
+    </div>
+
+</section>
+
+
+<!-- TRANSACTIONS -->
+<section id="transactions" class="page">
+
+    <h1>📋 Transactions</h1>
+    <p class="subtitle">All your financial records</p>
+
+    <div class="section">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Person</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+
+            <tbody id="transactionTable">
+                <tr>
+                    <td colspan="5" class="empty">
+                        No transactions yet
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- CATEGORIES -->
+<section id="categories" class="page">
+
+    <h1>📁 Categories</h1>
+    <p class="subtitle">Your spending categories</p>
+
+    <div class="categories">
+
+        <div class="category">
+            <div class="category-icon">🍔</div>
+            <h3>Food</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🚗</div>
+            <h3>Transport</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🛍️</div>
+            <h3>Shopping</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🏠</div>
+            <h3>Rent</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">💡</div>
+            <h3>Utilities</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">❤️</div>
+            <h3>Health</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">✈️</div>
+            <h3>Travel</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🎬</div>
+            <h3>Entertainment</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🎓</div>
+            <h3>Education</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">📱</div>
+            <h3>Mobile / Internet</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">💼</div>
+            <h3>Business</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🧾</div>
+            <h3>Bills</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🎁</div>
+            <h3>Gifts</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">🏦</div>
+            <h3>Bank / Fees</h3>
+            <p>€0.00</p>
+        </div>
+
+        <div class="category">
+            <div class="category-icon">📦</div>
+            <h3>Other</h3>
+            <p>€0.00</p>
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<script>
+
+let transactions =
+    JSON.parse(localStorage.getItem("evrTransactions")) || [];
+
+let incomes =
+    JSON.parse(localStorage.getItem("evrIncome")) || [];
+
+let credits =
+    JSON.parse(localStorage.getItem("evrCredit")) || [];
+
+
+function showPage(pageId, button) {
+
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+
+    document.getElementById(pageId).classList.add("active");
+
+    document.querySelectorAll("nav button").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    if(button) {
+        button.classList.add("active");
+    }
+
+    updateDashboard();
+    updateTransactions();
+}
+
+
+function selectPerson(person) {
+
+    document.getElementById("expensePerson").value = person;
+
+    showPage("expenses");
+
+    alert(person + " selected");
+}
+
+
+function addExpense() {
+
+    const amount =
+        parseFloat(document.getElementById("expenseAmount").value);
+
+    if(!amount || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    const item = {
+        date: document.getElementById("expenseDate").value ||
+              new Date().toISOString().split("T")[0],
+
+        person: document.getElementById("expensePerson").value,
+
+        type: "Expense",
+
+        category:
+            document.getElementById("expenseCategory").value,
+
+        amount: amount,
+
+        description:
+            document.getElementById("expenseDescription").value
+    };
+
+    transactions.push(item);
+
+    localStorage.setItem(
+        "evrTransactions",
+        JSON.stringify(transactions)
+    );
+
+    alert("Expense added successfully.");
+
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("expenseDescription").value = "";
+
+    updateDashboard();
+    updateTransactions();
+}
+
+
+function addIncome() {
+
+    const amount =
+        parseFloat(document.getElementById("incomeAmount").value);
+
+    if(!amount || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    const item = {
+
+        date:
+            document.getElementById("incomeDate").value ||
+            new Date().toISOString().split("T")[0],
+
+        person:
+            document.getElementById("incomePerson").value,
+
+        type: "Income",
+
+        category:
+            document.getElementById("incomeType").value,
+
+        amount: amount
+
+    };
+
+    incomes.push(item);
+
+    localStorage.setItem(
+        "evrIncome",
+        JSON.stringify(incomes)
+    );
+
+    alert("Income added successfully.");
+
+    document.getElementById("incomeAmount").value = "";
+
+    updateDashboard();
+    updateTransactions();
+}
+
+
+function addCredit() {
+
+    const amount =
+        parseFloat(document.getElementById("creditAmount").value);
+
+    if(!amount || amount <= 0) {
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    const item = {
+
+        date:
+            document.getElementById("creditDate").value ||
+            new Date().toISOString().split("T")[0],
+
+        person:
+            document.getElementById("creditPerson").value,
+
+        type: "Credit",
+
+        category:
+            document.getElementById("creditType").value,
+
+        amount: amount
+
+    };
+
+    credits.push(item);
+
+    localStorage.setItem(
+        "evrCredit",
+        JSON.stringify(credits)
+    );
+
+    alert("Credit added successfully.");
+
+    document.getElementById("creditAmount").value = "";
+
+    updateDashboard();
+    updateTransactions();
+}
+
+
+function updateDashboard() {
+
+    const totalIncome =
+        incomes.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const totalExpenses =
+        transactions.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const totalCredit =
+        credits.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const balance =
+        totalIncome - totalExpenses;
+
+    document.getElementById("totalIncome").textContent =
+        "€" + totalIncome.toFixed(2);
+
+    document.getElementById("totalExpenses").textContent =
+        "€" + totalExpenses.toFixed(2);
+
+    document.getElementById("totalCredit").textContent =
+        "€" + totalCredit.toFixed(2);
+
+    document.getElementById("balance").textContent =
+        "€" + balance.toFixed(2);
+}
+
+
+function updateTransactions() {
+
+    const table =
+        document.getElementById("transactionTable");
+
+    let all = [];
+
+    incomes.forEach(item => all.push(item));
+
+    transactions.forEach(item => all.push(item));
+
+    credits.forEach(item => all.push(item));
+
+    all.sort((a,b) =>
+        new Date(b.date) - new Date(a.date)
+    );
+
+    if(all.length === 0) {
+
+        table.innerHTML = `
+        <tr>
+            <td colspan="5" class="empty">
+                No transactions yet
+            </td>
+        </tr>`;
+
+        return;
+    }
+
+    table.innerHTML = "";
+
+    all.forEach(item => {
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${item.date}</td>
+            <td>${item.person}</td>
+            <td>${item.type}</td>
+            <td>${item.category}</td>
+            <td>€${Number(item.amount).toFixed(2)}</td>
+        `;
+
+        table.appendChild(row);
+    });
+}
+
+
+document.getElementById("expenseDate").value =
+    new Date().toISOString().split("T")[0];
+
+document.getElementById("incomeDate").value =
+    new Date().toISOString().split("T")[0];
+
+document.getElementById("creditDate").value =
+    new Date().toISOString().split("T")[0];
+
+
+updateDashboard();
+updateTransactions();
+
+</script>
+
+</body>
+</html>
