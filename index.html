@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>EVR Expenses</title>
+
+<!-- PDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -11,112 +14,26 @@
 body{
     margin:0;
     font-family:Arial,Helvetica,sans-serif;
-    background:#f1f4f8;
+    background:#f3f5f8;
     color:#222;
 }
 
-button,input,select{
+button,input,select,textarea{
     font:inherit;
 }
 
 button{
     cursor:pointer;
-}
-
-.hidden{
-    display:none!important;
-}
-
-/* LOGIN */
-#loginScreen{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#111827;
-    padding:20px;
-}
-
-.loginBox{
-    width:100%;
-    max-width:520px;
-    background:white;
-    border-radius:22px;
-    padding:40px;
-    box-shadow:0 20px 60px rgba(0,0,0,.25);
-}
-
-.loginBox h1{
-    text-align:center;
-    margin:0 0 8px;
-    font-size:42px;
-}
-
-.loginBox p{
-    text-align:center;
-    color:#777;
-    margin-bottom:30px;
-}
-
-.formGroup{
-    margin-bottom:18px;
-}
-
-.formGroup label{
-    display:block;
-    font-weight:bold;
-    margin-bottom:8px;
-}
-
-input,select{
-    width:100%;
-    padding:13px 14px;
-    border:1px solid #ccd3dc;
-    border-radius:9px;
-    background:white;
-}
-
-.primary{
-    background:#2563eb;
-    color:white;
     border:0;
-    padding:13px 20px;
-    border-radius:9px;
-    font-weight:bold;
-}
-
-.primary:hover{
-    background:#1d4ed8;
-}
-
-.loginBtn{
-    width:100%;
-    margin-top:5px;
-}
-
-.loginHint{
-    text-align:center;
-    margin-top:20px;
-    color:#777;
-}
-
-.loginHint strong{
-    color:#222;
-}
-
-/* APP */
-#app{
-    min-height:100vh;
 }
 
 .header{
-    background:#111827;
+    background:#101827;
     color:white;
-    padding:18px 28px;
+    padding:18px 30px;
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    gap:15px;
+    align-items:center;
 }
 
 .header h1{
@@ -124,146 +41,193 @@ input,select{
     font-size:28px;
 }
 
-.headerRight{
+.header-right{
     display:flex;
     align-items:center;
     gap:15px;
 }
 
 .logout{
-    background:#ef4444;
+    background:#ef3030;
     color:white;
-    border:0;
+    padding:11px 18px;
     border-radius:8px;
-    padding:10px 17px;
     font-weight:bold;
 }
 
 .nav{
     background:white;
+    padding:14px 20px;
     display:flex;
     gap:8px;
-    padding:14px 20px;
+    flex-wrap:wrap;
     border-bottom:1px solid #ddd;
-    overflow-x:auto;
 }
 
 .nav button{
-    border:0;
-    background:#eef1f5;
-    padding:12px 18px;
-    border-radius:9px;
-    white-space:nowrap;
+    padding:12px 20px;
+    border-radius:10px;
+    background:#f0f2f5;
 }
 
 .nav button.active{
-    background:#2563eb;
+    background:#2867e8;
     color:white;
 }
 
 .container{
+    padding:25px;
     max-width:1600px;
     margin:auto;
-    padding:25px;
 }
 
-.pageTitle{
-    font-size:36px;
-    margin:0 0 25px;
+.page{
+    display:none;
 }
 
-/* CARDS */
+.page.active{
+    display:block;
+}
+
+h2{
+    margin-top:0;
+    font-size:32px;
+}
+
+h3{
+    margin-top:0;
+}
+
 .cards{
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:20px;
+    gap:18px;
     margin-bottom:25px;
 }
 
 .card{
     background:white;
-    border-radius:17px;
-    padding:24px;
-    box-shadow:0 3px 15px rgba(0,0,0,.06);
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
 }
 
-.statTitle{
-    color:#666;
-    margin-bottom:8px;
-}
-
-.statValue{
+.stat{
     font-size:30px;
     font-weight:bold;
+    margin-top:10px;
 }
 
-/* PANELS */
-.panel{
+.blue{border-left:6px solid #2867e8}
+.green{border-left:6px solid #16a34a}
+.orange{border-left:6px solid #f97316}
+.red{border-left:6px solid #ef3030}
+
+.grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+}
+
+.grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+}
+
+.section{
     background:white;
-    border-radius:17px;
+    border-radius:16px;
     padding:25px;
-    margin-bottom:25px;
-    box-shadow:0 3px 15px rgba(0,0,0,.06);
+    margin-bottom:22px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
 }
 
-.panelHeader{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    margin-bottom:20px;
+.btn{
+    background:#2867e8;
+    color:white;
+    padding:11px 18px;
+    border-radius:8px;
+    font-weight:bold;
+    margin:3px;
 }
 
-.panelHeader h2{
-    margin:0;
+.btn.green{
+    background:#16a34a;
+    border:0;
+    color:white;
 }
 
-/* TABLE */
-.tableWrap{
+.btn.red{
+    background:#ef3030;
+    border:0;
+    color:white;
+}
+
+.btn.gray{
+    background:#64748b;
+    color:white;
+}
+
+.btn.orange{
+    background:#f97316;
+    border:0;
+    color:white;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccd2da;
+    border-radius:8px;
+    background:white;
+}
+
+textarea{
+    min-height:80px;
+    resize:vertical;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.table-wrap{
     overflow-x:auto;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
+    margin-top:15px;
 }
 
 th,td{
     padding:12px 10px;
-    border-bottom:1px solid #e5e7eb;
+    border-bottom:1px solid #e4e7eb;
     text-align:left;
     white-space:nowrap;
 }
 
 th{
-    background:#f8fafc;
+    background:#f4f6f8;
 }
 
-.actionBtn{
-    border:0;
-    border-radius:7px;
-    padding:7px 10px;
-    margin-right:5px;
-}
-
-.editBtn{
-    background:#facc15;
-}
-
-.deleteBtn{
-    background:#ef4444;
-    color:white;
-}
-
-.smallBtn{
-    padding:8px 12px;
-}
-
-/* BADGES */
 .badge{
-    display:inline-block;
     padding:5px 9px;
-    border-radius:20px;
+    border-radius:15px;
     font-size:12px;
     font-weight:bold;
 }
@@ -283,145 +247,132 @@ th{
     color:#991b1b;
 }
 
-/* GRID */
-.grid2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
-.grid3{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-}
-
-/* MODAL */
 .modal{
+    display:none;
     position:fixed;
+    z-index:1000;
     inset:0;
     background:rgba(0,0,0,.65);
+    padding:20px;
+    overflow:auto;
+}
+
+.modal-box{
+    max-width:850px;
+    margin:30px auto;
+    background:white;
+    border-radius:15px;
+    padding:28px;
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.close{
+    background:#eee;
+    border-radius:50%;
+    width:38px;
+    height:38px;
+    font-size:22px;
+}
+
+.login{
+    min-height:100vh;
+    background:linear-gradient(135deg,#101827,#29364e);
     display:flex;
     align-items:center;
     justify-content:center;
     padding:20px;
-    z-index:1000;
 }
 
-.modalBox{
+.login-box{
     width:100%;
-    max-width:850px;
-    max-height:90vh;
-    overflow-y:auto;
+    max-width:540px;
     background:white;
-    border-radius:18px;
-    padding:30px;
+    border-radius:22px;
+    padding:45px;
+    box-shadow:0 15px 50px rgba(0,0,0,.25);
 }
 
-.modalHeader{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
+.login-box h1{
+    text-align:center;
+    font-size:40px;
+    margin-bottom:5px;
 }
 
-.modalHeader h2{
-    margin:0;
+.login-box p{
+    text-align:center;
+    color:#687386;
 }
 
-.closeBtn{
-    width:40px;
-    height:40px;
-    border:0;
-    border-radius:50%;
-    background:#eee;
-    font-size:22px;
-}
-
-.formGrid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:18px;
-}
-
-.formFull{
-    grid-column:1/-1;
-}
-
-.formActions{
-    margin-top:25px;
-    display:flex;
-    gap:10px;
-}
-
-/* TOOLBAR */
-.toolbar{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:20px;
-}
-
-.toolbar input,
-.toolbar select{
-    max-width:230px;
-}
-
-/* REPORT */
-.reportBox{
-    background:#f8fafc;
-    border-radius:12px;
-    padding:20px;
-}
-
-.reportNumber{
-    font-size:28px;
+.login-btn{
+    width:100%;
+    padding:14px;
+    background:#2867e8;
+    color:white;
+    border-radius:9px;
     font-weight:bold;
+    font-size:17px;
 }
 
-/* CURRENCY */
-.currencyBox{
-    max-width:700px;
-}
-
-.rateBox{
-    background:#eff6ff;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
+.login-note{
+    text-align:center;
+    margin-top:20px;
+    color:#687386;
 }
 
 .converter{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:20px;
+    gap:15px;
 }
 
-.result{
-    margin-top:20px;
+.rate{
     font-size:28px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+.toolbar{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+.search{
+    max-width:350px;
+}
+
+.empty{
+    color:#687386;
+    padding:25px 0;
+    text-align:center;
+}
+
+.danger-text{
+    color:#b91c1c;
     font-weight:bold;
 }
 
-/* EMPTY */
-.empty{
-    text-align:center;
-    color:#777;
-    padding:35px;
+.success-text{
+    color:#15803d;
+    font-weight:bold;
 }
 
-/* MOBILE */
-@media(max-width:900px){
+@media(max-width:1000px){
     .cards{
         grid-template-columns:repeat(2,1fr);
     }
-
     .grid3{
-        grid-template-columns:1fr;
+        grid-template-columns:1fr 1fr;
     }
 }
 
-@media(max-width:650px){
+@media(max-width:700px){
     .header{
         padding:15px;
     }
@@ -434,26 +385,20 @@ th{
         padding:15px;
     }
 
-    .cards{
-        grid-template-columns:1fr;
-    }
-
+    .cards,
     .grid2,
-    .formGrid,
+    .grid3,
+    .form-grid,
     .converter{
         grid-template-columns:1fr;
     }
 
-    .formFull{
-        grid-column:auto;
-    }
-
-    .pageTitle{
-        font-size:28px;
-    }
-
-    .loginBox{
+    .login-box{
         padding:25px;
+    }
+
+    .login-box h1{
+        font-size:30px;
     }
 }
 </style>
@@ -462,883 +407,620 @@ th{
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen">
+<div id="loginPage" class="login">
+<div class="login-box">
+    <h1>EVR Expenses</h1>
+    <p>Expense & Transaction Manager</p>
 
-    <div class="loginBox">
-
-        <h1>EVR Expenses</h1>
-
-        <p>Expense & Transaction Manager</p>
-
-        <div class="formGroup">
-            <label>Username</label>
-            <input id="loginUsername"
-                   type="text"
-                   placeholder="Username">
-        </div>
-
-        <div class="formGroup">
-            <label>Password</label>
-            <input id="loginPassword"
-                   type="password"
-                   placeholder="Password">
-        </div>
-
-        <button class="primary loginBtn"
-                onclick="login()">
-            Login
-        </button>
-
-        <div class="loginHint">
-            Default login:
-            <strong>admin / admin123</strong>
-        </div>
-
+    <div class="form-group">
+        <label>Username</label>
+        <input id="loginUser" placeholder="Username">
     </div>
+
+    <div class="form-group">
+        <label>Password</label>
+        <input id="loginPass" type="password" placeholder="Password">
+    </div>
+
+    <button class="login-btn" onclick="login()">Login</button>
+
+    <div class="login-note">
+        Default login: <b>admin</b> / <b>admin123</b>
+    </div>
+
+    <div id="loginError" class="danger-text" style="text-align:center;margin-top:12px"></div>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<header class="header">
+    <h1>EVR Expenses</h1>
+    <div class="header-right">
+        <span id="currentUser">admin</span>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<nav class="nav">
+    <button onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</button>
+    <button onclick="showPage('expenses')" id="nav-expenses">Expenses</button>
+    <button onclick="showPage('upcoming')" id="nav-upcoming">Upcoming</button>
+    <button onclick="showPage('people')" id="nav-people">People</button>
+    <button onclick="showPage('categories')" id="nav-categories">Categories</button>
+    <button onclick="showPage('reports')" id="nav-reports">Reports</button>
+    <button onclick="showPage('currency')" id="nav-currency">Currency</button>
+    <button onclick="showPage('backup')" id="nav-backup">Backup / Export</button>
+</nav>
+
+<main class="container">
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page">
+
+<h2>Dashboard</h2>
+
+<div class="cards">
+
+<div class="card blue">
+    <div>Total Expenses</div>
+    <div class="stat" id="dashTotal">₹0.00</div>
+</div>
+
+<div class="card green">
+    <div>People</div>
+    <div class="stat" id="dashPeople">0</div>
+</div>
+
+<div class="card orange">
+    <div>Upcoming</div>
+    <div class="stat" id="dashUpcoming">0</div>
+</div>
+
+<div class="card red">
+    <div>Overdue</div>
+    <div class="stat" id="dashOverdue">0</div>
+</div>
 
 </div>
 
+<div class="grid2">
 
-<!-- APP -->
-<div id="app" class="hidden">
+<div class="section">
+    <h3>Recent Transactions</h3>
+    <button class="btn" onclick="openExpenseModal()">+ Add Expense</button>
+    <div id="recentTransactions"></div>
+</div>
 
-<header class="header">
+<div class="section">
+    <h3>Upcoming Expenses</h3>
+    <div id="dashboardUpcoming"></div>
+</div>
 
-    <h1>EVR Expenses</h1>
+</div>
 
-    <div class="headerRight">
-        <span id="loggedUser">admin</span>
-        <button class="logout"
-                onclick="logout()">
-            Logout
-        </button>
-    </div>
-
-</header>
-
-
-<nav class="nav">
-
-    <button onclick="showPage('dashboard')" id="nav-dashboard">
-        Dashboard
-    </button>
-
-    <button onclick="showPage('expenses')" id="nav-expenses">
-        Expenses
-    </button>
-
-    <button onclick="showPage('upcoming')" id="nav-upcoming">
-        Upcoming
-    </button>
-
-    <button onclick="showPage('people')" id="nav-people">
-        People
-    </button>
-
-    <button onclick="showPage('categories')" id="nav-categories">
-        Categories
-    </button>
-
-    <button onclick="showPage('reports')" id="nav-reports">
-        Reports
-    </button>
-
-    <button onclick="showPage('currency')" id="nav-currency">
-        Currency
-    </button>
-
-    <button onclick="showPage('backup')" id="nav-backup">
-        Backup / Export
-    </button>
-
-</nav>
-
-
-<div class="container">
-
-
-<!-- DASHBOARD -->
-<section id="page-dashboard">
-
-    <h1 class="pageTitle">Dashboard</h1>
-
-    <div class="cards">
-
-        <div class="card">
-            <div class="statTitle">
-                Total Expenses
-            </div>
-            <div class="statValue"
-                 id="dashTotal">
-                ₹0
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="statTitle">
-                People
-            </div>
-            <div class="statValue"
-                 id="dashPeople">
-                0
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="statTitle">
-                Upcoming
-            </div>
-            <div class="statValue"
-                 id="dashUpcoming">
-                0
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="statTitle">
-                Overdue
-            </div>
-            <div class="statValue"
-                 id="dashOverdue">
-                0
-            </div>
-        </div>
-
-    </div>
-
-
-    <div class="grid2">
-
-        <div class="panel">
-
-            <div class="panelHeader">
-                <h2>Recent Transactions</h2>
-
-                <button class="primary"
-                        onclick="openExpenseModal()">
-                    + Add Expense
-                </button>
-            </div>
-
-            <div id="recentTransactions"></div>
-
-        </div>
-
-
-        <div class="panel">
-
-            <div class="panelHeader">
-                <h2>Upcoming Expenses</h2>
-            </div>
-
-            <div id="dashboardUpcoming"></div>
-
-        </div>
-
-    </div>
-
-
-    <div class="panel">
-
-        <div class="panelHeader">
-            <h2>Live Currency Rate</h2>
-
-            <button class="primary smallBtn"
-                    onclick="getLiveRate()">
-                Refresh Rate
-            </button>
-        </div>
-
-        <div class="rateBox">
-
-            <div id="dashboardRate">
-                Loading EUR/INR rate...
-            </div>
-
-            <small>
-                Rate is retrieved from the online exchange-rate service.
-            </small>
-
-        </div>
-
-    </div>
+<div class="section">
+    <h3>Expense Summary</h3>
+    <div id="dashboardSummary"></div>
+</div>
 
 </section>
 
 
 <!-- EXPENSES -->
-<section id="page-expenses" class="hidden">
+<section id="expenses" class="page">
 
-    <h1 class="pageTitle">Expenses</h1>
+<h2>Expenses</h2>
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<div class="toolbar">
+<button class="btn" onclick="openExpenseModal()">+ Add Expense</button>
+<input class="search" id="expenseSearch" placeholder="Search expenses..." oninput="renderExpenses()">
+</div>
 
-            <h2>All Expenses</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Expense</th>
+<th>Amount</th>
+<th>Category</th>
+<th>Person</th>
+<th>Payment</th>
+<th>Status</th>
+<th>Due Date</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="expenseTable"></tbody>
+</table>
+</div>
 
-            <button class="primary"
-                    onclick="openExpenseModal()">
-                + Add Expense
-            </button>
-
-        </div>
-
-
-        <div class="toolbar">
-
-            <input id="expenseSearch"
-                   placeholder="Search expenses..."
-                   oninput="renderExpenses()">
-
-            <select id="expensePersonFilter"
-                    onchange="renderExpenses()">
-                <option value="">All People</option>
-            </select>
-
-            <select id="expenseCategoryFilter"
-                    onchange="renderExpenses()">
-                <option value="">All Categories</option>
-            </select>
-
-            <select id="expenseStatusFilter"
-                    onchange="renderExpenses()">
-                <option value="">All Status</option>
-                <option value="Paid">Paid</option>
-                <option value="Pending">Pending</option>
-            </select>
-
-        </div>
-
-
-        <div class="tableWrap">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Expense</th>
-                        <th>Category</th>
-                        <th>Person</th>
-                        <th>Amount</th>
-                        <th>Payment Mode</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody id="expenseTable"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
+</div>
 </section>
 
 
 <!-- UPCOMING -->
-<section id="page-upcoming" class="hidden">
+<section id="upcoming" class="page">
 
-    <h1 class="pageTitle">Upcoming Expenses</h1>
+<h2>Upcoming Expenses</h2>
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<div class="cards">
+<div class="card orange">
+<div>Upcoming</div>
+<div class="stat" id="upcomingCount">0</div>
+</div>
 
-            <h2>Upcoming & Due Payments</h2>
+<div class="card red">
+<div>Overdue</div>
+<div class="stat" id="overdueCount">0</div>
+</div>
 
-            <button class="primary"
-                    onclick="openExpenseModal(true)">
-                + Add Upcoming Expense
-            </button>
+<div class="card green">
+<div>Upcoming Amount</div>
+<div class="stat" id="upcomingAmount">₹0</div>
+</div>
 
-        </div>
+</div>
 
-        <div class="tableWrap">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Due Date</th>
+<th>Expense</th>
+<th>Amount</th>
+<th>Person</th>
+<th>Category</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="upcomingTable"></tbody>
+</table>
+</div>
 
-            <table>
+<br>
 
-                <thead>
-                    <tr>
-                        <th>Expense</th>
-                        <th>Person</th>
-                        <th>Category</th>
-                        <th>Amount</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+<button class="btn orange" onclick="pdfUpcoming()">Save Upcoming Expenses PDF</button>
 
-                <tbody id="upcomingTable"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
+</div>
 </section>
 
 
 <!-- PEOPLE -->
-<section id="page-people" class="hidden">
+<section id="people" class="page">
 
-    <h1 class="pageTitle">People</h1>
+<h2>People</h2>
 
-    <div class="panel">
+<div class="grid2">
 
-        <div class="panelHeader">
+<div class="section">
+<h3>Add Person</h3>
 
-            <h2>People</h2>
+<div class="form-group">
+<label>Person Name</label>
+<input id="newPerson" placeholder="Example: John">
+</div>
 
-            <button class="primary"
-                    onclick="addPerson()">
-                + Add Person
-            </button>
+<button class="btn" onclick="addPerson()">Add Person</button>
+</div>
 
-        </div>
+<div class="section">
+<h3>People List</h3>
+<div id="peopleList"></div>
+</div>
 
-        <div id="peopleList"></div>
-
-    </div>
+</div>
 
 </section>
 
 
 <!-- CATEGORIES -->
-<section id="page-categories" class="hidden">
+<section id="categories" class="page">
 
-    <h1 class="pageTitle">Categories</h1>
+<h2>Categories</h2>
 
-    <div class="panel">
+<div class="grid2">
 
-        <div class="panelHeader">
+<div class="section">
+<h3>Add Category</h3>
 
-            <h2>Expense Categories</h2>
+<div class="form-group">
+<label>Category Name</label>
+<input id="newCategory" placeholder="Example: Travel">
+</div>
 
-            <button class="primary"
-                    onclick="addCategory()">
-                + Add Category
-            </button>
+<button class="btn" onclick="addCategory()">Add Category</button>
+</div>
 
-        </div>
+<div class="section">
+<h3>Category List</h3>
+<div id="categoryList"></div>
+</div>
 
-        <div id="categoryList"></div>
-
-    </div>
+</div>
 
 </section>
 
 
 <!-- REPORTS -->
-<section id="page-reports" class="hidden">
+<section id="reports" class="page">
 
-    <h1 class="pageTitle">Reports</h1>
+<h2>Reports</h2>
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<h3>Expense Summary</h3>
 
-            <h2>Expense Summary</h2>
+<div class="cards">
 
-        </div>
+<div class="card blue">
+<div>Total Expenses</div>
+<div class="stat" id="reportTotal">₹0</div>
+</div>
 
-        <div class="cards">
+<div class="card green">
+<div>Number of Expenses</div>
+<div class="stat" id="reportCount">0</div>
+</div>
 
-            <div class="card">
-                <div class="statTitle">
-                    Total Expenses
-                </div>
-                <div class="statValue"
-                     id="reportTotal">
-                    ₹0
-                </div>
-            </div>
+<div class="card orange">
+<div>Average Expense</div>
+<div class="stat" id="reportAverage">₹0</div>
+</div>
 
-            <div class="card">
-                <div class="statTitle">
-                    Number of Expenses
-                </div>
-                <div class="statValue"
-                     id="reportCount">
-                    0
-                </div>
-            </div>
+<div class="card red">
+<div>Pending</div>
+<div class="stat" id="reportPending">₹0</div>
+</div>
 
-            <div class="card">
-                <div class="statTitle">
-                    Average Expense
-                </div>
-                <div class="statValue"
-                     id="reportAverage">
-                    ₹0
-                </div>
-            </div>
+</div>
 
-            <div class="card">
-                <div class="statTitle">
-                    Pending
-                </div>
-                <div class="statValue"
-                     id="reportPending">
-                    ₹0
-                </div>
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 
-    <div class="panel">
+<div class="section">
 
-        <h2>Daily / Monthly / Yearly</h2>
+<h3>Report Period</h3>
 
-        <div class="toolbar">
+<div class="toolbar">
+<button class="btn" onclick="reportPeriod('daily')">Daily</button>
+<button class="btn" onclick="reportPeriod('monthly')">Monthly</button>
+<button class="btn" onclick="reportPeriod('yearly')">Yearly</button>
+<button class="btn gray" onclick="reportPeriod('all')">All</button>
+</div>
 
-            <select id="reportPeriod"
-                    onchange="renderReports()">
+<div id="periodReport"></div>
 
-                <option value="day">
-                    Today
-                </option>
+<br>
 
-                <option value="month">
-                    This Month
-                </option>
+<button class="btn orange" onclick="pdfCurrentReport()">Save Current Report PDF</button>
 
-                <option value="year">
-                    This Year
-                </option>
-
-                <option value="all">
-                    All Time
-                </option>
-
-            </select>
-
-        </div>
-
-        <div id="periodReport"></div>
-
-    </div>
+</div>
 
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<h3>Individual Person Report</h3>
 
-            <h2>Expenses By Category</h2>
+<div class="form-grid">
 
-        </div>
+<div>
+<label>Select Person</label>
+<select id="personReportSelect" onchange="renderPersonReport()"></select>
+</div>
 
-        <div id="categoryReport"></div>
+<div>
+<label>Period</label>
+<select id="personPeriod" onchange="renderPersonReport()">
+<option value="all">All Time</option>
+<option value="daily">Daily</option>
+<option value="monthly">Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
+</div>
 
-    </div>
+</div>
+
+<div id="personReport"></div>
+
+<br>
+
+<button class="btn green" onclick="pdfPerson()">Save Person PDF</button>
+
+</div>
 
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<h3>Category Report</h3>
 
-            <h2>Expenses By Person</h2>
+<select id="categoryReportSelect" onchange="renderCategoryReport()"></select>
 
-        </div>
+<div id="categoryReport"></div>
 
-        <div id="personReport"></div>
+<br>
 
-    </div>
+<button class="btn green" onclick="pdfCategory()">Save Category PDF</button>
+
+</div>
 
 
-    <div class="panel">
+<div class="section">
 
-        <div class="panelHeader">
+<h3>Payment Mode Report</h3>
 
-            <h2>Individual Person Report</h2>
+<div id="paymentReport"></div>
 
-        </div>
-
-        <div class="toolbar">
-
-            <select id="individualPerson"
-                    onchange="renderIndividualPerson()">
-            </select>
-
-            <button class="primary"
-                    onclick="exportIndividualPerson()">
-                Export Person Report
-            </button>
-
-        </div>
-
-        <div id="individualPersonReport"></div>
-
-    </div>
+</div>
 
 </section>
 
 
 <!-- CURRENCY -->
-<section id="page-currency" class="hidden">
+<section id="currency" class="page">
 
-    <h1 class="pageTitle">Currency</h1>
+<h2>Currency</h2>
 
-    <div class="panel currencyBox">
+<div class="section">
 
-        <h2>Live EUR / INR Rate</h2>
+<h3>Live EUR / INR Exchange Rate</h3>
 
-        <div class="rateBox">
+<div class="rate" id="liveRate">Loading...</div>
 
-            <div id="liveRateText">
-                Loading live rate...
-            </div>
+<div id="rateTime"></div>
 
-            <button class="primary"
-                    onclick="getLiveRate()">
-                Refresh Live Rate
-            </button>
+<br>
 
-        </div>
+<button class="btn" onclick="loadRate()">Refresh Live Rate</button>
+
+</div>
 
 
-        <h2>Currency Converter</h2>
+<div class="section">
 
-        <div class="converter">
+<h3>Currency Converter</h3>
 
-            <div class="formGroup">
+<div class="converter">
 
-                <label>From</label>
+<div>
+<label>From</label>
+<select id="fromCurrency">
+<option value="EUR">EUR (€)</option>
+<option value="INR">INR (₹)</option>
+</select>
+</div>
 
-                <select id="currencyFrom"
-                        onchange="convertCurrency()">
+<div>
+<label>To</label>
+<select id="toCurrency">
+<option value="INR">INR (₹)</option>
+<option value="EUR">EUR (€)</option>
+</select>
+</div>
 
-                    <option value="EUR">
-                        EUR - Euro
-                    </option>
+</div>
 
-                    <option value="INR">
-                        INR - Indian Rupee
-                    </option>
+<br>
 
-                </select>
+<div class="form-group">
+<label>Amount</label>
+<input type="number" id="convertAmount" value="1" min="0" step="0.01">
+</div>
 
-            </div>
+<button class="btn" onclick="convertCurrency()">Convert</button>
 
+<div class="section" style="margin-top:20px;background:#f5f7fa">
+<h3 id="conversionResult">Result</h3>
+</div>
 
-            <div class="formGroup">
-
-                <label>To</label>
-
-                <select id="currencyTo"
-                        onchange="convertCurrency()">
-
-                    <option value="INR">
-                        INR - Indian Rupee
-                    </option>
-
-                    <option value="EUR">
-                        EUR - Euro
-                    </option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-
-        <div class="formGroup">
-
-            <label>Amount</label>
-
-            <input id="currencyAmount"
-                   type="number"
-                   value="1"
-                   oninput="convertCurrency()">
-
-        </div>
-
-
-        <div class="result"
-             id="currencyResult">
-            —
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
 <!-- BACKUP -->
-<section id="page-backup" class="hidden">
+<section id="backup" class="page">
 
-    <h1 class="pageTitle">Backup / Export</h1>
+<h2>Backup / Export</h2>
 
-    <div class="grid2">
+<div class="grid2">
 
-        <div class="panel">
+<div class="section">
+<h3>Export Complete Data</h3>
+<p>Save all expenses, people and categories as JSON.</p>
+<button class="btn" onclick="exportJSON()">Export All Data</button>
+</div>
 
-            <h2>Export Data</h2>
+<div class="section">
+<h3>Import Data</h3>
+<p>Restore a previously saved JSON backup.</p>
 
-            <p>
-                Save your complete expense database as a JSON file.
-            </p>
+<input type="file" id="importFile" accept=".json">
 
-            <button class="primary"
-                    onclick="exportAllData()">
-                Export All Data
-            </button>
+<br><br>
 
-        </div>
+<button class="btn" onclick="importJSON()">Import Data</button>
+</div>
 
-
-        <div class="panel">
-
-            <h2>Import Data</h2>
-
-            <p>
-                Restore previously exported EVR Expenses data.
-            </p>
-
-            <input type="file"
-                   id="importFile"
-                   accept=".json">
-
-            <br><br>
-
-            <button class="primary"
-                    onclick="importData()">
-                Import Data
-            </button>
-
-        </div>
+</div>
 
 
-        <div class="panel">
+<div class="grid2">
 
-            <h2>Export Expenses CSV</h2>
+<div class="section">
+<h3>Export Expenses CSV</h3>
+<p>Export expenses in spreadsheet-compatible format.</p>
+<button class="btn" onclick="exportCSV()">Export CSV</button>
+</div>
 
-            <p>
-                Export expenses in spreadsheet-compatible CSV format.
-            </p>
+<div class="section">
+<h3>PDF Export</h3>
+<p>Save your complete expense database as PDF.</p>
 
-            <button class="primary"
-                    onclick="exportCSV()">
-                Export CSV
-            </button>
+<button class="btn green" onclick="pdfAll()">Save All Expenses PDF</button>
 
-        </div>
+<br><br>
+
+<button class="btn orange" onclick="pdfUpcoming()">Save Upcoming Expenses PDF</button>
+
+</div>
+
+</div>
 
 
-        <div class="panel">
+<div class="section">
 
-            <h2>Clear All Data</h2>
+<h3>PDF Reports</h3>
 
-            <p>
-                Permanently remove all expenses, people and categories
-                from this browser.
-            </p>
+<div class="grid3">
 
-            <button class="deleteBtn actionBtn"
-                    onclick="clearAllData()">
-                Clear All Data
-            </button>
+<div>
+<label>Person</label>
+<select id="pdfPersonSelect"></select>
+<button class="btn green" onclick="pdfPerson()">Person PDF</button>
+</div>
 
-        </div>
+<div>
+<label>Category</label>
+<select id="pdfCategorySelect"></select>
+<button class="btn green" onclick="pdfCategory()">Category PDF</button>
+</div>
 
-    </div>
+<div>
+<label>Period</label>
+<select id="pdfPeriod">
+<option value="all">All</option>
+<option value="daily">Daily</option>
+<option value="monthly">Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
+<button class="btn green" onclick="pdfSelectedPeriod()">Period PDF</button>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<h3>Clear All Data</h3>
+<p class="danger-text">
+This permanently removes expenses, people and categories from this browser.
+</p>
+
+<button class="btn red" onclick="clearAllData()">Clear All Data</button>
+
+</div>
 
 </section>
 
-</div>
+</main>
 </div>
 
 
 <!-- EXPENSE MODAL -->
-<div id="expenseModal"
-     class="modal hidden">
-
-    <div class="modalBox">
-
-        <div class="modalHeader">
-
-            <h2 id="expenseModalTitle">
-                Add Expense
-            </h2>
-
-            <button class="closeBtn"
-                    onclick="closeExpenseModal()">
-                ×
-            </button>
-
-        </div>
-
-
-        <input type="hidden"
-               id="editExpenseId">
-
-
-        <div class="formGrid">
-
-            <div class="formGroup">
-
-                <label>Expense Name</label>
-
-                <input id="expenseName"
-                       placeholder="Example: Rent">
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Amount (₹ INR)</label>
-
-                <input id="expenseAmount"
-                       type="number"
-                       min="0"
-                       step="0.01"
-                       placeholder="10000">
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Category</label>
-
-                <select id="expenseCategory"></select>
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Person</label>
-
-                <select id="expensePerson"></select>
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Expense Date</label>
-
-                <input id="expenseDate"
-                       type="date">
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Due Date</label>
-
-                <input id="expenseDueDate"
-                       type="date">
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Status</label>
-
-                <select id="expenseStatus">
-
-                    <option value="Paid">
-                        Paid
-                    </option>
-
-                    <option value="Pending">
-                        Pending
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="formGroup">
-
-                <label>Payment Mode</label>
-
-                <select id="expensePaymentMode">
-
-                    <option>Cash</option>
-                    <option>Bank Transfer</option>
-                    <option>Credit Card</option>
-                    <option>Debit Card</option>
-                    <option>UPI</option>
-                    <option>PayPal</option>
-                    <option>Direct Debit</option>
-                    <option>Other</option>
-
-                </select>
-
-            </div>
-
-
-            <div class="formGroup formFull">
-
-                <label>Notes</label>
-
-                <input id="expenseNotes"
-                       placeholder="Optional">
-
-            </div>
-
-        </div>
-
-
-        <div class="formActions">
-
-            <button class="primary"
-                    onclick="saveExpense()">
-                Save Expense
-            </button>
-
-            <button class="actionBtn"
-                    onclick="closeExpenseModal()">
-                Cancel
-            </button>
-
-        </div>
-
-    </div>
-
+<div id="expenseModal" class="modal">
+
+<div class="modal-box">
+
+<div class="modal-head">
+<h2 id="modalTitle">Add Expense</h2>
+<button class="close" onclick="closeExpenseModal()">×</button>
+</div>
+
+<input type="hidden" id="editExpenseId">
+
+<div class="form-grid">
+
+<div class="form-group">
+<label>Expense Name</label>
+<input id="expenseName" placeholder="Example: Rent">
+</div>
+
+<div class="form-group">
+<label>Amount (₹ INR)</label>
+<input id="expenseAmount" type="number" min="0" step="0.01" placeholder="10000">
+</div>
+
+<div class="form-group">
+<label>Category</label>
+<select id="expenseCategory"></select>
+</div>
+
+<div class="form-group">
+<label>Person</label>
+<select id="expensePerson"></select>
+</div>
+
+<div class="form-group">
+<label>Expense Date</label>
+<input id="expenseDate" type="date">
+</div>
+
+<div class="form-group">
+<label>Due Date</label>
+<input id="expenseDueDate" type="date">
+</div>
+
+<div class="form-group">
+<label>Status</label>
+<select id="expenseStatus">
+<option value="Paid">Paid</option>
+<option value="Pending">Pending</option>
+<option value="Overdue">Overdue</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Payment Mode</label>
+<select id="expensePayment">
+<option>Cash</option>
+<option>Bank Transfer</option>
+<option>Credit Card</option>
+<option>Debit Card</option>
+<option>UPI</option>
+<option>PayPal</option>
+<option>Direct Debit</option>
+<option>Other</option>
+</select>
+</div>
+
+<div class="form-group" style="grid-column:1/-1">
+<label>Notes</label>
+<textarea id="expenseNotes" placeholder="Optional"></textarea>
+</div>
+
+</div>
+
+<button class="btn" onclick="saveExpense()">Save Expense</button>
+
+</div>
 </div>
 
 
 <script>
-
 /* =========================
-   DATABASE
+   DATA
 ========================= */
 
-const STORAGE_KEY = "EVR_EXPENSES_DATABASE_V1";
+let expenses = JSON.parse(localStorage.getItem("evr_expenses") || "[]");
 
-let db = {
-    expenses: [],
-    people: ["Myself"],
-    categories: [
-        "Food",
-        "Rent",
-        "Travel",
-        "Shopping",
-        "Bills",
-        "Medical",
-        "Business",
-        "Education",
-        "Other"
-    ]
-};
+let people = JSON.parse(localStorage.getItem("evr_people") || '["Me"]');
+
+let categories = JSON.parse(
+    localStorage.getItem("evr_categories") ||
+    '["Food","Travel","Rent","Utilities","Shopping","Medical","Bills","Other"]'
+);
+
+let liveRate = 100;
+let currentReportMode = "all";
 
 
 /* =========================
@@ -1347,238 +1029,1887 @@ let db = {
 
 function login(){
 
-    const username =
-        document.getElementById("loginUsername").value.trim();
+    const user=document.getElementById("loginUser").value.trim();
+    const pass=document.getElementById("loginPass").value;
 
-    const password =
-        document.getElementById("loginPassword").value;
+    if(user==="admin" && pass==="admin123"){
 
-    if(username === "admin" && password === "admin123"){
+        localStorage.setItem("evr_logged","1");
 
-        sessionStorage.setItem("evrLoggedIn","yes");
+        document.getElementById("loginPage").style.display="none";
+        document.getElementById("app").style.display="block";
 
-        document
-            .getElementById("loginScreen")
-            .classList.add("hidden");
+        document.getElementById("currentUser").textContent=user;
 
-        document
-            .getElementById("app")
-            .classList.remove("hidden");
-
-        initApp();
+        initialize();
 
     }else{
 
-        alert("Incorrect username or password.");
+        document.getElementById("loginError").textContent=
+        "Invalid username or password.";
 
     }
 }
 
-
 function logout(){
 
-    sessionStorage.removeItem("evrLoggedIn");
+    localStorage.removeItem("evr_logged");
 
-    location.reload();
+    document.getElementById("app").style.display="none";
+    document.getElementById("loginPage").style.display="flex";
+
+    document.getElementById("loginUser").value="";
+    document.getElementById("loginPass").value="";
+}
+
+document.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter" &&
+       document.getElementById("loginPage").style.display!=="none"){
+
+        login();
+
+    }
+
+});
+
+
+/* =========================
+   INITIALIZE
+========================= */
+
+function initialize(){
+
+    saveData();
+
+    showPage("dashboard");
+
+    renderAll();
+
+    loadRate();
 
 }
 
 
 /* =========================
-   DATABASE LOAD / SAVE
+   STORAGE
 ========================= */
 
-function loadDatabase(){
+function saveData(){
 
-    const saved =
-        localStorage.getItem(STORAGE_KEY);
+    localStorage.setItem(
+        "evr_expenses",
+        JSON.stringify(expenses)
+    );
 
-    if(saved){
+    localStorage.setItem(
+        "evr_people",
+        JSON.stringify(people)
+    );
 
-        try{
+    localStorage.setItem(
+        "evr_categories",
+        JSON.stringify(categories)
+    );
+}
 
-            db = JSON.parse(saved);
 
-        }catch(e){
+/* =========================
+   PAGE NAVIGATION
+========================= */
 
-            console.error(e);
+function showPage(page){
+
+    document.querySelectorAll(".page").forEach(p=>{
+        p.classList.remove("active");
+    });
+
+    document.querySelectorAll(".nav button").forEach(b=>{
+        b.classList.remove("active");
+    });
+
+    document.getElementById(page).classList.add("active");
+
+    const nav=document.getElementById("nav-"+page);
+
+    if(nav) nav.classList.add("active");
+
+    renderAll();
+
+}
+
+
+/* =========================
+   UTILITIES
+========================= */
+
+function money(value){
+
+    return "₹"+Number(value||0).toLocaleString(
+        "en-IN",
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+    );
+
+}
+
+function today(){
+
+    return new Date().toISOString().split("T")[0];
+
+}
+
+function formatDate(date){
+
+    if(!date) return "-";
+
+    const d=new Date(date+"T00:00:00");
+
+    return d.toLocaleDateString("en-GB");
+
+}
+
+function escapeHTML(str){
+
+    return String(str||"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+function statusClass(status){
+
+    if(status==="Paid") return "paid";
+
+    if(status==="Pending") return "pending";
+
+    return "overdue";
+
+}
+
+function getEffectiveStatus(e){
+
+    if(e.status==="Paid") return "Paid";
+
+    if(e.dueDate && e.dueDate<today()) return "Overdue";
+
+    return e.status || "Pending";
+
+}
+
+
+/* =========================
+   PEOPLE
+========================= */
+
+function addPerson(){
+
+    const input=document.getElementById("newPerson");
+
+    const name=input.value.trim();
+
+    if(!name){
+        alert("Enter a person name.");
+        return;
+    }
+
+    if(people.some(p=>p.toLowerCase()===name.toLowerCase())){
+
+        alert("This person already exists.");
+        return;
+
+    }
+
+    people.push(name);
+
+    input.value="";
+
+    saveData();
+
+    renderAll();
+
+}
+
+function deletePerson(index){
+
+    const name=people[index];
+
+    const used=expenses.some(e=>e.person===name);
+
+    if(used){
+
+        if(!confirm(
+            "This person is used by existing expenses. Delete anyway?"
+        )) return;
+
+    }
+
+    people.splice(index,1);
+
+    if(people.length===0) people.push("Me");
+
+    saveData();
+
+    renderAll();
+
+}
+
+function renderPeople(){
+
+    const box=document.getElementById("peopleList");
+
+    if(!people.length){
+
+        box.innerHTML='<div class="empty">No people.</div>';
+        return;
+
+    }
+
+    box.innerHTML=people.map((p,i)=>`
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:12px;
+            border-bottom:1px solid #ddd
+        ">
+
+            <b>${escapeHTML(p)}</b>
+
+            <button
+                class="btn red"
+                onclick="deletePerson(${i})">
+                Delete
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   CATEGORIES
+========================= */
+
+function addCategory(){
+
+    const input=document.getElementById("newCategory");
+
+    const name=input.value.trim();
+
+    if(!name){
+
+        alert("Enter a category name.");
+        return;
+
+    }
+
+    if(categories.some(
+        c=>c.toLowerCase()===name.toLowerCase()
+    )){
+
+        alert("This category already exists.");
+        return;
+
+    }
+
+    categories.push(name);
+
+    input.value="";
+
+    saveData();
+
+    renderAll();
+
+}
+
+function deleteCategory(index){
+
+    const name=categories[index];
+
+    const used=expenses.some(e=>e.category===name);
+
+    if(used){
+
+        if(!confirm(
+            "This category is used by existing expenses. Delete anyway?"
+        )) return;
+
+    }
+
+    categories.splice(index,1);
+
+    if(categories.length===0){
+
+        categories.push("Other");
+
+    }
+
+    saveData();
+
+    renderAll();
+
+}
+
+function renderCategories(){
+
+    const box=document.getElementById("categoryList");
+
+    box.innerHTML=categories.map((c,i)=>`
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:12px;
+            border-bottom:1px solid #ddd
+        ">
+
+            <b>${escapeHTML(c)}</b>
+
+            <button
+                class="btn red"
+                onclick="deleteCategory(${i})">
+                Delete
+            </button>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   SELECT OPTIONS
+========================= */
+
+function populateSelects(){
+
+    const cat=document.getElementById("expenseCategory");
+
+    cat.innerHTML=categories.map(c=>
+        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
+    ).join("");
+
+    const person=document.getElementById("expensePerson");
+
+    person.innerHTML=people.map(p=>
+        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
+    ).join("");
+
+    const personReport=document.getElementById("personReportSelect");
+
+    personReport.innerHTML=
+        `<option value="">Select Person</option>`+
+        people.map(p=>
+        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
+        ).join("");
+
+    const pdfPersonSelect=document.getElementById("pdfPersonSelect");
+
+    pdfPersonSelect.innerHTML=
+        `<option value="">Select Person</option>`+
+        people.map(p=>
+        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
+        ).join("");
+
+    const catReport=document.getElementById("categoryReportSelect");
+
+    catReport.innerHTML=
+        `<option value="">Select Category</option>`+
+        categories.map(c=>
+        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
+        ).join("");
+
+    const pdfCategorySelect=document.getElementById("pdfCategorySelect");
+
+    pdfCategorySelect.innerHTML=
+        `<option value="">Select Category</option>`+
+        categories.map(c=>
+        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
+        ).join("");
+
+}
+
+
+/* =========================
+   EXPENSE MODAL
+========================= */
+
+function openExpenseModal(id=null){
+
+    populateSelects();
+
+    document.getElementById("expenseModal").style.display="block";
+
+    if(id){
+
+        const e=expenses.find(x=>x.id===id);
+
+        if(!e) return;
+
+        document.getElementById("modalTitle").textContent="Edit Expense";
+
+        document.getElementById("editExpenseId").value=e.id;
+
+        document.getElementById("expenseName").value=e.name;
+
+        document.getElementById("expenseAmount").value=e.amount;
+
+        document.getElementById("expenseCategory").value=e.category;
+
+        document.getElementById("expensePerson").value=e.person;
+
+        document.getElementById("expenseDate").value=e.date;
+
+        document.getElementById("expenseDueDate").value=e.dueDate||"";
+
+        document.getElementById("expenseStatus").value=e.status||"Pending";
+
+        document.getElementById("expensePayment").value=e.payment||"Cash";
+
+        document.getElementById("expenseNotes").value=e.notes||"";
+
+    }else{
+
+        document.getElementById("modalTitle").textContent="Add Expense";
+
+        document.getElementById("editExpenseId").value="";
+
+        document.getElementById("expenseName").value="";
+
+        document.getElementById("expenseAmount").value="";
+
+        document.getElementById("expenseDate").value=today();
+
+        document.getElementById("expenseDueDate").value="";
+
+        document.getElementById("expenseStatus").value="Paid";
+
+        document.getElementById("expensePayment").value="Cash";
+
+        document.getElementById("expenseNotes").value="";
+
+    }
+
+}
+
+function closeExpenseModal(){
+
+    document.getElementById("expenseModal").style.display="none";
+
+}
+
+
+/* =========================
+   SAVE EXPENSE
+========================= */
+
+function saveExpense(){
+
+    const name=document.getElementById("expenseName").value.trim();
+
+    const amount=Number(
+        document.getElementById("expenseAmount").value
+    );
+
+    const category=document.getElementById("expenseCategory").value;
+
+    const person=document.getElementById("expensePerson").value;
+
+    const date=document.getElementById("expenseDate").value;
+
+    const dueDate=document.getElementById("expenseDueDate").value;
+
+    const status=document.getElementById("expenseStatus").value;
+
+    const payment=document.getElementById("expensePayment").value;
+
+    const notes=document.getElementById("expenseNotes").value.trim();
+
+    if(!name){
+
+        alert("Enter expense name.");
+        return;
+
+    }
+
+    if(!amount || amount<0){
+
+        alert("Enter a valid amount.");
+        return;
+
+    }
+
+    if(!date){
+
+        alert("Select expense date.");
+        return;
+
+    }
+
+    const editId=document.getElementById("editExpenseId").value;
+
+    if(editId){
+
+        const e=expenses.find(x=>x.id===editId);
+
+        if(e){
+
+            e.name=name;
+            e.amount=amount;
+            e.category=category;
+            e.person=person;
+            e.date=date;
+            e.dueDate=dueDate;
+            e.status=status;
+            e.payment=payment;
+            e.notes=notes;
 
         }
+
+    }else{
+
+        expenses.push({
+
+            id:Date.now().toString(),
+
+            name,
+
+            amount,
+
+            category,
+
+            person,
+
+            date,
+
+            dueDate,
+
+            status,
+
+            payment,
+
+            notes,
+
+            createdAt:new Date().toISOString()
+
+        });
+
+    }
+
+    saveData();
+
+    closeExpenseModal();
+
+    renderAll();
+
+}
+
+
+/* =========================
+   DELETE EXPENSE
+========================= */
+
+function deleteExpense(id){
+
+    const e=expenses.find(x=>x.id===id);
+
+    if(!e) return;
+
+    if(!confirm(
+        `Delete "${e.name}"?`
+    )) return;
+
+    expenses=expenses.filter(x=>x.id!==id);
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+/* =========================
+   EXPENSE TABLE
+========================= */
+
+function renderExpenses(){
+
+    const tbody=document.getElementById("expenseTable");
+
+    const search=(
+        document.getElementById("expenseSearch")?.value||""
+    ).toLowerCase();
+
+    let list=expenses.filter(e=>{
+
+        const text=[
+            e.name,
+            e.category,
+            e.person,
+            e.payment,
+            e.status,
+            e.notes
+        ].join(" ").toLowerCase();
+
+        return text.includes(search);
+
+    });
+
+    list.sort((a,b)=>b.date.localeCompare(a.date));
+
+    if(!list.length){
+
+        tbody.innerHTML=
+        `<tr><td colspan="9" class="empty">No expenses found.</td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=list.map(e=>{
+
+        const status=getEffectiveStatus(e);
+
+        return `
+        <tr>
+
+        <td>${formatDate(e.date)}</td>
+
+        <td><b>${escapeHTML(e.name)}</b></td>
+
+        <td>${money(e.amount)}</td>
+
+        <td>${escapeHTML(e.category)}</td>
+
+        <td>${escapeHTML(e.person)}</td>
+
+        <td>${escapeHTML(e.payment)}</td>
+
+        <td>
+        <span class="badge ${statusClass(status)}">
+        ${status}
+        </span>
+        </td>
+
+        <td>${formatDate(e.dueDate)}</td>
+
+        <td>
+
+        <button
+            class="btn"
+            onclick="openExpenseModal('${e.id}')">
+            Edit
+        </button>
+
+        <button
+            class="btn red"
+            onclick="deleteExpense('${e.id}')">
+            Delete
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+/* =========================
+   UPCOMING
+========================= */
+
+function getUpcoming(){
+
+    const now=today();
+
+    return expenses
+        .filter(e=>e.dueDate && e.status!=="Paid")
+        .sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+
+}
+
+function getOverdue(){
+
+    const now=today();
+
+    return expenses.filter(e=>
+        e.dueDate &&
+        e.dueDate<now &&
+        e.status!=="Paid"
+    );
+
+}
+
+function renderUpcoming(){
+
+    const list=getUpcoming();
+
+    const overdue=getOverdue();
+
+    const amount=list
+        .filter(e=>e.dueDate>=today())
+        .reduce((s,e)=>s+Number(e.amount),0);
+
+    document.getElementById("upcomingCount").textContent=
+        list.filter(e=>e.dueDate>=today()).length;
+
+    document.getElementById("overdueCount").textContent=
+        overdue.length;
+
+    document.getElementById("upcomingAmount").textContent=
+        money(amount);
+
+    const tbody=document.getElementById("upcomingTable");
+
+    if(!list.length){
+
+        tbody.innerHTML=
+        `<tr><td colspan="6" class="empty">
+        No upcoming or overdue expenses.
+        </td></tr>`;
+
+        return;
+
+    }
+
+    tbody.innerHTML=list.map(e=>{
+
+        const status=getEffectiveStatus(e);
+
+        return `
+        <tr>
+
+        <td>${formatDate(e.dueDate)}</td>
+
+        <td>${escapeHTML(e.name)}</td>
+
+        <td>${money(e.amount)}</td>
+
+        <td>${escapeHTML(e.person)}</td>
+
+        <td>${escapeHTML(e.category)}</td>
+
+        <td>
+        <span class="badge ${statusClass(status)}">
+        ${status}
+        </span>
+        </td>
+
+        </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function renderDashboard(){
+
+    const total=expenses.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    document.getElementById("dashTotal").textContent=money(total);
+
+    document.getElementById("dashPeople").textContent=
+        people.length;
+
+    document.getElementById("dashUpcoming").textContent=
+        getUpcoming().filter(e=>e.dueDate>=today()).length;
+
+    document.getElementById("dashOverdue").textContent=
+        getOverdue().length;
+
+    const recent=[...expenses]
+        .sort((a,b)=>b.date.localeCompare(a.date))
+        .slice(0,8);
+
+    const box=document.getElementById("recentTransactions");
+
+    if(!recent.length){
+
+        box.innerHTML=
+        '<div class="empty">No transactions yet.</div>';
+
+    }else{
+
+        box.innerHTML=recent.map(e=>`
+
+        <div style="
+            padding:13px 0;
+            border-bottom:1px solid #eee;
+            display:flex;
+            justify-content:space-between;
+            gap:10px
+        ">
+
+            <div>
+                <b>${escapeHTML(e.name)}</b><br>
+                <small>
+                ${formatDate(e.date)} ·
+                ${escapeHTML(e.person)}
+                </small>
+            </div>
+
+            <b>${money(e.amount)}</b>
+
+        </div>
+
+        `).join("");
+
+    }
+
+    const upcoming=getUpcoming().slice(0,7);
+
+    const ub=document.getElementById("dashboardUpcoming");
+
+    if(!upcoming.length){
+
+        ub.innerHTML=
+        '<div class="empty">No upcoming expenses.</div>';
+
+    }else{
+
+        ub.innerHTML=upcoming.map(e=>`
+
+        <div style="
+            padding:13px 0;
+            border-bottom:1px solid #eee;
+            display:flex;
+            justify-content:space-between
+        ">
+
+            <div>
+                <b>${escapeHTML(e.name)}</b><br>
+                <small>Due ${formatDate(e.dueDate)}</small>
+            </div>
+
+            <b>${money(e.amount)}</b>
+
+        </div>
+
+        `).join("");
+
+    }
+
+    const categoriesTotal={};
+
+    expenses.forEach(e=>{
+
+        categoriesTotal[e.category]=
+        (categoriesTotal[e.category]||0)+Number(e.amount);
+
+    });
+
+    const summary=document.getElementById("dashboardSummary");
+
+    const rows=Object.entries(categoriesTotal)
+        .sort((a,b)=>b[1]-a[1]);
+
+    if(!rows.length){
+
+        summary.innerHTML=
+        '<div class="empty">No expense data available.</div>';
+
+    }else{
+
+        summary.innerHTML=rows.map(([cat,val])=>`
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            padding:12px;
+            border-bottom:1px solid #eee
+        ">
+
+            <span>${escapeHTML(cat)}</span>
+            <b>${money(val)}</b>
+
+        </div>
+
+        `).join("");
 
     }
 
 }
 
 
-function saveDatabase(){
+/* =========================
+   REPORT FILTER
+========================= */
 
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(db)
+function filterPeriod(list,mode){
+
+    const now=new Date();
+
+    if(mode==="all") return list;
+
+    if(mode==="daily"){
+
+        const t=today();
+
+        return list.filter(e=>e.date===t);
+
+    }
+
+    if(mode==="monthly"){
+
+        const y=now.getFullYear();
+        const m=String(now.getMonth()+1).padStart(2,"0");
+
+        return list.filter(e=>
+            e.date.startsWith(`${y}-${m}`)
+        );
+
+    }
+
+    if(mode==="yearly"){
+
+        const y=now.getFullYear();
+
+        return list.filter(e=>
+            e.date.startsWith(String(y))
+        );
+
+    }
+
+    return list;
+
+}
+
+
+/* =========================
+   REPORTS
+========================= */
+
+function reportPeriod(mode){
+
+    currentReportMode=mode;
+
+    const list=filterPeriod(expenses,mode);
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    const average=list.length?
+        total/list.length:0;
+
+    const pending=list
+        .filter(e=>getEffectiveStatus(e)!=="Paid")
+        .reduce((s,e)=>s+Number(e.amount),0);
+
+    document.getElementById("reportTotal").textContent=money(total);
+
+    document.getElementById("reportCount").textContent=list.length;
+
+    document.getElementById("reportAverage").textContent=money(average);
+
+    document.getElementById("reportPending").textContent=money(pending);
+
+    const box=document.getElementById("periodReport");
+
+    if(!list.length){
+
+        box.innerHTML=
+        '<div class="empty">No expenses for this period.</div>';
+
+        return;
+
+    }
+
+    box.innerHTML=makeExpenseTable(list);
+
+}
+
+
+/* =========================
+   TABLE HTML FOR REPORTS
+========================= */
+
+function makeExpenseTable(list){
+
+    return `
+    <div class="table-wrap">
+
+    <table>
+
+    <thead>
+    <tr>
+    <th>Date</th>
+    <th>Expense</th>
+    <th>Amount</th>
+    <th>Person</th>
+    <th>Category</th>
+    <th>Payment</th>
+    <th>Status</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    ${list.map(e=>{
+
+        const status=getEffectiveStatus(e);
+
+        return `
+        <tr>
+        <td>${formatDate(e.date)}</td>
+        <td>${escapeHTML(e.name)}</td>
+        <td>${money(e.amount)}</td>
+        <td>${escapeHTML(e.person)}</td>
+        <td>${escapeHTML(e.category)}</td>
+        <td>${escapeHTML(e.payment)}</td>
+        <td>${status}</td>
+        </tr>
+        `;
+
+    }).join("")}
+
+    </tbody>
+
+    </table>
+
+    </div>
+    `;
+
+}
+
+
+/* =========================
+   PERSON REPORT
+========================= */
+
+function renderPersonReport(){
+
+    const person=document.getElementById(
+        "personReportSelect"
+    ).value;
+
+    const mode=document.getElementById(
+        "personPeriod"
+    ).value;
+
+    const box=document.getElementById("personReport");
+
+    if(!person){
+
+        box.innerHTML=
+        '<div class="empty">Select a person.</div>';
+
+        return;
+
+    }
+
+    let list=expenses.filter(e=>e.person===person);
+
+    list=filterPeriod(list,mode);
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    box.innerHTML=`
+
+    <div class="cards" style="margin-top:20px">
+
+    <div class="card blue">
+    <div>Person</div>
+    <div class="stat" style="font-size:22px">
+    ${escapeHTML(person)}
+    </div>
+    </div>
+
+    <div class="card green">
+    <div>Expenses</div>
+    <div class="stat">${list.length}</div>
+    </div>
+
+    <div class="card orange">
+    <div>Total</div>
+    <div class="stat">${money(total)}</div>
+    </div>
+
+    </div>
+
+    ${list.length?
+        makeExpenseTable(list):
+        '<div class="empty">No expenses found.</div>'}
+
+    `;
+
+}
+
+
+/* =========================
+   CATEGORY REPORT
+========================= */
+
+function renderCategoryReport(){
+
+    const category=document.getElementById(
+        "categoryReportSelect"
+    ).value;
+
+    const box=document.getElementById("categoryReport");
+
+    if(!category){
+
+        box.innerHTML=
+        '<div class="empty">Select a category.</div>';
+
+        return;
+
+    }
+
+    const list=expenses.filter(
+        e=>e.category===category
+    );
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    box.innerHTML=`
+
+    <div style="padding:20px 0">
+
+    <b>${escapeHTML(category)}</b>
+
+    <div class="stat">${money(total)}</div>
+
+    <p>${list.length} expense(s)</p>
+
+    </div>
+
+    ${list.length?
+        makeExpenseTable(list):
+        '<div class="empty">No expenses found.</div>'}
+
+    `;
+
+}
+
+
+/* =========================
+   PAYMENT REPORT
+========================= */
+
+function renderPaymentReport(){
+
+    const map={};
+
+    expenses.forEach(e=>{
+
+        map[e.payment]=
+        (map[e.payment]||0)+Number(e.amount);
+
+    });
+
+    const box=document.getElementById("paymentReport");
+
+    const rows=Object.entries(map)
+        .sort((a,b)=>b[1]-a[1]);
+
+    if(!rows.length){
+
+        box.innerHTML=
+        '<div class="empty">No payment data.</div>';
+
+        return;
+
+    }
+
+    box.innerHTML=rows.map(([payment,total])=>`
+
+    <div style="
+        padding:15px;
+        border-bottom:1px solid #eee;
+        display:flex;
+        justify-content:space-between
+    ">
+
+        <b>${escapeHTML(payment)}</b>
+
+        <span>${money(total)}</span>
+
+    </div>
+
+    `).join("");
+
+}
+
+
+/* =========================
+   CURRENCY
+========================= */
+
+async function loadRate(){
+
+    const box=document.getElementById("liveRate");
+
+    box.textContent="Loading live exchange rate...";
+
+    try{
+
+        const response=await fetch(
+            "https://api.frankfurter.app/latest?from=EUR&to=INR"
+        );
+
+        if(!response.ok) throw new Error("Rate error");
+
+        const data=await response.json();
+
+        liveRate=Number(data.rates.INR);
+
+        box.textContent=
+            `€1 = ₹${liveRate.toFixed(2)}`;
+
+        document.getElementById("rateTime").textContent=
+            "Live market reference rate. Updated: "+
+            new Date().toLocaleString();
+
+    }catch(error){
+
+        box.textContent=
+            "Unable to load live rate.";
+
+        document.getElementById("rateTime").textContent=
+            "Please check your internet connection and refresh.";
+
+    }
+
+}
+
+function convertCurrency(){
+
+    const amount=Number(
+        document.getElementById("convertAmount").value
+    );
+
+    const from=document.getElementById("fromCurrency").value;
+
+    const to=document.getElementById("toCurrency").value;
+
+    if(!amount){
+
+        alert("Enter an amount.");
+        return;
+
+    }
+
+    let result;
+
+    if(from===to){
+
+        result=amount;
+
+    }else if(from==="EUR" && to==="INR"){
+
+        result=amount*liveRate;
+
+    }else{
+
+        result=amount/liveRate;
+
+    }
+
+    const fromSymbol=from==="EUR"?"€":"₹";
+
+    const toSymbol=to==="EUR"?"€":"₹";
+
+    document.getElementById(
+        "conversionResult"
+    ).textContent=
+        `${fromSymbol}${amount.toLocaleString()} = ${toSymbol}${result.toLocaleString(
+            undefined,
+            {
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            }
+        )}`;
+
+}
+
+
+/* =========================
+   JSON EXPORT
+========================= */
+
+function exportJSON(){
+
+    const data={
+        exportedAt:new Date().toISOString(),
+        expenses,
+        people,
+        categories
+    };
+
+    downloadFile(
+        JSON.stringify(data,null,2),
+        "evr-expenses-backup.json",
+        "application/json"
     );
 
 }
 
 
 /* =========================
-   INIT
+   JSON IMPORT
 ========================= */
 
-function initApp(){
+function importJSON(){
 
-    loadDatabase();
+    const input=document.getElementById("importFile");
 
-    document
-        .getElementById("loggedUser")
-        .textContent = "admin";
+    if(!input.files.length){
 
-    refreshAll();
+        alert("Choose a JSON file first.");
+        return;
 
-    showPage("dashboard");
+    }
 
-    getLiveRate();
+    const file=input.files[0];
+
+    const reader=new FileReader();
+
+    reader.onload=function(){
+
+        try{
+
+            const data=JSON.parse(reader.result);
+
+            if(
+                !Array.isArray(data.expenses) ||
+                !Array.isArray(data.people) ||
+                !Array.isArray(data.categories)
+            ){
+
+                throw new Error("Invalid backup");
+
+            }
+
+            if(!confirm(
+                "Importing will replace current data. Continue?"
+            )) return;
+
+            expenses=data.expenses;
+            people=data.people;
+            categories=data.categories;
+
+            saveData();
+
+            renderAll();
+
+            alert("Data imported successfully.");
+
+        }catch(error){
+
+            alert("Invalid EVR Expenses JSON backup.");
+
+        }
+
+    };
+
+    reader.readAsText(file);
 
 }
 
 
 /* =========================
-   NAVIGATION
+   CSV
 ========================= */
 
-function showPage(page){
+function csvEscape(value){
 
-    const pages = [
-        "dashboard",
-        "expenses",
-        "upcoming",
-        "people",
-        "categories",
-        "reports",
-        "currency",
-        "backup"
+    return `"${String(value??"").replace(/"/g,'""')}"`;
+
+}
+
+function exportCSV(){
+
+    const headers=[
+        "Date",
+        "Expense",
+        "Amount INR",
+        "Category",
+        "Person",
+        "Payment Mode",
+        "Status",
+        "Due Date",
+        "Notes"
     ];
 
-    pages.forEach(p=>{
+    const rows=expenses.map(e=>[
+        e.date,
+        e.name,
+        e.amount,
+        e.category,
+        e.person,
+        e.payment,
+        getEffectiveStatus(e),
+        e.dueDate,
+        e.notes
+    ]);
 
-        const el =
-            document.getElementById("page-"+p);
+    let csv=headers.map(csvEscape).join(",")+"\n";
 
-        if(el){
+    csv+=rows.map(
+        r=>r.map(csvEscape).join(",")
+    ).join("\n");
 
-            el.classList.toggle(
-                "hidden",
-                p !== page
-            );
+    downloadFile(
+        csv,
+        "evr-expenses.csv",
+        "text/csv;charset=utf-8"
+    );
+
+}
+
+
+/* =========================
+   DOWNLOAD
+========================= */
+
+function downloadFile(content,filename,type){
+
+    const blob=new Blob(
+        [content],
+        {type}
+    );
+
+    const url=URL.createObjectURL(blob);
+
+    const a=document.createElement("a");
+
+    a.href=url;
+    a.download=filename;
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================
+   PDF HELPERS
+========================= */
+
+function getPDF(){
+
+    if(!window.jspdf){
+
+        alert(
+            "PDF library has not loaded. Check internet connection."
+        );
+
+        return null;
+
+    }
+
+    const {jsPDF}=window.jspdf;
+
+    return new jsPDF();
+
+}
+
+function pdfHeader(doc,title){
+
+    doc.setFontSize(20);
+
+    doc.text("EVR Expenses",20,20);
+
+    doc.setFontSize(14);
+
+    doc.text(title,20,30);
+
+    doc.setFontSize(9);
+
+    doc.text(
+        "Generated: "+new Date().toLocaleString(),
+        20,
+        38
+    );
+
+}
+
+function pdfRows(doc,list){
+
+    let y=50;
+
+    doc.setFontSize(8);
+
+    const columns=[
+        "Date",
+        "Expense",
+        "Amount",
+        "Person",
+        "Category",
+        "Payment",
+        "Status"
+    ];
+
+    doc.setFont(undefined,"bold");
+
+    doc.text(
+        columns.join(" | "),
+        10,
+        y
+    );
+
+    y+=7;
+
+    doc.setFont(undefined,"normal");
+
+    list.forEach(e=>{
+
+        if(y>280){
+
+            doc.addPage();
+
+            y=20;
 
         }
 
-        const nav =
-            document.getElementById("nav-"+p);
+        let line=[
+            formatDate(e.date),
+            e.name,
+            money(e.amount),
+            e.person,
+            e.category,
+            e.payment,
+            getEffectiveStatus(e)
+        ].join(" | ");
 
-        if(nav){
+        if(line.length>125){
 
-            nav.classList.toggle(
-                "active",
-                p === page
-            );
+            line=line.substring(0,122)+"...";
 
         }
+
+        doc.text(line,10,y);
+
+        y+=6;
 
     });
 
-    if(page === "dashboard")
-        renderDashboard();
-
-    if(page === "expenses")
-        renderExpenses();
-
-    if(page === "upcoming")
-        renderUpcoming();
-
-    if(page === "people")
-        renderPeople();
-
-    if(page === "categories")
-        renderCategories();
-
-    if(page === "reports")
-        renderReports();
+    return y;
 
 }
 
 
 /* =========================
-   HELPERS
+   ALL EXPENSES PDF
 ========================= */
 
-function money(value){
+function pdfAll(){
 
-    return new Intl.NumberFormat(
-        "en-IN",
-        {
-            style:"currency",
-            currency:"INR",
-            maximumFractionDigits:2
-        }
-    ).format(Number(value)||0);
+    const doc=getPDF();
 
-}
+    if(!doc) return;
 
+    pdfHeader(
+        doc,
+        "Complete Expense Report"
+    );
 
-function today(){
+    const total=expenses.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
 
-    const d = new Date();
+    doc.text(
+        `Total Expenses: ${money(total)}`,
+        20,
+        45
+    );
 
-    const month =
-        String(d.getMonth()+1).padStart(2,"0");
+    pdfRows(doc,expenses);
 
-    const day =
-        String(d.getDate()).padStart(2,"0");
-
-    return `${d.getFullYear()}-${month}-${day}`;
-
-}
-
-
-function formatDate(value){
-
-    if(!value) return "-";
-
-    const parts = value.split("-");
-
-    if(parts.length !== 3)
-        return value;
-
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
-
-}
-
-
-function escapeHTML(value){
-
-    return String(value ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-
-}
-
-
-function generateId(){
-
-    return Date.now().toString() +
-           Math.random().toString(36).substring(2);
+    doc.save("evr-all-expenses.pdf");
 
 }
 
 
 /* =========================
-   REFRESH
+   UPCOMING PDF
 ========================= */
 
-function refreshAll(){
+function pdfUpcoming(){
+
+    const doc=getPDF();
+
+    if(!doc) return;
+
+    const list=getUpcoming();
+
+    pdfHeader(
+        doc,
+        "Upcoming & Overdue Expenses"
+    );
+
+    pdfRows(doc,list);
+
+    doc.save("evr-upcoming-expenses.pdf");
+
+}
+
+
+/* =========================
+   PERSON PDF
+========================= */
+
+function pdfPerson(){
+
+    const person=
+        document.getElementById("pdfPersonSelect").value ||
+        document.getElementById("personReportSelect").value;
+
+    if(!person){
+
+        alert("Select a person first.");
+        return;
+
+    }
+
+    const doc=getPDF();
+
+    if(!doc) return;
+
+    const mode=
+        document.getElementById("personPeriod").value ||
+        "all";
+
+    let list=expenses.filter(
+        e=>e.person===person
+    );
+
+    if(mode!=="all"){
+
+        list=filterPeriod(list,mode);
+
+    }
+
+    pdfHeader(
+        doc,
+        "Person Report: "+person
+    );
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    doc.text(
+        `Total: ${money(total)} | Expenses: ${list.length}`,
+        20,
+        45
+    );
+
+    pdfRows(doc,list);
+
+    doc.save(
+        "evr-person-"+safeFileName(person)+".pdf"
+    );
+
+}
+
+
+/* =========================
+   CATEGORY PDF
+========================= */
+
+function pdfCategory(){
+
+    const category=
+        document.getElementById("pdfCategorySelect").value ||
+        document.getElementById("categoryReportSelect").value;
+
+    if(!category){
+
+        alert("Select a category first.");
+        return;
+
+    }
+
+    const doc=getPDF();
+
+    if(!doc) return;
+
+    const list=expenses.filter(
+        e=>e.category===category
+    );
+
+    pdfHeader(
+        doc,
+        "Category Report: "+category
+    );
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    doc.text(
+        `Total: ${money(total)} | Expenses: ${list.length}`,
+        20,
+        45
+    );
+
+    pdfRows(doc,list);
+
+    doc.save(
+        "evr-category-"+safeFileName(category)+".pdf"
+    );
+
+}
+
+
+/* =========================
+   PERIOD PDF
+========================= */
+
+function pdfSelectedPeriod(){
+
+    const mode=document.getElementById("pdfPeriod").value;
+
+    const list=filterPeriod(expenses,mode);
+
+    const doc=getPDF();
+
+    if(!doc) return;
+
+    const title=
+        mode==="daily"?"Daily Expense Report":
+        mode==="monthly"?"Monthly Expense Report":
+        mode==="yearly"?"Yearly Expense Report":
+        "Complete Expense Report";
+
+    pdfHeader(doc,title);
+
+    const total=list.reduce(
+        (s,e)=>s+Number(e.amount),0
+    );
+
+    doc.text(
+        `Total: ${money(total)} | Expenses: ${list.length}`,
+        20,
+        45
+    );
+
+    pdfRows(doc,list);
+
+    doc.save(
+        "evr-"+mode+"-report.pdf"
+    );
+
+}
+
+
+/* =========================
+   CURRENT REPORT PDF
+========================= */
+
+function pdfCurrentReport(){
+
+    const mode=currentReportMode||"all";
+
+    const list=filterPeriod(expenses,mode);
+
+    const doc=getPDF();
+
+    if(!doc) return;
+
+    pdfHeader(
+        doc,
+        mode.toUpperCase()+" Expense Report"
+    );
+
+    pdfRows(doc,list);
+
+    doc.save(
+        "evr-current-report.pdf"
+    );
+
+}
+
+
+/* =========================
+   SAFE FILE NAME
+========================= */
+
+function safeFileName(name){
+
+    return String(name)
+        .replace(/[^a-z0-9_-]/gi,"_")
+        .substring(0,50);
+
+}
+
+
+/* =========================
+   CLEAR DATA
+========================= */
+
+function clearAllData(){
+
+    if(!confirm(
+        "WARNING: This will permanently delete all expenses, people and categories. Continue?"
+    )) return;
+
+    if(!confirm(
+        "Are you absolutely sure?"
+    )) return;
+
+    expenses=[];
+
+    people=["Me"];
+
+    categories=[
+        "Food",
+        "Travel",
+        "Rent",
+        "Utilities",
+        "Shopping",
+        "Medical",
+        "Bills",
+        "Other"
+    ];
+
+    saveData();
+
+    renderAll();
+
+    alert("All data has been cleared.");
+
+}
+
+
+/* =========================
+   RENDER ALL
+========================= */
+
+function renderAll(){
 
     populateSelects();
 
@@ -1592,1919 +2923,40 @@ function refreshAll(){
 
     renderCategories();
 
-    renderReports();
+    renderPaymentReport();
 
-}
-
-
-/* =========================
-   SELECTS
-========================= */
-
-function populateSelects(){
-
-    const personSelect =
-        document.getElementById("expensePerson");
-
-    const categorySelect =
-        document.getElementById("expenseCategory");
-
-    personSelect.innerHTML =
-        db.people.map(p =>
-            `<option value="${escapeHTML(p)}">
-                ${escapeHTML(p)}
-             </option>`
-        ).join("");
-
-    categorySelect.innerHTML =
-        db.categories.map(c =>
-            `<option value="${escapeHTML(c)}">
-                ${escapeHTML(c)}
-             </option>`
-        ).join("");
-
-
-    const personFilter =
-        document.getElementById("expensePersonFilter");
-
-    personFilter.innerHTML =
-        `<option value="">All People</option>` +
-        db.people.map(p =>
-            `<option value="${escapeHTML(p)}">
-                ${escapeHTML(p)}
-             </option>`
-        ).join("");
-
-
-    const categoryFilter =
-        document.getElementById("expenseCategoryFilter");
-
-    categoryFilter.innerHTML =
-        `<option value="">All Categories</option>` +
-        db.categories.map(c =>
-            `<option value="${escapeHTML(c)}">
-                ${escapeHTML(c)}
-             </option>`
-        ).join("");
-
-
-    const individual =
-        document.getElementById("individualPerson");
-
-    individual.innerHTML =
-        db.people.map(p =>
-            `<option value="${escapeHTML(p)}">
-                ${escapeHTML(p)}
-             </option>`
-        ).join("");
-
-}
-
-
-/* =========================
-   EXPENSE MODAL
-========================= */
-
-function openExpenseModal(upcoming=false){
-
-    document
-        .getElementById("expenseModal")
-        .classList.remove("hidden");
-
-    document
-        .getElementById("expenseModalTitle")
-        .textContent =
-        upcoming
-        ? "Add Upcoming Expense"
-        : "Add Expense";
-
-    document.getElementById("editExpenseId").value = "";
-
-    document.getElementById("expenseName").value = "";
-
-    document.getElementById("expenseAmount").value = "";
-
-    document.getElementById("expenseDate").value = today();
-
-    document.getElementById("expenseDueDate").value = "";
-
-    document.getElementById("expenseStatus").value =
-        upcoming ? "Pending" : "Paid";
-
-    document.getElementById("expensePaymentMode").value =
-        "Bank Transfer";
-
-    document.getElementById("expenseNotes").value = "";
-
-    populateSelects();
-
-}
-
-
-function closeExpenseModal(){
-
-    document
-        .getElementById("expenseModal")
-        .classList.add("hidden");
-
-}
-
-
-/* =========================
-   SAVE EXPENSE
-========================= */
-
-function saveExpense(){
-
-    const name =
-        document.getElementById("expenseName")
-        .value.trim();
-
-    const amount =
-        Number(
-            document.getElementById("expenseAmount").value
-        );
-
-    const category =
-        document.getElementById("expenseCategory").value;
-
-    const person =
-        document.getElementById("expensePerson").value;
-
-    const date =
-        document.getElementById("expenseDate").value;
-
-    const dueDate =
-        document.getElementById("expenseDueDate").value;
-
-    const status =
-        document.getElementById("expenseStatus").value;
-
-    const paymentMode =
-        document.getElementById("expensePaymentMode").value;
-
-    const notes =
-        document.getElementById("expenseNotes").value.trim();
-
-    const editId =
-        document.getElementById("editExpenseId").value;
-
-
-    if(!name){
-
-        alert("Please enter expense name.");
-
-        return;
-
-    }
-
-
-    if(!amount || amount < 0){
-
-        alert("Please enter a valid amount.");
-
-        return;
-
-    }
-
-
-    if(!date){
-
-        alert("Please select expense date.");
-
-        return;
-
-    }
-
-
-    if(editId){
-
-        const expense =
-            db.expenses.find(e=>e.id === editId);
-
-        if(expense){
-
-            expense.name = name;
-            expense.amount = amount;
-            expense.category = category;
-            expense.person = person;
-            expense.date = date;
-            expense.dueDate = dueDate;
-            expense.status = status;
-            expense.paymentMode = paymentMode;
-            expense.notes = notes;
-
-        }
-
-    }else{
-
-        db.expenses.push({
-
-            id:generateId(),
-
-            name:name,
-
-            amount:amount,
-
-            category:category,
-
-            person:person,
-
-            date:date,
-
-            dueDate:dueDate,
-
-            status:status,
-
-            paymentMode:paymentMode,
-
-            notes:notes,
-
-            createdAt:new Date().toISOString()
-
-        });
-
-    }
-
-
-    saveDatabase();
-
-    closeExpenseModal();
-
-    refreshAll();
-
-}
-
-
-/* =========================
-   EDIT
-========================= */
-
-function editExpense(id){
-
-    const e =
-        db.expenses.find(x=>x.id === id);
-
-    if(!e) return;
-
-    document
-        .getElementById("expenseModal")
-        .classList.remove("hidden");
-
-    document
-        .getElementById("expenseModalTitle")
-        .textContent =
-        "Edit Expense";
-
-    document
-        .getElementById("editExpenseId")
-        .value = e.id;
-
-    populateSelects();
-
-    document.getElementById("expenseName").value =
-        e.name;
-
-    document.getElementById("expenseAmount").value =
-        e.amount;
-
-    document.getElementById("expenseCategory").value =
-        e.category;
-
-    document.getElementById("expensePerson").value =
-        e.person;
-
-    document.getElementById("expenseDate").value =
-        e.date;
-
-    document.getElementById("expenseDueDate").value =
-        e.dueDate || "";
-
-    document.getElementById("expenseStatus").value =
-        e.status;
-
-    document.getElementById("expensePaymentMode").value =
-        e.paymentMode || "Cash";
-
-    document.getElementById("expenseNotes").value =
-        e.notes || "";
-
-}
-
-
-/* =========================
-   DELETE EXPENSE
-========================= */
-
-function deleteExpense(id){
-
-    if(!confirm("Delete this expense?"))
-        return;
-
-    db.expenses =
-        db.expenses.filter(e=>e.id !== id);
-
-    saveDatabase();
-
-    refreshAll();
-
-}
-
-
-/* =========================
-   STATUS
-========================= */
-
-function statusBadge(e){
-
-    if(e.status === "Paid"){
-
-        return `<span class="badge paid">
-                    Paid
-                </span>`;
-
-    }
-
-    if(e.dueDate &&
-       e.dueDate < today()){
-
-        return `<span class="badge overdue">
-                    Overdue
-                </span>`;
-
-    }
-
-    return `<span class="badge pending">
-                Pending
-            </span>`;
-
-}
-
-
-/* =========================
-   EXPENSE TABLE
-========================= */
-
-function renderExpenses(){
-
-    const table =
-        document.getElementById("expenseTable");
-
-    if(!table) return;
-
-    const search =
-        (document.getElementById("expenseSearch")?.value || "")
-        .toLowerCase();
-
-    const person =
-        document.getElementById("expensePersonFilter")?.value || "";
-
-    const category =
-        document.getElementById("expenseCategoryFilter")?.value || "";
-
-    const status =
-        document.getElementById("expenseStatusFilter")?.value || "";
-
-
-    let list = [...db.expenses];
-
-    list = list.filter(e=>{
-
-        const matchesSearch =
-            !search ||
-            e.name.toLowerCase().includes(search) ||
-            e.person.toLowerCase().includes(search) ||
-            e.category.toLowerCase().includes(search);
-
-        const matchesPerson =
-            !person || e.person === person;
-
-        const matchesCategory =
-            !category || e.category === category;
-
-        const matchesStatus =
-            !status || e.status === status;
-
-        return matchesSearch &&
-               matchesPerson &&
-               matchesCategory &&
-               matchesStatus;
-
-    });
-
-
-    list.sort((a,b)=>
-        (b.date||"").localeCompare(a.date||"")
-    );
-
-
-    if(!list.length){
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="9" class="empty">
-                    No expenses found.
-                </td>
-             </tr>`;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        list.map(e=>`
-
-            <tr>
-
-                <td>${formatDate(e.date)}</td>
-
-                <td>
-                    <strong>
-                        ${escapeHTML(e.name)}
-                    </strong>
-                </td>
-
-                <td>
-                    ${escapeHTML(e.category)}
-                </td>
-
-                <td>
-                    ${escapeHTML(e.person)}
-                </td>
-
-                <td>
-                    <strong>
-                        ${money(e.amount)}
-                    </strong>
-                </td>
-
-                <td>
-                    ${escapeHTML(e.paymentMode || "-")}
-                </td>
-
-                <td>
-                    ${formatDate(e.dueDate)}
-                </td>
-
-                <td>
-                    ${statusBadge(e)}
-                </td>
-
-                <td>
-
-                    <button
-                        class="actionBtn editBtn"
-                        onclick="editExpense('${e.id}')">
-                        Edit
-                    </button>
-
-                    <button
-                        class="actionBtn deleteBtn"
-                        onclick="deleteExpense('${e.id}')">
-                        Delete
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `).join("");
-
-}
-
-
-/* =========================
-   UPCOMING
-========================= */
-
-function getUpcoming(){
-
-    return db.expenses
-        .filter(e =>
-            e.status !== "Paid" &&
-            e.dueDate
-        )
-        .sort((a,b)=>
-            a.dueDate.localeCompare(b.dueDate)
-        );
-
-}
-
-
-function renderUpcoming(){
-
-    const table =
-        document.getElementById("upcomingTable");
-
-    if(!table) return;
-
-    const list = getUpcoming();
-
-
-    if(!list.length){
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="7"
-                    class="empty">
-                    No upcoming expenses.
-                </td>
-             </tr>`;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        list.map(e=>`
-
-            <tr>
-
-                <td>
-                    ${escapeHTML(e.name)}
-                </td>
-
-                <td>
-                    ${escapeHTML(e.person)}
-                </td>
-
-                <td>
-                    ${escapeHTML(e.category)}
-                </td>
-
-                <td>
-                    ${money(e.amount)}
-                </td>
-
-                <td>
-                    ${formatDate(e.dueDate)}
-                </td>
-
-                <td>
-                    ${statusBadge(e)}
-                </td>
-
-                <td>
-
-                    <button
-                        class="actionBtn editBtn"
-                        onclick="editExpense('${e.id}')">
-                        Edit
-                    </button>
-
-                    <button
-                        class="actionBtn deleteBtn"
-                        onclick="deleteExpense('${e.id}')">
-                        Delete
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `).join("");
-
-}
-
-
-/* =========================
-   PEOPLE
-========================= */
-
-function addPerson(){
-
-    const name =
-        prompt("Enter person name:");
-
-    if(!name) return;
-
-    const clean =
-        name.trim();
-
-    if(!clean) return;
-
-    if(db.people.includes(clean)){
-
-        alert("This person already exists.");
-
-        return;
-
-    }
-
-    db.people.push(clean);
-
-    saveDatabase();
-
-    refreshAll();
-
-}
-
-
-function deletePerson(name){
-
-    const used =
-        db.expenses.some(e=>e.person === name);
-
-    if(used){
-
-        alert(
-            "This person cannot be deleted because expenses are linked to this person."
-        );
-
-        return;
-
-    }
-
-
-    if(!confirm(
-        `Delete person "${name}"?`
-    )) return;
-
-
-    db.people =
-        db.people.filter(p=>p !== name);
-
-    saveDatabase();
-
-    refreshAll();
-
-}
-
-
-function renderPeople(){
-
-    const container =
-        document.getElementById("peopleList");
-
-    if(!container) return;
-
-
-    if(!db.people.length){
-
-        container.innerHTML =
-            `<div class="empty">
-                No people added.
-             </div>`;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        db.people.map(person=>`
-
-            <div class="card"
-                 style="margin-bottom:12px;
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center">
-
-                <strong>
-                    ${escapeHTML(person)}
-                </strong>
-
-                <button
-                    class="actionBtn deleteBtn"
-                    onclick="deletePerson('${escapeHTML(person)}')">
-                    Delete
-                </button>
-
-            </div>
-
-        `).join("");
-
-}
-
-
-/* =========================
-   CATEGORIES
-========================= */
-
-function addCategory(){
-
-    const name =
-        prompt("Enter new category:");
-
-    if(!name) return;
-
-    const clean =
-        name.trim();
-
-    if(!clean) return;
-
-    if(db.categories.includes(clean)){
-
-        alert("This category already exists.");
-
-        return;
-
-    }
-
-    db.categories.push(clean);
-
-    saveDatabase();
-
-    refreshAll();
-
-}
-
-
-function deleteCategory(name){
-
-    const used =
-        db.expenses.some(e=>e.category === name);
-
-    if(used){
-
-        alert(
-            "This category cannot be deleted because expenses are linked to it."
-        );
-
-        return;
-
-    }
-
-
-    if(!confirm(
-        `Delete category "${name}"?`
-    )) return;
-
-
-    db.categories =
-        db.categories.filter(c=>c !== name);
-
-    saveDatabase();
-
-    refreshAll();
-
-}
-
-
-function renderCategories(){
-
-    const container =
-        document.getElementById("categoryList");
-
-    if(!container) return;
-
-
-    if(!db.categories.length){
-
-        container.innerHTML =
-            `<div class="empty">
-                No categories added.
-             </div>`;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        db.categories.map(category=>`
-
-            <div class="card"
-                 style="margin-bottom:12px;
-                        display:flex;
-                        justify-content:space-between;
-                        align-items:center">
-
-                <strong>
-                    ${escapeHTML(category)}
-                </strong>
-
-                <button
-                    class="actionBtn deleteBtn"
-                    onclick="deleteCategory('${escapeHTML(category)}')">
-                    Delete
-                </button>
-
-            </div>
-
-        `).join("");
-
-}
-
-
-/* =========================
-   DASHBOARD
-========================= */
-
-function renderDashboard(){
-
-    const total =
-        db.expenses.reduce(
-            (sum,e)=>sum + Number(e.amount||0),
-            0
-        );
-
-    const upcoming =
-        getUpcoming();
-
-    const overdue =
-        upcoming.filter(
-            e => e.dueDate < today()
-        );
-
-
-    document.getElementById("dashTotal")
-        .textContent = money(total);
-
-    document.getElementById("dashPeople")
-        .textContent = db.people.length;
-
-    document.getElementById("dashUpcoming")
-        .textContent = upcoming.length;
-
-    document.getElementById("dashOverdue")
-        .textContent = overdue.length;
-
-
-    const recent =
-        [...db.expenses]
-        .sort((a,b)=>
-            (b.date||"").localeCompare(a.date||"")
-        )
-        .slice(0,8);
-
-
-    const recentBox =
-        document.getElementById(
-            "recentTransactions"
-        );
-
-
-    if(!recent.length){
-
-        recentBox.innerHTML =
-            `<div class="empty">
-                No transactions yet.
-             </div>`;
-
-    }else{
-
-        recentBox.innerHTML =
-            `<div class="tableWrap">
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Expense</th>
-                            <th>Person</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                    ${recent.map(e=>`
-
-                        <tr>
-                            <td>
-                                ${formatDate(e.date)}
-                            </td>
-
-                            <td>
-                                ${escapeHTML(e.name)}
-                            </td>
-
-                            <td>
-                                ${escapeHTML(e.person)}
-                            </td>
-
-                            <td>
-                                ${money(e.amount)}
-                            </td>
-                        </tr>
-
-                    `).join("")}
-
-                    </tbody>
-
-                </table>
-             </div>`;
-
-    }
-
-
-    const upcomingBox =
-        document.getElementById(
-            "dashboardUpcoming"
-        );
-
-
-    const firstUpcoming =
-        upcoming.slice(0,8);
-
-
-    if(!firstUpcoming.length){
-
-        upcomingBox.innerHTML =
-            `<div class="empty">
-                No upcoming expenses.
-             </div>`;
-
-    }else{
-
-        upcomingBox.innerHTML =
-            `<div class="tableWrap">
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Expense</th>
-                            <th>Due</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                    ${firstUpcoming.map(e=>`
-
-                        <tr>
-
-                            <td>
-                                ${escapeHTML(e.name)}
-                            </td>
-
-                            <td>
-                                ${formatDate(e.dueDate)}
-                            </td>
-
-                            <td>
-                                ${money(e.amount)}
-                            </td>
-
-                        </tr>
-
-                    `).join("")}
-
-                    </tbody>
-
-                </table>
-             </div>`;
-
-    }
-
-}
-
-
-/* =========================
-   REPORTS
-========================= */
-
-function renderReports(){
-
-    const total =
-        db.expenses.reduce(
-            (sum,e)=>sum + Number(e.amount||0),
-            0
-        );
-
-    const count =
-        db.expenses.length;
-
-    const average =
-        count ? total/count : 0;
-
-    const pending =
-        db.expenses
-        .filter(e=>e.status==="Pending")
-        .reduce(
-            (sum,e)=>sum+Number(e.amount||0),
-            0
-        );
-
-
-    document.getElementById("reportTotal")
-        .textContent = money(total);
-
-    document.getElementById("reportCount")
-        .textContent = count;
-
-    document.getElementById("reportAverage")
-        .textContent = money(average);
-
-    document.getElementById("reportPending")
-        .textContent = money(pending);
-
-
-    renderPeriodReport();
-
-    renderCategoryReport();
+    reportPeriod(currentReportMode);
 
     renderPersonReport();
 
-    renderIndividualPerson();
+    renderCategoryReport();
 
 }
 
 
-function renderPeriodReport(){
+/* =========================
+   START
+========================= */
 
-    const period =
-        document.getElementById("reportPeriod")?.value ||
-        "day";
+window.addEventListener("load",function(){
 
-    const now =
-        new Date();
+    if(localStorage.getItem("evr_logged")==="1"){
 
-    let list = [];
+        document.getElementById("loginPage").style.display="none";
 
+        document.getElementById("app").style.display="block";
 
-    if(period === "all"){
-
-        list = [...db.expenses];
+        initialize();
 
     }else{
 
-        list =
-            db.expenses.filter(e=>{
+        document.getElementById("loginPage").style.display="flex";
 
-                if(!e.date) return false;
-
-                const d =
-                    new Date(e.date+"T00:00:00");
-
-                if(period === "day"){
-
-                    return d.getFullYear() === now.getFullYear() &&
-                           d.getMonth() === now.getMonth() &&
-                           d.getDate() === now.getDate();
-
-                }
-
-                if(period === "month"){
-
-                    return d.getFullYear() === now.getFullYear() &&
-                           d.getMonth() === now.getMonth();
-
-                }
-
-                if(period === "year"){
-
-                    return d.getFullYear() === now.getFullYear();
-
-                }
-
-                return true;
-
-            });
+        document.getElementById("app").style.display="none";
 
     }
 
-
-    const total =
-        list.reduce(
-            (sum,e)=>sum+Number(e.amount||0),
-            0
-        );
-
-
-    document.getElementById("periodReport")
-        .innerHTML = `
-
-            <div class="reportBox">
-
-                <div>
-                    Number of Expenses
-                </div>
-
-                <div class="reportNumber">
-                    ${list.length}
-                </div>
-
-                <hr>
-
-                <div>
-                    Total
-                </div>
-
-                <div class="reportNumber">
-                    ${money(total)}
-                </div>
-
-            </div>
-
-        `;
-
-}
-
-
-/* =========================
-   CATEGORY REPORT
-========================= */
-
-function renderCategoryReport(){
-
-    const box =
-        document.getElementById("categoryReport");
-
-    const data = {};
-
-    db.expenses.forEach(e=>{
-
-        if(!data[e.category])
-            data[e.category] = 0;
-
-        data[e.category] +=
-            Number(e.amount||0);
-
-    });
-
-
-    const rows =
-        Object.entries(data)
-        .sort((a,b)=>b[1]-a[1]);
-
-
-    if(!rows.length){
-
-        box.innerHTML =
-            `<div class="empty">
-                No expense data available.
-             </div>`;
-
-        return;
-
-    }
-
-
-    box.innerHTML =
-        `<div class="tableWrap">
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                ${rows.map(([category,total])=>`
-
-                    <tr>
-
-                        <td>
-                            ${escapeHTML(category)}
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${money(total)}
-                            </strong>
-                        </td>
-
-                    </tr>
-
-                `).join("")}
-
-                </tbody>
-
-            </table>
-         </div>`;
-
-}
-
-
-/* =========================
-   PERSON REPORT
-========================= */
-
-function renderPersonReport(){
-
-    const box =
-        document.getElementById("personReport");
-
-    const data = {};
-
-    db.expenses.forEach(e=>{
-
-        if(!data[e.person])
-            data[e.person] = 0;
-
-        data[e.person] +=
-            Number(e.amount||0);
-
-    });
-
-
-    const rows =
-        Object.entries(data)
-        .sort((a,b)=>b[1]-a[1]);
-
-
-    if(!rows.length){
-
-        box.innerHTML =
-            `<div class="empty">
-                No expense data available.
-             </div>`;
-
-        return;
-
-    }
-
-
-    box.innerHTML =
-        `<div class="tableWrap">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Person</th>
-                        <th>Total</th>
-                        <th>Expenses</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                ${rows.map(([person,total])=>{
-
-                    const count =
-                        db.expenses.filter(
-                            e=>e.person===person
-                        ).length;
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHTML(person)}
-                            </td>
-
-                            <td>
-                                <strong>
-                                    ${money(total)}
-                                </strong>
-                            </td>
-
-                            <td>
-                                ${count}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }).join("")}
-
-                </tbody>
-
-            </table>
-
-         </div>`;
-
-}
-
-
-/* =========================
-   INDIVIDUAL PERSON
-========================= */
-
-function renderIndividualPerson(){
-
-    const select =
-        document.getElementById(
-            "individualPerson"
-        );
-
-    const box =
-        document.getElementById(
-            "individualPersonReport"
-        );
-
-    if(!select || !box)
-        return;
-
-
-    const person =
-        select.value;
-
-
-    const list =
-        db.expenses.filter(
-            e=>e.person===person
-        );
-
-
-    const total =
-        list.reduce(
-            (sum,e)=>sum+Number(e.amount||0),
-            0
-        );
-
-
-    box.innerHTML = `
-
-        <div class="reportBox">
-
-            <h3>
-                ${escapeHTML(person)}
-            </h3>
-
-            <p>
-                Total Expenses:
-            </p>
-
-            <div class="reportNumber">
-                ${money(total)}
-            </div>
-
-            <p>
-                Number of Expenses:
-                <strong>${list.length}</strong>
-            </p>
-
-        </div>
-
-        <br>
-
-        <div class="tableWrap">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Date</th>
-                        <th>Expense</th>
-                        <th>Category</th>
-                        <th>Amount</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                ${list.map(e=>`
-
-                    <tr>
-
-                        <td>
-                            ${formatDate(e.date)}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(e.name)}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(e.category)}
-                        </td>
-
-                        <td>
-                            ${money(e.amount)}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(e.paymentMode || "-")}
-                        </td>
-
-                        <td>
-                            ${statusBadge(e)}
-                        </td>
-
-                    </tr>
-
-                `).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    `;
-
-}
-
-
-/* =========================
-   EXPORT PERSON
-========================= */
-
-function exportIndividualPerson(){
-
-    const person =
-        document.getElementById(
-            "individualPerson"
-        ).value;
-
-    const list =
-        db.expenses.filter(
-            e=>e.person===person
-        );
-
-
-    let csv =
-        "Date,Expense,Category,Amount INR,Payment Mode,Due Date,Status,Notes\n";
-
-
-    list.forEach(e=>{
-
-        csv += [
-            e.date,
-            csvSafe(e.name),
-            csvSafe(e.category),
-            e.amount,
-            csvSafe(e.paymentMode || ""),
-            e.dueDate || "",
-            e.status,
-            csvSafe(e.notes || "")
-        ].join(",") + "\n";
-
-    });
-
-
-    downloadFile(
-        csv,
-        `EVR_${safeFileName(person)}_Report.csv`,
-        "text/csv"
-    );
-
-}
-
-
-/* =========================
-   CSV
-========================= */
-
-function csvSafe(value){
-
-    const text =
-        String(value ?? "");
-
-    return `"${text.replaceAll('"','""')}"`;
-
-}
-
-
-function exportCSV(){
-
-    let csv =
-        "Date,Expense,Category,Person,Amount INR,Payment Mode,Due Date,Status,Notes\n";
-
-
-    db.expenses.forEach(e=>{
-
-        csv += [
-
-            e.date,
-            csvSafe(e.name),
-            csvSafe(e.category),
-            csvSafe(e.person),
-            e.amount,
-            csvSafe(e.paymentMode || ""),
-            e.dueDate || "",
-            e.status,
-            csvSafe(e.notes || "")
-
-        ].join(",") + "\n";
-
-    });
-
-
-    downloadFile(
-        csv,
-        "EVR_Expenses.csv",
-        "text/csv"
-    );
-
-}
-
-
-/* =========================
-   FULL BACKUP
-========================= */
-
-function exportAllData(){
-
-    const backup = {
-
-        app:"EVR Expenses",
-
-        version:1,
-
-        exportedAt:
-            new Date().toISOString(),
-
-        data:db
-
-    };
-
-
-    downloadFile(
-
-        JSON.stringify(
-            backup,
-            null,
-            2
-        ),
-
-        "EVR_Expenses_Backup.json",
-
-        "application/json"
-
-    );
-
-}
-
-
-/* =========================
-   IMPORT
-========================= */
-
-function importData(){
-
-    const input =
-        document.getElementById("importFile");
-
-    if(!input.files.length){
-
-        alert("Please select a JSON backup file.");
-
-        return;
-
-    }
-
-
-    const file =
-        input.files[0];
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload = function(){
-
-        try{
-
-            const imported =
-                JSON.parse(reader.result);
-
-
-            if(!imported.data){
-
-                alert(
-                    "Invalid EVR Expenses backup file."
-                );
-
-                return;
-
-            }
-
-
-            if(!confirm(
-                "Importing will replace your current data. Continue?"
-            )) return;
-
-
-            db = imported.data;
-
-            saveDatabase();
-
-            refreshAll();
-
-            alert(
-                "Data imported successfully."
-            );
-
-        }catch(e){
-
-            alert(
-                "Could not read the backup file."
-            );
-
-        }
-
-    };
-
-
-    reader.readAsText(file);
-
-}
-
-
-/* =========================
-   CLEAR
-========================= */
-
-function clearAllData(){
-
-    if(!confirm(
-        "WARNING: This will delete ALL expenses, people and categories. Continue?"
-    )) return;
-
-
-    if(!confirm(
-        "Are you absolutely sure?"
-    )) return;
-
-
-    localStorage.removeItem(
-        STORAGE_KEY
-    );
-
-    location.reload();
-
-}
-
-
-/* =========================
-   FILE DOWNLOAD
-========================= */
-
-function downloadFile(
-    content,
-    filename,
-    type
-){
-
-    const blob =
-        new Blob(
-            [content],
-            {type:type}
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const a =
-        document.createElement("a");
-
-    a.href = url;
-
-    a.download = filename;
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    a.remove();
-
-    URL.revokeObjectURL(url);
-
-}
-
-
-function safeFileName(name){
-
-    return String(name)
-        .replace(/[^a-z0-9_-]/gi,"_");
-
-}
-
-
-/* =========================
-   LIVE CURRENCY
-========================= */
-
-let eurInrRate = null;
-
-
-/*
-   Frankfurter does not provide INR directly,
-   so we use the open ER-API service for EUR/INR.
-*/
-
-async function getLiveRate(){
-
-    const elements = [
-
-        document.getElementById(
-            "liveRateText"
-        ),
-
-        document.getElementById(
-            "dashboardRate"
-        )
-
-    ];
-
-
-    elements.forEach(el=>{
-
-        if(el)
-            el.textContent =
-                "Loading live EUR/INR rate...";
-
-    });
-
-
-    try{
-
-        const response =
-            await fetch(
-                "https://open.er-api.com/v6/latest/EUR"
-            );
-
-
-        if(!response.ok)
-            throw new Error("Rate request failed");
-
-
-        const data =
-            await response.json();
-
-
-        if(
-            data &&
-            data.rates &&
-            data.rates.INR
-        ){
-
-            eurInrRate =
-                Number(data.rates.INR);
-
-
-            const text =
-                `1 EUR = ${eurInrRate.toFixed(2)} INR`;
-
-
-            elements.forEach(el=>{
-
-                if(el)
-                    el.textContent = text;
-
-            });
-
-
-            convertCurrency();
-
-        }else{
-
-            throw new Error(
-                "INR rate unavailable"
-            );
-
-        }
-
-    }catch(error){
-
-        console.error(error);
-
-        elements.forEach(el=>{
-
-            if(el)
-                el.textContent =
-                    "Unable to load live rate. Please try again.";
-
-        });
-
-    }
-
-}
-
-
-/* =========================
-   CURRENCY CONVERTER
-========================= */
-
-function convertCurrency(){
-
-    const from =
-        document.getElementById(
-            "currencyFrom"
-        ).value;
-
-    const to =
-        document.getElementById(
-            "currencyTo"
-        ).value;
-
-    const amount =
-        Number(
-            document.getElementById(
-                "currencyAmount"
-            ).value
-        ) || 0;
-
-
-    const result =
-        document.getElementById(
-            "currencyResult"
-        );
-
-
-    if(eurInrRate === null){
-
-        result.textContent =
-            "Live rate not loaded yet.";
-
-        return;
-
-    }
-
-
-    let converted;
-
-
-    if(from === to){
-
-        converted = amount;
-
-    }else if(
-        from === "EUR" &&
-        to === "INR"
-    ){
-
-        converted =
-            amount * eurInrRate;
-
-    }else if(
-        from === "INR" &&
-        to === "EUR"
-    ){
-
-        converted =
-            amount / eurInrRate;
-
-    }
-
-
-    if(to === "INR"){
-
-        result.textContent =
-            `₹${converted.toLocaleString(
-                "en-IN",
-                {
-                    maximumFractionDigits:2
-                }
-            )}`;
-
-    }else{
-
-        result.textContent =
-            `€${converted.toLocaleString(
-                "en-US",
-                {
-                    maximumFractionDigits:2
-                }
-            )}`;
-
-    }
-
-}
-
-
-/* =========================
-   LOGIN CHECK
-========================= */
-
-if(
-    sessionStorage.getItem("evrLoggedIn")
-    === "yes"
-){
-
-    document
-        .getElementById("loginScreen")
-        .classList.add("hidden");
-
-    document
-        .getElementById("app")
-        .classList.remove("hidden");
-
-    initApp();
-
-}else{
-
-    document
-        .getElementById("loginScreen")
-        .classList.remove("hidden");
-
-    document
-        .getElementById("app")
-        .classList.add("hidden");
-
-}
-
-
-/* ENTER KEY LOGIN */
-
-document
-    .getElementById("loginPassword")
-    .addEventListener(
-        "keydown",
-        function(e){
-
-            if(e.key === "Enter")
-                login();
-
-        }
-    );
+});
 
 </script>
 
