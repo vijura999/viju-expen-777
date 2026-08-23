@@ -75,7 +75,7 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 <div class="group"><label>Category</label><select id="filterCategory" onchange="renderExpenses()"></select></div>
 <div class="group"><label>Status</label><select id="filterStatus" onchange="renderExpenses()"><option value="">All</option><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
 </div>
-<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Payment Mode</th><th>Due Date</th><th>Status</th></tr></thead><tbody id="expenseTable"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Payment Mode</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="expenseTable"></tbody></table></div>
 </div></section>
 
 <section id="upcoming" class="page"><h1>Upcoming & Overdue</h1><div class="grid2">
@@ -302,9 +302,17 @@ function renderExpenses(){
             ${statusOf(e)}
           </span>
         </td>
+        <td>
+          <button class="btn light" onclick="openExpense('${e.id}')">
+            Edit
+          </button>
+          <button class="btn danger" onclick="deleteExpense('${e.id}')">
+            Delete
+          </button>
+        </td>
       </tr>
     `).join('')
-    : '<tr><td colspan="8" class="empty">No expenses found.</td></tr>';
+    : '<tr><td colspan="9" class="empty">No expenses found.</td></tr>';
 }
 
 function renderPeople(){
@@ -371,16 +379,22 @@ let up=a.filter(e=>statusOf(e)==='Pending').sort((x,y)=>(x.dueDate||'').localeCo
 function upcomingExpenseCard(e){
   return `
     <div class="manage-row" style="align-items:center;gap:12px;flex-wrap:wrap">
+
       <div style="flex:1;min-width:220px">
         <b>${esc(e.name)}</b><br>
+
         <small>
           ${esc(e.person)} · ${esc(e.category)}
           · Due ${fmtDate(e.dueDate)}
           · ${esc(e.payment)}
-        </small><br>
+        </small>
+
+        <br>
+
         <span class="status ${statusOf(e).toLowerCase()}">
           ${statusOf(e)}
         </span>
+
         ${e.notes ? `<br><small>${esc(e.notes)}</small>` : ''}
       </div>
 
@@ -389,34 +403,46 @@ function upcomingExpenseCard(e){
       </div>
 
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn success" onclick="markExpensePaid('${e.id}')">
+
+        <button class="btn success"
+                onclick="markExpensePaid('${e.id}')">
           Paid
         </button>
 
-        <button class="btn light" onclick="openExpense('${e.id}')">
+        <button class="btn light"
+                onclick="openExpense('${e.id}')">
           Edit
         </button>
 
-        <button class="btn danger" onclick="deleteExpense('${e.id}')">
+        <button class="btn danger"
+                onclick="deleteExpense('${e.id}')">
           Delete
         </button>
+
       </div>
+
     </div>
   `;
 }
 
 function renderUpcoming(){
-  let a=getExpenses();
 
-  let up=a.filter(e=>statusOf(e)==='Pending');
-  let over=a.filter(e=>statusOf(e)==='Overdue');
+  const all=getExpenses();
 
-  document.getElementById('upcomingList').innerHTML=
-    up.map(upcomingExpenseCard).join('') ||
+  const upcoming=all.filter(
+    e=>statusOf(e)==='Pending'
+  );
+
+  const overdue=all.filter(
+    e=>statusOf(e)==='Overdue'
+  );
+
+  document.getElementById('upcomingList').innerHTML =
+    upcoming.map(upcomingExpenseCard).join('') ||
     '<div class="empty">No upcoming expenses.</div>';
 
-  document.getElementById('overdueList').innerHTML=
-    over.map(upcomingExpenseCard).join('') ||
+  document.getElementById('overdueList').innerHTML =
+    overdue.map(upcomingExpenseCard).join('') ||
     '<div class="empty">No overdue expenses.</div>';
 }
 
