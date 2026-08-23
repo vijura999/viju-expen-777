@@ -621,6 +621,7 @@ function exportJSON(){
     );
 
     toast("Full backup JSON downloaded.");
+    markBackupCompleted();
   }catch(error){
     console.error(error);
     alert("Could not create the JSON backup.");
@@ -710,11 +711,114 @@ function downloadAllCSV(){
   );
 }
 
+
+const BACKUP_REMINDER_KEY="evr_backup_reminder_v1";
+
+function getBackupReminderSettings(){
+  try{
+    return JSON.parse(localStorage.getItem(BACKUP_REMINDER_KEY)||"null") || {
+      frequencyDays:7,
+      lastBackup:null
+    };
+  }catch(e){
+    return {frequencyDays:7,lastBackup:null};
+  }
+}
+
+function saveBackupReminderSettings(){
+  const frequency=Number(document.getElementById("backupReminderFrequency")?.value||7);
+  const current=getBackupReminderSettings();
+  current.frequencyDays=frequency;
+  localStorage.setItem(BACKUP_REMINDER_KEY,JSON.stringify(current));
+  updateBackupReminderUI();
+  toast("Backup reminder saved.");
+}
+
+function markBackupCompleted(){
+  const s=getBackupReminderSettings();
+  s.lastBackup=new Date().toISOString();
+  localStorage.setItem(BACKUP_REMINDER_KEY,JSON.stringify(s));
+  updateBackupReminderUI();
+}
+
+function backupNow(){
+  exportJSON();
+}
+
+function clearBackupReminder(){
+  localStorage.removeItem(BACKUP_REMINDER_KEY);
+  updateBackupReminderUI();
+  toast("Backup reminder reset.");
+}
+
+function updateBackupReminderUI(){
+  const settings=getBackupReminderSettings();
+  const select=document.getElementById("backupReminderFrequency");
+  const status=document.getElementById("backupReminderStatus");
+
+  if(select){
+    select.value=String(settings.frequencyDays||7);
+  }
+
+  if(!status)return;
+
+  if(!settings.lastBackup){
+    status.textContent="No backup recorded yet. Please make your first backup now.";
+    status.style.color="#9b5c00";
+    return;
+  }
+
+  const last=new Date(settings.lastBackup);
+  const next=new Date(
+    last.getTime()+Number(settings.frequencyDays||7)*24*60*60*1000
+  );
+
+  const now=new Date();
+
+  if(now>=next){
+    status.textContent=
+      "Backup recommended now. Last backup: "+
+      last.toLocaleString();
+    status.style.color="#b00000";
+  }else{
+    status.textContent=
+      "Last backup: "+
+      last.toLocaleString()+
+      " · Next reminder: "+
+      next.toLocaleString();
+    status.style.color="#166534";
+  }
+}
+
+function checkBackupReminder(){
+  updateBackupReminderUI();
+
+  const settings=getBackupReminderSettings();
+  if(!settings.lastBackup)return;
+
+  const next=
+    new Date(settings.lastBackup).getTime()+
+    Number(settings.frequencyDays||7)*24*60*60*1000;
+
+  if(Date.now()>=next){
+    setTimeout(function(){
+      alert(
+        "EVR Expenses backup reminder: please download a new Full Backup JSON."
+      );
+    },800);
+  }
+}
+
 function renderAll(){fillSelect('filterPerson',db.people,'All People');fillSelect('filterCategory',db.categories,'All Categories');renderDashboard();renderExpenses();renderUpcoming();renderPeople();renderCategories();renderReports()}
 
 
 document.addEventListener("DOMContentLoaded", function(){
   renderAll();
+});
+
+document.addEventListener("DOMContentLoaded",function(){
+  updateBackupReminderUI();
+  checkBackupReminder();
 });
 </script>
 </body>
