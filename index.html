@@ -75,7 +75,7 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 <div class="group"><label>Category</label><select id="filterCategory" onchange="renderExpenses()"></select></div>
 <div class="group"><label>Status</label><select id="filterStatus" onchange="renderExpenses()"><option value="">All</option><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
 </div>
-<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Payment Mode</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="expenseTable"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Payment Mode</th><th>Due Date</th><th>Status</th></tr></thead><tbody id="expenseTable"></tbody></table></div>
 </div></section>
 
 <section id="upcoming" class="page"><h1>Upcoming & Overdue</h1><div class="grid2">
@@ -271,12 +271,42 @@ function markExpensePaid(id){
   toast("Expense marked as Paid.");
 }
 
-function deleteExpense(id){if(!confirm('Delete this expense?'))return;db.expenses=db.expenses.filter(x=>x.id!==id);saveDB();toast('Expense deleted')}
-function renderExpenses(){let q=(document.getElementById('search')?.value||'').toLowerCase(),p=document.getElementById('filterPerson')?.value||'',c=document.getElementById('filterCategory')?.value||'',st=document.getElementById('filterStatus')?.value||'';
-let a=getExpenses().filter(e=>(!q||(e.name+' '+e.notes+' '+e.category+' '+e.person).toLowerCase().includes(q))&&(!p||e.person===p)&&(!c||e.category===c)&&(!st||statusOf(e)===st));
-let tb=document.getElementById('expenseTable');tb.innerHTML=a.length?a.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.category)}</td><td>${esc(e.person)}</td><td>${esc(e.payment)}</td><td>${fmtDate(e.dueDate)}</td><td><span class="status ${statusOf(e).toLowerCase()}">${statusOf(e)}</span></td><td><button class="btn success" onclick="markExpensePaid('${e.id}')">Paid</button>
-<button class="btn light" onclick="openExpense('${e.id}')">Edit</button>
-<button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="9" class="empty">No expenses found.</td></tr>'}
+function deleteExpense(id){if(!confirm('Delete this expense?'))return;db.expenses=db.expenses.filter(x=>x.id!==id);saveDB();refreshAll();toast('Expense deleted')}
+function renderExpenses(){
+  let q=(document.getElementById('search')?.value||'').toLowerCase();
+  let p=document.getElementById('filterPerson')?.value||'';
+  let c=document.getElementById('filterCategory')?.value||'';
+  let st=document.getElementById('filterStatus')?.value||'';
+
+  let a=getExpenses().filter(e=>
+    (!q||(e.name+' '+e.notes+' '+e.category+' '+e.person).toLowerCase().includes(q)) &&
+    (!p||e.person===p) &&
+    (!c||e.category===c) &&
+    (!st||statusOf(e)===st)
+  );
+
+  let tb=document.getElementById('expenseTable');
+
+  tb.innerHTML=a.length
+    ? a.map(e=>`
+      <tr>
+        <td>${fmtDate(e.date)}</td>
+        <td>${esc(e.name)}</td>
+        <td>${money(e.amount)}</td>
+        <td>${esc(e.category)}</td>
+        <td>${esc(e.person)}</td>
+        <td>${esc(e.payment)}</td>
+        <td>${fmtDate(e.dueDate)}</td>
+        <td>
+          <span class="status ${statusOf(e).toLowerCase()}">
+            ${statusOf(e)}
+          </span>
+        </td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="8" class="empty">No expenses found.</td></tr>';
+}
+
 function renderPeople(){
   document.getElementById('peopleList').innerHTML=db.people.map((p,i)=>`
     <div class="manage-row">
@@ -338,7 +368,57 @@ function renderDashboard(){let a=getExpenses(),sum=a.reduce((s,e)=>s+Number(e.am
 document.getElementById('totalAmount').textContent=money(sum);document.getElementById('paidAmount').textContent=money(paid);document.getElementById('pendingAmount').textContent=money(pending);document.getElementById('overdueAmount').textContent=money(over);document.getElementById('peopleCount').textContent=db.people.length;
 document.getElementById('recent').innerHTML=a.slice(0,8).map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>${fmtDate(e.date)} · ${esc(e.person)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No transactions yet.</div>';
 let up=a.filter(e=>statusOf(e)==='Pending').sort((x,y)=>(x.dueDate||'').localeCompare(y.dueDate||'')).slice(0,8);document.getElementById('dashboardUpcoming').innerHTML=up.map(e=>`<div class="manage-row"><span>${esc(e.name)}<br><small>Due ${fmtDate(e.dueDate)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No upcoming expenses.</div>'}
-function renderUpcoming(){let a=getExpenses();let up=a.filter(e=>statusOf(e)==='Pending'),over=a.filter(e=>statusOf(e)==='Overdue');document.getElementById('upcomingList').innerHTML=up.map(e=>`<div class="manage-row"><span>${esc(e.name)}<br><small>${esc(e.person)} · Due ${fmtDate(e.dueDate)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No upcoming expenses.</div>';document.getElementById('overdueList').innerHTML=over.map(e=>`<div class="manage-row"><span>${esc(e.name)}<br><small>${esc(e.person)} · Due ${fmtDate(e.dueDate)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No overdue expenses.</div>'}
+function upcomingExpenseCard(e){
+  return `
+    <div class="manage-row" style="align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px">
+        <b>${esc(e.name)}</b><br>
+        <small>
+          ${esc(e.person)} · ${esc(e.category)}
+          · Due ${fmtDate(e.dueDate)}
+          · ${esc(e.payment)}
+        </small><br>
+        <span class="status ${statusOf(e).toLowerCase()}">
+          ${statusOf(e)}
+        </span>
+        ${e.notes ? `<br><small>${esc(e.notes)}</small>` : ''}
+      </div>
+
+      <div style="font-weight:bold;white-space:nowrap">
+        ${money(e.amount)}
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn success" onclick="markExpensePaid('${e.id}')">
+          Paid
+        </button>
+
+        <button class="btn light" onclick="openExpense('${e.id}')">
+          Edit
+        </button>
+
+        <button class="btn danger" onclick="deleteExpense('${e.id}')">
+          Delete
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderUpcoming(){
+  let a=getExpenses();
+
+  let up=a.filter(e=>statusOf(e)==='Pending');
+  let over=a.filter(e=>statusOf(e)==='Overdue');
+
+  document.getElementById('upcomingList').innerHTML=
+    up.map(upcomingExpenseCard).join('') ||
+    '<div class="empty">No upcoming expenses.</div>';
+
+  document.getElementById('overdueList').innerHTML=
+    over.map(upcomingExpenseCard).join('') ||
+    '<div class="empty">No overdue expenses.</div>';
+}
 
 function inPeriod(e,type){let d=e.date;if(!d)return false;let y=+d.slice(0,4),m=+d.slice(5,7);if(type==='daily')return d===document.getElementById('reportDate').value;if(type==='monthly')return y===+document.getElementById('reportYear').value&&m===+document.getElementById('reportMonth').value;return y===+document.getElementById('reportYear').value}
 function reportData(){return getExpenses().filter(e=>inPeriod(e,document.getElementById('reportType').value))}
