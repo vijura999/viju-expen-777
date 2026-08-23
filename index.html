@@ -142,6 +142,41 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 <div class="card"><h2>Import Full Backup JSON</h2><p>Restore a previous complete backup.</p><input id="importFile" type="file" accept=".json,application/json"><div class="buttons"><button class="btn success" onclick="importJSON()">Import Full Backup</button></div></div>
 <div class="card"><h2>Export All Expenses CSV</h2><p>Spreadsheet-compatible CSV file containing all expenses.</p><button class="btn primary" onclick="downloadAllCSV()">Download Expenses CSV</button></div>
 <div class="card"><h2>Save Complete PDF</h2><p>Create a PDF containing all current expenses.</p><button class="btn success" onclick="allExpensesPDF()">Save All Expenses PDF</button></div>
+
+<div class="card">
+<h2>Backup Reminder</h2>
+<p>
+Your EVR data is saved automatically in this browser.
+This reminder helps you remember to download a portable JSON backup.
+</p>
+
+<div class="group">
+<label>Backup reminder</label>
+<select id="backupReminderFrequency" onchange="saveBackupReminderSettings()">
+<option value="7">Every 7 days</option>
+<option value="14">Every 14 days</option>
+<option value="30">Every 30 days</option>
+</select>
+</div>
+
+<div
+id="backupReminderStatus"
+class="notice"
+style="margin-top:15px;margin-bottom:0">
+Checking backup status...
+</div>
+
+<div class="buttons">
+<button class="btn primary" onclick="backupNow()">
+Backup Now
+</button>
+
+<button class="btn light" onclick="clearBackupReminder()">
+Reset Reminder
+</button>
+</div>
+</div>
+
 <div class="card"><h2>Clear Everything</h2><p>This permanently removes local expenses, people and categories from this browser.</p><button class="btn danger" onclick="clearAll()">Clear All Data</button></div>
 </div>
 </section>
