@@ -2,196 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>EVR Expenses</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVR Personal Expense Manager</title>
 
-<!-- PDF library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 *{box-sizing:border-box}
-
 body{
     margin:0;
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f3f5f8;
-    color:#222;
+    font-family:Arial,sans-serif;
+    background:#f3f6fa;
+    color:#20242a;
 }
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
 
-button,input,select,textarea{
-    font:inherit;
+.hidden{display:none!important}
+
+.login{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111827;
+    padding:20px;
 }
-
-button{
-    cursor:pointer;
-    border:0;
+.login-box{
+    background:white;
+    width:100%;
+    max-width:430px;
+    padding:40px;
+    border-radius:20px;
 }
+.login-box h1{text-align:center;margin:0 0 8px}
+.login-box p{text-align:center;color:#667085;margin-bottom:30px}
 
-.header{
-    background:#101827;
+.top{
+    background:#111827;
     color:white;
-    padding:18px 30px;
+    padding:17px 25px;
     display:flex;
     justify-content:space-between;
     align-items:center;
 }
-
-.header h1{
-    margin:0;
-    font-size:28px;
-}
-
-.header-right{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-
-.logout{
-    background:#ef3030;
-    color:white;
-    padding:11px 18px;
-    border-radius:8px;
-    font-weight:bold;
-}
+.logo{font-size:25px;font-weight:bold}
 
 .nav{
     background:white;
-    padding:14px 20px;
+    padding:12px;
     display:flex;
     gap:8px;
-    flex-wrap:wrap;
+    overflow:auto;
     border-bottom:1px solid #ddd;
 }
-
 .nav button{
-    padding:12px 20px;
-    border-radius:10px;
-    background:#f0f2f5;
+    border:0;
+    background:#edf0f4;
+    padding:11px 16px;
+    border-radius:8px;
+    white-space:nowrap;
 }
-
 .nav button.active{
-    background:#2867e8;
+    background:#2563eb;
     color:white;
 }
 
 .container{
-    padding:25px;
-    max-width:1600px;
+    max-width:1500px;
     margin:auto;
+    padding:25px;
 }
-
-.page{
-    display:none;
-}
-
-.page.active{
-    display:block;
-}
-
-h2{
-    margin-top:0;
-    font-size:32px;
-}
-
-h3{
-    margin-top:0;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
-    margin-bottom:25px;
-}
+.page{display:none}
+.page.active{display:block}
 
 .card{
     background:white;
     border-radius:16px;
-    padding:25px;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
+    padding:22px;
+    margin-bottom:22px;
+    box-shadow:0 3px 14px rgba(0,0,0,.06);
 }
 
+h1{font-size:34px;margin-top:0}
+h2{margin-top:0}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:15px;
+}
 .stat{
-    font-size:30px;
-    font-weight:bold;
-    margin-top:10px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    border-left:5px solid #2563eb;
 }
-
-.blue{border-left:6px solid #2867e8}
-.green{border-left:6px solid #16a34a}
-.orange{border-left:6px solid #f97316}
-.red{border-left:6px solid #ef3030}
+.stat.green{border-left-color:#16a34a}
+.stat.orange{border-left-color:#f59e0b}
+.stat.red{border-left-color:#dc2626}
+.stat.purple{border-left-color:#7c3aed}
+.stat small{color:#667085}
+.stat strong{
+    display:block;
+    font-size:25px;
+    margin-top:8px;
+}
 
 .grid2{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:22px;
-}
-
-.grid3{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
-}
-
-.section{
-    background:white;
-    border-radius:16px;
-    padding:25px;
-    margin-bottom:22px;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
-}
-
-.btn{
-    background:#2867e8;
-    color:white;
-    padding:11px 18px;
-    border-radius:8px;
-    font-weight:bold;
-    margin:3px;
-}
-
-.btn.green{
-    background:#16a34a;
-    border:0;
-    color:white;
-}
-
-.btn.red{
-    background:#ef3030;
-    border:0;
-    color:white;
-}
-
-.btn.gray{
-    background:#64748b;
-    color:white;
-}
-
-.btn.orange{
-    background:#f97316;
-    border:0;
-    color:white;
-}
-
-input,select,textarea{
-    width:100%;
-    padding:12px;
-    border:1px solid #ccd2da;
-    border-radius:8px;
-    background:white;
-}
-
-textarea{
-    min-height:80px;
-    resize:vertical;
-}
-
-label{
-    display:block;
-    font-weight:bold;
-    margin-bottom:7px;
 }
 
 .form-grid{
@@ -200,206 +121,174 @@ label{
     gap:16px;
 }
 
-.form-group{
-    margin-bottom:15px;
+.group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+.group.full{grid-column:1/-1}
+
+label{font-weight:bold}
+
+input,select,textarea{
+    padding:12px;
+    border:1px solid #ccd3dc;
+    border-radius:8px;
+    font-size:15px;
+    background:white;
+}
+textarea{min-height:90px}
+
+.btn{
+    border:0;
+    border-radius:8px;
+    padding:11px 16px;
+    font-weight:bold;
+}
+.primary{background:#2563eb;color:white}
+.success{background:#16a34a;color:white}
+.danger{background:#dc2626;color:white}
+.warning{background:#f59e0b;color:white}
+.secondary{background:#667085;color:white}
+.light{background:#edf0f4;color:#222}
+
+.buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    margin-top:18px;
 }
 
-.table-wrap{
-    overflow-x:auto;
-}
-
+.table-wrap{overflow:auto}
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:15px;
 }
-
 th,td{
-    padding:12px 10px;
-    border-bottom:1px solid #e4e7eb;
+    padding:11px;
+    border-bottom:1px solid #e5e7eb;
     text-align:left;
     white-space:nowrap;
 }
+th{background:#f5f7fa}
 
-th{
-    background:#f4f6f8;
-}
-
-.badge{
+.status{
     padding:5px 9px;
-    border-radius:15px;
+    border-radius:20px;
     font-size:12px;
     font-weight:bold;
 }
+.paid{background:#d8f7e5;color:#08783b}
+.pending{background:#fff1cd;color:#935d00}
+.overdue{background:#ffe0e0;color:#b00000}
 
-.paid{
-    background:#dcfce7;
-    color:#166534;
+.filters{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:20px;
 }
 
-.pending{
-    background:#fef3c7;
-    color:#92400e;
+.manage-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    background:#f5f7fa;
+    border-radius:8px;
+    margin-bottom:8px;
 }
 
-.overdue{
-    background:#fee2e2;
-    color:#991b1b;
+.report-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+.report-stat{
+    background:#f5f7fa;
+    padding:18px;
+    border-radius:12px;
+}
+.report-stat strong{
+    display:block;
+    font-size:24px;
+    margin-top:6px;
+}
+
+.notice{
+    background:#eef5ff;
+    border-left:4px solid #2563eb;
+    padding:14px;
+    border-radius:7px;
+    margin-bottom:20px;
+}
+
+.empty{
+    text-align:center;
+    color:#667085;
+    padding:25px;
 }
 
 .modal{
-    display:none;
     position:fixed;
-    z-index:1000;
     inset:0;
     background:rgba(0,0,0,.65);
+    display:none;
+    align-items:center;
+    justify-content:center;
     padding:20px;
-    overflow:auto;
+    z-index:100;
 }
-
+.modal.show{display:flex}
 .modal-box{
-    max-width:850px;
-    margin:30px auto;
+    width:100%;
+    max-width:800px;
+    max-height:92vh;
+    overflow:auto;
     background:white;
-    border-radius:15px;
-    padding:28px;
+    padding:25px;
+    border-radius:16px;
 }
-
 .modal-head{
     display:flex;
     justify-content:space-between;
     align-items:center;
 }
-
 .close{
-    background:#eee;
-    border-radius:50%;
+    border:0;
+    background:#edf0f4;
     width:38px;
     height:38px;
+    border-radius:50%;
     font-size:22px;
 }
 
-.login{
-    min-height:100vh;
-    background:linear-gradient(135deg,#101827,#29364e);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-}
-
-.login-box{
-    width:100%;
-    max-width:540px;
-    background:white;
-    border-radius:22px;
-    padding:45px;
-    box-shadow:0 15px 50px rgba(0,0,0,.25);
-}
-
-.login-box h1{
-    text-align:center;
-    font-size:40px;
-    margin-bottom:5px;
-}
-
-.login-box p{
-    text-align:center;
-    color:#687386;
-}
-
-.login-btn{
-    width:100%;
-    padding:14px;
-    background:#2867e8;
-    color:white;
-    border-radius:9px;
-    font-weight:bold;
-    font-size:17px;
-}
-
-.login-note{
-    text-align:center;
-    margin-top:20px;
-    color:#687386;
-}
-
-.converter{
+.currency-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
 }
-
-.rate{
-    font-size:28px;
+.currency-card{
+    background:#f5f7fa;
+    padding:22px;
+    border-radius:14px;
+}
+.currency-value{
+    font-size:27px;
     font-weight:bold;
-    margin:15px 0;
-}
-
-.toolbar{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-bottom:15px;
-}
-
-.search{
-    max-width:350px;
-}
-
-.empty{
-    color:#687386;
-    padding:25px 0;
-    text-align:center;
-}
-
-.danger-text{
-    color:#b91c1c;
-    font-weight:bold;
-}
-
-.success-text{
-    color:#15803d;
-    font-weight:bold;
+    margin-top:8px;
 }
 
 @media(max-width:1000px){
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
-    .grid3{
-        grid-template-columns:1fr 1fr;
-    }
+    .stats{grid-template-columns:repeat(3,1fr)}
 }
-
 @media(max-width:700px){
-    .header{
-        padding:15px;
-    }
-
-    .header h1{
-        font-size:21px;
-    }
-
-    .container{
-        padding:15px;
-    }
-
-    .cards,
-    .grid2,
-    .grid3,
-    .form-grid,
-    .converter{
+    .stats,.grid2,.form-grid,.filters,
+    .report-stats,.currency-grid{
         grid-template-columns:1fr;
     }
-
-    .login-box{
-        padding:25px;
-    }
-
-    .login-box h1{
-        font-size:30px;
-    }
+    .container{padding:15px}
 }
 </style>
 </head>
@@ -407,102 +296,157 @@ th{
 <body>
 
 <!-- LOGIN -->
-<div id="loginPage" class="login">
+<div id="loginScreen" class="login">
+
 <div class="login-box">
-    <h1>EVR Expenses</h1>
-    <p>Expense & Transaction Manager</p>
 
-    <div class="form-group">
-        <label>Username</label>
-        <input id="loginUser" placeholder="Username">
-    </div>
+<h1>EVR Expenses</h1>
+<p>Personal Expense Manager</p>
 
-    <div class="form-group">
-        <label>Password</label>
-        <input id="loginPass" type="password" placeholder="Password">
-    </div>
+<div class="group">
+<label>Username</label>
+<input id="username" placeholder="Username">
+</div>
 
-    <button class="login-btn" onclick="login()">Login</button>
+<br>
 
-    <div class="login-note">
-        Default login: <b>admin</b> / <b>admin123</b>
-    </div>
+<div class="group">
+<label>Password</label>
+<input id="password" type="password" placeholder="Password">
+</div>
 
-    <div id="loginError" class="danger-text" style="text-align:center;margin-top:12px"></div>
+<br>
+
+<button class="btn primary" style="width:100%" onclick="login()">
+Login
+</button>
+
+<p style="margin-top:15px">
+Default: <b>admin</b> / <b>admin123</b>
+</p>
+
 </div>
 </div>
 
-<!-- APP -->
-<div id="app" style="display:none">
 
-<header class="header">
-    <h1>EVR Expenses</h1>
-    <div class="header-right">
-        <span id="currentUser">admin</span>
-        <button class="logout" onclick="logout()">Logout</button>
-    </div>
+<!-- APPLICATION -->
+<div id="application" class="hidden">
+
+<header class="top">
+<div class="logo">EVR Expenses</div>
+
+<div>
+<span>Personal</span>
+<button class="btn danger" onclick="logout()">Logout</button>
+</div>
 </header>
 
+
 <nav class="nav">
-    <button onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</button>
-    <button onclick="showPage('expenses')" id="nav-expenses">Expenses</button>
-    <button onclick="showPage('upcoming')" id="nav-upcoming">Upcoming</button>
-    <button onclick="showPage('people')" id="nav-people">People</button>
-    <button onclick="showPage('categories')" id="nav-categories">Categories</button>
-    <button onclick="showPage('reports')" id="nav-reports">Reports</button>
-    <button onclick="showPage('currency')" id="nav-currency">Currency</button>
-    <button onclick="showPage('backup')" id="nav-backup">Backup / Export</button>
+
+<button class="active" onclick="page('dashboard',this)">
+Dashboard
+</button>
+
+<button onclick="page('expenses',this)">
+Expenses
+</button>
+
+<button onclick="page('upcoming',this)">
+Upcoming
+</button>
+
+<button onclick="page('people',this)">
+People
+</button>
+
+<button onclick="page('categories',this)">
+Categories
+</button>
+
+<button onclick="page('reports',this)">
+Reports
+</button>
+
+<button onclick="page('currency',this)">
+Currency
+</button>
+
+<button onclick="page('backup',this)">
+Backup / Export
+</button>
+
 </nav>
+
 
 <main class="container">
 
+
 <!-- DASHBOARD -->
-<section id="dashboard" class="page">
+<section id="dashboard" class="page active">
 
-<h2>Dashboard</h2>
+<h1>Dashboard</h1>
 
-<div class="cards">
-
-<div class="card blue">
-    <div>Total Expenses</div>
-    <div class="stat" id="dashTotal">₹0.00</div>
+<div class="notice">
+All expenses are recorded in <b>₹ INR</b>.
+Your data is automatically saved locally in this browser.
 </div>
 
-<div class="card green">
-    <div>People</div>
-    <div class="stat" id="dashPeople">0</div>
+<div class="stats">
+
+<div class="stat">
+<small>Total Expenses</small>
+<strong id="totalAmount">₹0.00</strong>
 </div>
 
-<div class="card orange">
-    <div>Upcoming</div>
-    <div class="stat" id="dashUpcoming">0</div>
+<div class="stat green">
+<small>Paid</small>
+<strong id="paidAmount">₹0.00</strong>
 </div>
 
-<div class="card red">
-    <div>Overdue</div>
-    <div class="stat" id="dashOverdue">0</div>
+<div class="stat orange">
+<small>Pending</small>
+<strong id="pendingAmount">₹0.00</strong>
+</div>
+
+<div class="stat red">
+<small>Overdue</small>
+<strong id="overdueAmount">₹0.00</strong>
+</div>
+
+<div class="stat purple">
+<small>People</small>
+<strong id="peopleCount">0</strong>
 </div>
 
 </div>
+
 
 <div class="grid2">
 
-<div class="section">
-    <h3>Recent Transactions</h3>
-    <button class="btn" onclick="openExpenseModal()">+ Add Expense</button>
-    <div id="recentTransactions"></div>
+<div class="card">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h2>Recent Transactions</h2>
+
+<button class="btn primary" onclick="openExpense()">
++ Add Expense
+</button>
 </div>
 
-<div class="section">
-    <h3>Upcoming Expenses</h3>
-    <div id="dashboardUpcoming"></div>
-</div>
+<div id="recent"></div>
 
 </div>
 
-<div class="section">
-    <h3>Expense Summary</h3>
-    <div id="dashboardSummary"></div>
+
+<div class="card">
+
+<h2>Upcoming Expenses</h2>
+
+<div id="dashboardUpcoming"></div>
+
+</div>
+
 </div>
 
 </section>
@@ -511,17 +455,58 @@ th{
 <!-- EXPENSES -->
 <section id="expenses" class="page">
 
-<h2>Expenses</h2>
+<h1>Expenses</h1>
 
-<div class="section">
+<div class="card">
 
-<div class="toolbar">
-<button class="btn" onclick="openExpenseModal()">+ Add Expense</button>
-<input class="search" id="expenseSearch" placeholder="Search expenses..." oninput="renderExpenses()">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h2>All Expenses</h2>
+
+<button class="btn primary" onclick="openExpense()">
++ Add Expense
+</button>
 </div>
 
+<br>
+
+<div class="filters">
+
+<div class="group">
+<label>Search</label>
+<input id="search" oninput="renderExpenses()" placeholder="Search">
+</div>
+
+<div class="group">
+<label>Person</label>
+<select id="filterPerson" onchange="renderExpenses()">
+<option value="">All People</option>
+</select>
+</div>
+
+<div class="group">
+<label>Category</label>
+<select id="filterCategory" onchange="renderExpenses()">
+<option value="">All Categories</option>
+</select>
+</div>
+
+<div class="group">
+<label>Status</label>
+<select id="filterStatus" onchange="renderExpenses()">
+<option value="">All</option>
+<option>Paid</option>
+<option>Pending</option>
+<option>Overdue</option>
+</select>
+</div>
+
+</div>
+
+
 <div class="table-wrap">
+
 <table>
+
 <thead>
 <tr>
 <th>Date</th>
@@ -529,90 +514,83 @@ th{
 <th>Amount</th>
 <th>Category</th>
 <th>Person</th>
-<th>Payment</th>
-<th>Status</th>
+<th>Payment Mode</th>
 <th>Due Date</th>
+<th>Status</th>
 <th>Actions</th>
 </tr>
 </thead>
+
 <tbody id="expenseTable"></tbody>
+
 </table>
+
 </div>
 
 </div>
+
 </section>
 
 
 <!-- UPCOMING -->
 <section id="upcoming" class="page">
 
-<h2>Upcoming Expenses</h2>
+<h1>Upcoming & Overdue</h1>
 
-<div class="section">
+<div class="grid2">
 
-<div class="cards">
-<div class="card orange">
-<div>Upcoming</div>
-<div class="stat" id="upcomingCount">0</div>
-</div>
+<div class="card">
 
-<div class="card red">
-<div>Overdue</div>
-<div class="stat" id="overdueCount">0</div>
-</div>
+<h2>Upcoming</h2>
 
-<div class="card green">
-<div>Upcoming Amount</div>
-<div class="stat" id="upcomingAmount">₹0</div>
-</div>
+<div id="upcomingList"></div>
 
 </div>
 
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>Due Date</th>
-<th>Expense</th>
-<th>Amount</th>
-<th>Person</th>
-<th>Category</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody id="upcomingTable"></tbody>
-</table>
-</div>
+<div class="card">
 
-<br>
+<h2>Overdue</h2>
 
-<button class="btn orange" onclick="pdfUpcoming()">Save Upcoming Expenses PDF</button>
+<div id="overdueList"></div>
 
 </div>
+
+</div>
+
 </section>
 
 
 <!-- PEOPLE -->
 <section id="people" class="page">
 
-<h2>People</h2>
+<h1>People</h1>
 
 <div class="grid2">
 
-<div class="section">
-<h3>Add Person</h3>
+<div class="card">
 
-<div class="form-group">
+<h2>Add Person</h2>
+
+<div class="group">
 <label>Person Name</label>
-<input id="newPerson" placeholder="Example: John">
+<input id="newPerson" placeholder="Person name">
 </div>
 
-<button class="btn" onclick="addPerson()">Add Person</button>
+<div class="buttons">
+<button class="btn success" onclick="addPerson()">
+Add Person
+</button>
 </div>
 
-<div class="section">
-<h3>People List</h3>
+</div>
+
+
+<div class="card">
+
+<h2>People List</h2>
+
 <div id="peopleList"></div>
+
 </div>
 
 </div>
@@ -623,24 +601,34 @@ th{
 <!-- CATEGORIES -->
 <section id="categories" class="page">
 
-<h2>Categories</h2>
+<h1>Categories</h1>
 
 <div class="grid2">
 
-<div class="section">
-<h3>Add Category</h3>
+<div class="card">
 
-<div class="form-group">
+<h2>Add Category</h2>
+
+<div class="group">
 <label>Category Name</label>
-<input id="newCategory" placeholder="Example: Travel">
+<input id="newCategory" placeholder="Category name">
 </div>
 
-<button class="btn" onclick="addCategory()">Add Category</button>
+<div class="buttons">
+<button class="btn success" onclick="addCategory()">
+Add Category
+</button>
 </div>
 
-<div class="section">
-<h3>Category List</h3>
+</div>
+
+
+<div class="card">
+
+<h2>Category List</h2>
+
 <div id="categoryList"></div>
+
 </div>
 
 </div>
@@ -651,111 +639,204 @@ th{
 <!-- REPORTS -->
 <section id="reports" class="page">
 
-<h2>Reports</h2>
+<h1>Reports</h1>
 
-<div class="section">
 
-<h3>Expense Summary</h3>
+<!-- PERIOD REPORT -->
+<div class="card">
 
-<div class="cards">
+<h2>Daily / Monthly / Yearly Report</h2>
 
-<div class="card blue">
-<div>Total Expenses</div>
-<div class="stat" id="reportTotal">₹0</div>
+<div class="form-grid">
+
+<div class="group">
+<label>Report Type</label>
+<select id="reportType" onchange="renderPeriodReport()">
+<option value="daily">Daily</option>
+<option value="monthly" selected>Monthly</option>
+<option value="yearly">Yearly</option>
+</select>
 </div>
 
-<div class="card green">
-<div>Number of Expenses</div>
-<div class="stat" id="reportCount">0</div>
+<div class="group" id="reportDateBox">
+<label>Date</label>
+<input id="reportDate" type="date" onchange="renderPeriodReport()">
 </div>
 
-<div class="card orange">
-<div>Average Expense</div>
-<div class="stat" id="reportAverage">₹0</div>
+<div class="group" id="reportMonthBox">
+<label>Month</label>
+<select id="reportMonth" onchange="renderPeriodReport()">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
 </div>
 
-<div class="card red">
-<div>Pending</div>
-<div class="stat" id="reportPending">₹0</div>
+<div class="group">
+<label>Year</label>
+<select id="reportYear" onchange="renderPeriodReport()"></select>
 </div>
 
-</div>
-
-</div>
-
-
-<div class="section">
-
-<h3>Report Period</h3>
-
-<div class="toolbar">
-<button class="btn" onclick="reportPeriod('daily')">Daily</button>
-<button class="btn" onclick="reportPeriod('monthly')">Monthly</button>
-<button class="btn" onclick="reportPeriod('yearly')">Yearly</button>
-<button class="btn gray" onclick="reportPeriod('all')">All</button>
 </div>
 
 <div id="periodReport"></div>
 
-<br>
+<div class="buttons">
+<button class="btn success" onclick="periodPDF()">
+Save PDF
+</button>
 
-<button class="btn orange" onclick="pdfCurrentReport()">Save Current Report PDF</button>
+<button class="btn primary" onclick="periodCSV()">
+Export CSV
+</button>
+</div>
 
 </div>
 
 
-<div class="section">
+<!-- PERSON REPORT -->
+<div class="card">
 
-<h3>Individual Person Report</h3>
+<h2>Individual Person Report</h2>
 
 <div class="form-grid">
 
-<div>
-<label>Select Person</label>
-<select id="personReportSelect" onchange="renderPersonReport()"></select>
+<div class="group">
+<label>Person</label>
+<select id="personReportPerson" onchange="renderPersonReport()">
+<option value="">Select Person</option>
+</select>
 </div>
 
-<div>
+<div class="group">
 <label>Period</label>
-<select id="personPeriod" onchange="renderPersonReport()">
-<option value="all">All Time</option>
+<select id="personReportType" onchange="renderPersonReport()">
 <option value="daily">Daily</option>
-<option value="monthly">Monthly</option>
+<option value="monthly" selected>Monthly</option>
 <option value="yearly">Yearly</option>
+<option value="all">All Time</option>
 </select>
+</div>
+
+<div class="group" id="personDateBox">
+<label>Date</label>
+<input id="personDate" type="date" onchange="renderPersonReport()">
+</div>
+
+<div class="group" id="personMonthBox">
+<label>Month</label>
+<select id="personMonth" onchange="renderPersonReport()">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+</div>
+
+<div class="group" id="personYearBox">
+<label>Year</label>
+<select id="personYear" onchange="renderPersonReport()"></select>
 </div>
 
 </div>
 
 <div id="personReport"></div>
 
-<br>
+<div class="buttons">
+<button class="btn success" onclick="personPDF()">
+Save Person PDF
+</button>
 
-<button class="btn green" onclick="pdfPerson()">Save Person PDF</button>
+<button class="btn primary" onclick="personCSV()">
+Export Person CSV
+</button>
+</div>
 
 </div>
 
 
-<div class="section">
+<!-- CATEGORY REPORT -->
+<div class="card">
 
-<h3>Category Report</h3>
+<h2>Category Report</h2>
 
-<select id="categoryReportSelect" onchange="renderCategoryReport()"></select>
+<div class="form-grid">
+
+<div class="group">
+<label>Category</label>
+<select id="categoryReportCategory" onchange="renderCategoryReport()">
+<option value="">Select Category</option>
+</select>
+</div>
+
+<div class="group">
+<label>Period</label>
+<select id="categoryReportType" onchange="renderCategoryReport()">
+<option value="daily">Daily</option>
+<option value="monthly" selected>Monthly</option>
+<option value="yearly">Yearly</option>
+<option value="all">All Time</option>
+</select>
+</div>
+
+<div class="group" id="categoryDateBox">
+<label>Date</label>
+<input id="categoryDate" type="date" onchange="renderCategoryReport()">
+</div>
+
+<div class="group" id="categoryMonthBox">
+<label>Month</label>
+<select id="categoryMonth" onchange="renderCategoryReport()">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+</div>
+
+<div class="group" id="categoryYearBox">
+<label>Year</label>
+<select id="categoryYear" onchange="renderCategoryReport()"></select>
+</div>
+
+</div>
 
 <div id="categoryReport"></div>
 
-<br>
+<div class="buttons">
+<button class="btn success" onclick="categoryPDF()">
+Save Category PDF
+</button>
 
-<button class="btn green" onclick="pdfCategory()">Save Category PDF</button>
-
+<button class="btn primary" onclick="categoryCSV()">
+Export Category CSV
+</button>
 </div>
-
-
-<div class="section">
-
-<h3>Payment Mode Report</h3>
-
-<div id="paymentReport"></div>
 
 </div>
 
@@ -765,60 +846,37 @@ th{
 <!-- CURRENCY -->
 <section id="currency" class="page">
 
-<h2>Currency</h2>
+<h1>Currency</h1>
 
-<div class="section">
-
-<h3>Live EUR / INR Exchange Rate</h3>
-
-<div class="rate" id="liveRate">Loading...</div>
-
-<div id="rateTime"></div>
-
-<br>
-
-<button class="btn" onclick="loadRate()">Refresh Live Rate</button>
-
+<div class="notice">
+Expenses remain in INR. This page is only for live EUR/INR reference.
 </div>
 
+<div class="currency-grid">
 
-<div class="section">
-
-<h3>Currency Converter</h3>
-
-<div class="converter">
-
-<div>
-<label>From</label>
-<select id="fromCurrency">
-<option value="EUR">EUR (€)</option>
-<option value="INR">INR (₹)</option>
-</select>
+<div class="currency-card">
+EUR → INR
+<div class="currency-value" id="eurInr">Loading...</div>
 </div>
 
-<div>
-<label>To</label>
-<select id="toCurrency">
-<option value="INR">INR (₹)</option>
-<option value="EUR">EUR (€)</option>
-</select>
+<div class="currency-card">
+INR → EUR
+<div class="currency-value" id="inrEur">Loading...</div>
+</div>
+
+<div class="currency-card">
+Last Updated
+<div class="currency-value" style="font-size:17px" id="rateTime">
+Loading...
+</div>
 </div>
 
 </div>
 
-<br>
-
-<div class="form-group">
-<label>Amount</label>
-<input type="number" id="convertAmount" value="1" min="0" step="0.01">
-</div>
-
-<button class="btn" onclick="convertCurrency()">Convert</button>
-
-<div class="section" style="margin-top:20px;background:#f5f7fa">
-<h3 id="conversionResult">Result</h3>
-</div>
-
+<div class="buttons">
+<button class="btn primary" onclick="loadRate()">
+Refresh Live Rate
+</button>
 </div>
 
 </section>
@@ -827,101 +885,80 @@ th{
 <!-- BACKUP -->
 <section id="backup" class="page">
 
-<h2>Backup / Export</h2>
+<h1>Backup / Export</h1>
 
 <div class="grid2">
 
-<div class="section">
-<h3>Export Complete Data</h3>
-<p>Save all expenses, people and categories as JSON.</p>
-<button class="btn" onclick="exportJSON()">Export All Data</button>
-</div>
+<div class="card">
 
-<div class="section">
-<h3>Import Data</h3>
-<p>Restore a previously saved JSON backup.</p>
+<h2>Export Full Backup JSON</h2>
 
-<input type="file" id="importFile" accept=".json">
-
-<br><br>
-
-<button class="btn" onclick="importJSON()">Import Data</button>
-</div>
-
-</div>
-
-
-<div class="grid2">
-
-<div class="section">
-<h3>Export Expenses CSV</h3>
-<p>Export expenses in spreadsheet-compatible format.</p>
-<button class="btn" onclick="exportCSV()">Export CSV</button>
-</div>
-
-<div class="section">
-<h3>PDF Export</h3>
-<p>Save your complete expense database as PDF.</p>
-
-<button class="btn green" onclick="pdfAll()">Save All Expenses PDF</button>
-
-<br><br>
-
-<button class="btn orange" onclick="pdfUpcoming()">Save Upcoming Expenses PDF</button>
-
-</div>
-
-</div>
-
-
-<div class="section">
-
-<h3>PDF Reports</h3>
-
-<div class="grid3">
-
-<div>
-<label>Person</label>
-<select id="pdfPersonSelect"></select>
-<button class="btn green" onclick="pdfPerson()">Person PDF</button>
-</div>
-
-<div>
-<label>Category</label>
-<select id="pdfCategorySelect"></select>
-<button class="btn green" onclick="pdfCategory()">Category PDF</button>
-</div>
-
-<div>
-<label>Period</label>
-<select id="pdfPeriod">
-<option value="all">All</option>
-<option value="daily">Daily</option>
-<option value="monthly">Monthly</option>
-<option value="yearly">Yearly</option>
-</select>
-<button class="btn green" onclick="pdfSelectedPeriod()">Period PDF</button>
-</div>
-
-</div>
-
-</div>
-
-
-<div class="section">
-
-<h3>Clear All Data</h3>
-<p class="danger-text">
-This permanently removes expenses, people and categories from this browser.
+<p>
+This creates a complete backup of your expenses,
+people and categories.
 </p>
 
-<button class="btn red" onclick="clearAllData()">Clear All Data</button>
+<button class="btn primary" onclick="exportBackup()">
+Download Full Backup JSON
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Import Full Backup JSON</h2>
+
+<p>
+Restore your complete data from a previously saved backup.
+</p>
+
+<input id="backupFile" type="file" accept=".json">
+
+<div class="buttons">
+<button class="btn success" onclick="importBackup()">
+Import Full Backup
+</button>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="grid2">
+
+<div class="card">
+
+<h2>Export All Expenses CSV</h2>
+
+<button class="btn primary" onclick="allCSV()">
+Download Expenses CSV
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Clear Everything</h2>
+
+<p>
+This removes all expenses, people and categories from this browser.
+</p>
+
+<button class="btn danger" onclick="clearEverything()">
+Clear All Data
+</button>
+
+</div>
 
 </div>
 
 </section>
 
 </main>
+
 </div>
 
 
@@ -931,2032 +968,2007 @@ This permanently removes expenses, people and categories from this browser.
 <div class="modal-box">
 
 <div class="modal-head">
+
 <h2 id="modalTitle">Add Expense</h2>
-<button class="close" onclick="closeExpenseModal()">×</button>
+
+<button class="close" onclick="closeExpense()">×</button>
+
 </div>
 
-<input type="hidden" id="editExpenseId">
+<input type="hidden" id="editId">
 
 <div class="form-grid">
 
-<div class="form-group">
+<div class="group">
 <label>Expense Name</label>
 <input id="expenseName" placeholder="Example: Rent">
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Amount (₹ INR)</label>
-<input id="expenseAmount" type="number" min="0" step="0.01" placeholder="10000">
+<input id="expenseAmount" type="number" min="0" step="0.01">
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Category</label>
 <select id="expenseCategory"></select>
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Person</label>
 <select id="expensePerson"></select>
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Expense Date</label>
 <input id="expenseDate" type="date">
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Due Date</label>
 <input id="expenseDueDate" type="date">
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Status</label>
 <select id="expenseStatus">
-<option value="Paid">Paid</option>
-<option value="Pending">Pending</option>
-<option value="Overdue">Overdue</option>
+<option>Paid</option>
+<option>Pending</option>
 </select>
 </div>
 
-<div class="form-group">
+<div class="group">
 <label>Payment Mode</label>
-<select id="expensePayment">
+<select id="paymentMode">
 <option>Cash</option>
-<option>Bank Transfer</option>
-<option>Credit Card</option>
-<option>Debit Card</option>
 <option>UPI</option>
-<option>PayPal</option>
-<option>Direct Debit</option>
+<option>Bank Transfer</option>
+<option>Debit Card</option>
+<option>Credit Card</option>
+<option>Cheque</option>
 <option>Other</option>
 </select>
 </div>
 
-<div class="form-group" style="grid-column:1/-1">
+<div class="group full">
 <label>Notes</label>
-<textarea id="expenseNotes" placeholder="Optional"></textarea>
+<textarea id="expenseNotes"></textarea>
 </div>
 
 </div>
 
-<button class="btn" onclick="saveExpense()">Save Expense</button>
+<div class="buttons">
+
+<button class="btn primary" onclick="saveExpense()">
+Save Expense
+</button>
+
+<button class="btn light" onclick="closeExpense()">
+Cancel
+</button>
+
+</div>
 
 </div>
 </div>
 
 
 <script>
-/* =========================
+
+/* =========================================================
    DATA
-========================= */
+========================================================= */
 
-let expenses = JSON.parse(localStorage.getItem("evr_expenses") || "[]");
+const defaultPeople=["Me"];
 
-let people = JSON.parse(localStorage.getItem("evr_people") || '["Me"]');
+const defaultCategories=[
+"Food",
+"Travel",
+"Rent",
+"Utilities",
+"Shopping",
+"Medical",
+"Education",
+"Business",
+"Entertainment",
+"Other"
+];
 
-let categories = JSON.parse(
-    localStorage.getItem("evr_categories") ||
-    '["Food","Travel","Rent","Utilities","Shopping","Medical","Bills","Other"]'
+let expenses=
+JSON.parse(localStorage.getItem("EVR_EXPENSES")||"[]");
+
+let people=
+JSON.parse(localStorage.getItem("EVR_PEOPLE")||"null")
+||defaultPeople;
+
+let categories=
+JSON.parse(localStorage.getItem("EVR_CATEGORIES")||"null")
+||defaultCategories;
+
+
+/* =========================================================
+   AUTOMATIC LOCAL SAVE
+========================================================= */
+
+function saveData(){
+
+localStorage.setItem(
+"EVR_EXPENSES",
+JSON.stringify(expenses)
 );
 
-let liveRate = 100;
-let currentReportMode = "all";
+localStorage.setItem(
+"EVR_PEOPLE",
+JSON.stringify(people)
+);
+
+localStorage.setItem(
+"EVR_CATEGORIES",
+JSON.stringify(categories)
+);
+
+}
 
 
-/* =========================
+/* =========================================================
    LOGIN
-========================= */
+========================================================= */
 
 function login(){
 
-    const user=document.getElementById("loginUser").value.trim();
-    const pass=document.getElementById("loginPass").value;
+let u=document.getElementById("username").value.trim();
+let p=document.getElementById("password").value;
 
-    if(user==="admin" && pass==="admin123"){
+if(u==="admin" && p==="admin123"){
 
-        localStorage.setItem("evr_logged","1");
+sessionStorage.setItem("EVR_LOGIN","yes");
 
-        document.getElementById("loginPage").style.display="none";
-        document.getElementById("app").style.display="block";
+document.getElementById("loginScreen")
+.classList.add("hidden");
 
-        document.getElementById("currentUser").textContent=user;
+document.getElementById("application")
+.classList.remove("hidden");
 
-        initialize();
+init();
 
-    }else{
+}else{
 
-        document.getElementById("loginError").textContent=
-        "Invalid username or password.";
+alert("Incorrect username or password.");
 
-    }
+}
+
 }
 
 function logout(){
 
-    localStorage.removeItem("evr_logged");
+sessionStorage.removeItem("EVR_LOGIN");
 
-    document.getElementById("app").style.display="none";
-    document.getElementById("loginPage").style.display="flex";
+document.getElementById("application")
+.classList.add("hidden");
 
-    document.getElementById("loginUser").value="";
-    document.getElementById("loginPass").value="";
+document.getElementById("loginScreen")
+.classList.remove("hidden");
+
 }
 
-document.addEventListener("keydown",function(e){
 
-    if(e.key==="Enter" &&
-       document.getElementById("loginPage").style.display!=="none"){
+/* =========================================================
+   INIT
+========================================================= */
 
-        login();
+document.addEventListener("DOMContentLoaded",function(){
 
-    }
+if(sessionStorage.getItem("EVR_LOGIN")==="yes"){
+
+document.getElementById("loginScreen")
+.classList.add("hidden");
+
+document.getElementById("application")
+.classList.remove("hidden");
+
+init();
+
+}
 
 });
 
 
-/* =========================
-   INITIALIZE
-========================= */
+function init(){
 
-function initialize(){
+saveData();
 
-    saveData();
+let today=todayISO();
 
-    showPage("dashboard");
+document.getElementById("reportDate").value=today;
+document.getElementById("personDate").value=today;
+document.getElementById("categoryDate").value=today;
+document.getElementById("expenseDate").value=today;
 
-    renderAll();
+let month=new Date().getMonth()+1;
 
-    loadRate();
+document.getElementById("reportMonth").value=month;
+document.getElementById("personMonth").value=month;
+document.getElementById("categoryMonth").value=month;
 
-}
+populateAll();
 
+renderDashboard();
+renderExpenses();
+renderUpcoming();
 
-/* =========================
-   STORAGE
-========================= */
+renderPeriodReport();
+renderPersonReport();
+renderCategoryReport();
 
-function saveData(){
-
-    localStorage.setItem(
-        "evr_expenses",
-        JSON.stringify(expenses)
-    );
-
-    localStorage.setItem(
-        "evr_people",
-        JSON.stringify(people)
-    );
-
-    localStorage.setItem(
-        "evr_categories",
-        JSON.stringify(categories)
-    );
-}
-
-
-/* =========================
-   PAGE NAVIGATION
-========================= */
-
-function showPage(page){
-
-    document.querySelectorAll(".page").forEach(p=>{
-        p.classList.remove("active");
-    });
-
-    document.querySelectorAll(".nav button").forEach(b=>{
-        b.classList.remove("active");
-    });
-
-    document.getElementById(page).classList.add("active");
-
-    const nav=document.getElementById("nav-"+page);
-
-    if(nav) nav.classList.add("active");
-
-    renderAll();
+loadRate();
 
 }
 
 
-/* =========================
-   UTILITIES
-========================= */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-function money(value){
+function page(id,button){
 
-    return "₹"+Number(value||0).toLocaleString(
-        "en-IN",
-        {
-            minimumFractionDigits:2,
-            maximumFractionDigits:2
-        }
-    );
+document.querySelectorAll(".page")
+.forEach(x=>x.classList.remove("active"));
 
+document.getElementById(id)
+.classList.add("active");
+
+document.querySelectorAll(".nav button")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+if(id==="dashboard")renderDashboard();
+if(id==="expenses")renderExpenses();
+if(id==="upcoming")renderUpcoming();
+if(id==="people")renderPeople();
+if(id==="categories")renderCategories();
+if(id==="reports"){
+populateYears();
+renderPeriodReport();
+renderPersonReport();
+renderCategoryReport();
 }
-
-function today(){
-
-    return new Date().toISOString().split("T")[0];
-
-}
-
-function formatDate(date){
-
-    if(!date) return "-";
-
-    const d=new Date(date+"T00:00:00");
-
-    return d.toLocaleDateString("en-GB");
-
-}
-
-function escapeHTML(str){
-
-    return String(str||"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-function statusClass(status){
-
-    if(status==="Paid") return "paid";
-
-    if(status==="Pending") return "pending";
-
-    return "overdue";
-
-}
-
-function getEffectiveStatus(e){
-
-    if(e.status==="Paid") return "Paid";
-
-    if(e.dueDate && e.dueDate<today()) return "Overdue";
-
-    return e.status || "Pending";
+if(id==="currency")loadRate();
 
 }
 
 
-/* =========================
-   PEOPLE
-========================= */
+/* =========================================================
+   HELPERS
+========================================================= */
 
-function addPerson(){
+function todayISO(){
 
-    const input=document.getElementById("newPerson");
+let d=new Date();
 
-    const name=input.value.trim();
-
-    if(!name){
-        alert("Enter a person name.");
-        return;
-    }
-
-    if(people.some(p=>p.toLowerCase()===name.toLowerCase())){
-
-        alert("This person already exists.");
-        return;
-
-    }
-
-    people.push(name);
-
-    input.value="";
-
-    saveData();
-
-    renderAll();
+return d.getFullYear()+"-"+
+String(d.getMonth()+1).padStart(2,"0")+"-"+
+String(d.getDate()).padStart(2,"0");
 
 }
 
-function deletePerson(index){
+function money(n){
 
-    const name=people[index];
-
-    const used=expenses.some(e=>e.person===name);
-
-    if(used){
-
-        if(!confirm(
-            "This person is used by existing expenses. Delete anyway?"
-        )) return;
-
-    }
-
-    people.splice(index,1);
-
-    if(people.length===0) people.push("Me");
-
-    saveData();
-
-    renderAll();
+return "₹"+Number(n||0).toLocaleString(
+"en-IN",
+{
+minimumFractionDigits:2,
+maximumFractionDigits:2
+}
+);
 
 }
 
-function renderPeople(){
+function dateText(x){
 
-    const box=document.getElementById("peopleList");
+if(!x)return"-";
 
-    if(!people.length){
+return new Date(x+"T00:00:00")
+.toLocaleDateString("en-IN");
 
-        box.innerHTML='<div class="empty">No people.</div>';
-        return;
+}
 
-    }
+function esc(x){
 
-    box.innerHTML=people.map((p,i)=>`
+return String(x??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
-        <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:12px;
-            border-bottom:1px solid #ddd
-        ">
+}
 
-            <b>${escapeHTML(p)}</b>
+function jsEsc(x){
 
-            <button
-                class="btn red"
-                onclick="deletePerson(${i})">
-                Delete
-            </button>
-
-        </div>
-
-    `).join("");
+return String(x)
+.replace(/\\/g,"\\\\")
+.replace(/'/g,"\\'");
 
 }
 
 
-/* =========================
-   CATEGORIES
-========================= */
+/* =========================================================
+   SELECTORS
+========================================================= */
 
-function addCategory(){
+function populateAll(){
 
-    const input=document.getElementById("newCategory");
+populatePeople();
+populateCategories();
+populateYears();
 
-    const name=input.value.trim();
-
-    if(!name){
-
-        alert("Enter a category name.");
-        return;
-
-    }
-
-    if(categories.some(
-        c=>c.toLowerCase()===name.toLowerCase()
-    )){
-
-        alert("This category already exists.");
-        return;
-
-    }
-
-    categories.push(name);
-
-    input.value="";
-
-    saveData();
-
-    renderAll();
-
-}
-
-function deleteCategory(index){
-
-    const name=categories[index];
-
-    const used=expenses.some(e=>e.category===name);
-
-    if(used){
-
-        if(!confirm(
-            "This category is used by existing expenses. Delete anyway?"
-        )) return;
-
-    }
-
-    categories.splice(index,1);
-
-    if(categories.length===0){
-
-        categories.push("Other");
-
-    }
-
-    saveData();
-
-    renderAll();
-
-}
-
-function renderCategories(){
-
-    const box=document.getElementById("categoryList");
-
-    box.innerHTML=categories.map((c,i)=>`
-
-        <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:12px;
-            border-bottom:1px solid #ddd
-        ">
-
-            <b>${escapeHTML(c)}</b>
-
-            <button
-                class="btn red"
-                onclick="deleteCategory(${i})">
-                Delete
-            </button>
-
-        </div>
-
-    `).join("");
+renderPeople();
+renderCategories();
 
 }
 
 
-/* =========================
-   SELECT OPTIONS
-========================= */
+function populatePeople(){
 
-function populateSelects(){
+let expense=document.getElementById("expensePerson");
+let filter=document.getElementById("filterPerson");
+let report=document.getElementById("personReportPerson");
 
-    const cat=document.getElementById("expenseCategory");
+expense.innerHTML='<option value="">Select Person</option>';
+filter.innerHTML='<option value="">All People</option>';
+report.innerHTML='<option value="">Select Person</option>';
 
-    cat.innerHTML=categories.map(c=>
-        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
-    ).join("");
+people.forEach(p=>{
 
-    const person=document.getElementById("expensePerson");
+expense.innerHTML+=
+`<option value="${esc(p)}">${esc(p)}</option>`;
 
-    person.innerHTML=people.map(p=>
-        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
-    ).join("");
+filter.innerHTML+=
+`<option value="${esc(p)}">${esc(p)}</option>`;
 
-    const personReport=document.getElementById("personReportSelect");
+report.innerHTML+=
+`<option value="${esc(p)}">${esc(p)}</option>`;
 
-    personReport.innerHTML=
-        `<option value="">Select Person</option>`+
-        people.map(p=>
-        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
-        ).join("");
-
-    const pdfPersonSelect=document.getElementById("pdfPersonSelect");
-
-    pdfPersonSelect.innerHTML=
-        `<option value="">Select Person</option>`+
-        people.map(p=>
-        `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`
-        ).join("");
-
-    const catReport=document.getElementById("categoryReportSelect");
-
-    catReport.innerHTML=
-        `<option value="">Select Category</option>`+
-        categories.map(c=>
-        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
-        ).join("");
-
-    const pdfCategorySelect=document.getElementById("pdfCategorySelect");
-
-    pdfCategorySelect.innerHTML=
-        `<option value="">Select Category</option>`+
-        categories.map(c=>
-        `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`
-        ).join("");
+});
 
 }
 
 
-/* =========================
+function populateCategories(){
+
+let expense=document.getElementById("expenseCategory");
+let filter=document.getElementById("filterCategory");
+let report=document.getElementById("categoryReportCategory");
+
+expense.innerHTML='<option value="">Select Category</option>';
+filter.innerHTML='<option value="">All Categories</option>';
+report.innerHTML='<option value="">Select Category</option>';
+
+categories.forEach(c=>{
+
+expense.innerHTML+=
+`<option value="${esc(c)}">${esc(c)}</option>`;
+
+filter.innerHTML+=
+`<option value="${esc(c)}">${esc(c)}</option>`;
+
+report.innerHTML+=
+`<option value="${esc(c)}">${esc(c)}</option>`;
+
+});
+
+}
+
+
+function populateYears(){
+
+let current=new Date().getFullYear();
+
+let years=new Set();
+
+for(let y=current-10;y<=current+2;y++){
+years.add(y);
+}
+
+expenses.forEach(e=>{
+if(e.date)
+years.add(new Date(e.date+"T00:00:00").getFullYear());
+});
+
+let list=[...years].sort((a,b)=>a-b);
+
+["reportYear","personYear","categoryYear"].forEach(id=>{
+
+let el=document.getElementById(id);
+let old=el.value;
+
+el.innerHTML="";
+
+list.forEach(y=>{
+el.innerHTML+=`<option value="${y}">${y}</option>`;
+});
+
+el.value=old||current;
+
+});
+
+}
+
+
+/* =========================================================
    EXPENSE MODAL
-========================= */
+========================================================= */
 
-function openExpenseModal(id=null){
+function openExpense(id=null){
 
-    populateSelects();
+populateAll();
 
-    document.getElementById("expenseModal").style.display="block";
+document.getElementById("expenseModal")
+.classList.add("show");
 
-    if(id){
+if(id){
 
-        const e=expenses.find(x=>x.id===id);
+let e=expenses.find(x=>x.id===id);
 
-        if(!e) return;
+if(!e)return;
 
-        document.getElementById("modalTitle").textContent="Edit Expense";
+document.getElementById("modalTitle").textContent="Edit Expense";
 
-        document.getElementById("editExpenseId").value=e.id;
+document.getElementById("editId").value=e.id;
+document.getElementById("expenseName").value=e.name;
+document.getElementById("expenseAmount").value=e.amount;
+document.getElementById("expenseCategory").value=e.category;
+document.getElementById("expensePerson").value=e.person;
+document.getElementById("expenseDate").value=e.date;
+document.getElementById("expenseDueDate").value=e.dueDate||"";
+document.getElementById("expenseStatus").value=e.status;
+document.getElementById("paymentMode").value=e.paymentMode||"Cash";
+document.getElementById("expenseNotes").value=e.notes||"";
 
-        document.getElementById("expenseName").value=e.name;
+}else{
 
-        document.getElementById("expenseAmount").value=e.amount;
+document.getElementById("modalTitle").textContent="Add Expense";
 
-        document.getElementById("expenseCategory").value=e.category;
-
-        document.getElementById("expensePerson").value=e.person;
-
-        document.getElementById("expenseDate").value=e.date;
-
-        document.getElementById("expenseDueDate").value=e.dueDate||"";
-
-        document.getElementById("expenseStatus").value=e.status||"Pending";
-
-        document.getElementById("expensePayment").value=e.payment||"Cash";
-
-        document.getElementById("expenseNotes").value=e.notes||"";
-
-    }else{
-
-        document.getElementById("modalTitle").textContent="Add Expense";
-
-        document.getElementById("editExpenseId").value="";
-
-        document.getElementById("expenseName").value="";
-
-        document.getElementById("expenseAmount").value="";
-
-        document.getElementById("expenseDate").value=today();
-
-        document.getElementById("expenseDueDate").value="";
-
-        document.getElementById("expenseStatus").value="Paid";
-
-        document.getElementById("expensePayment").value="Cash";
-
-        document.getElementById("expenseNotes").value="";
-
-    }
+document.getElementById("editId").value="";
+document.getElementById("expenseName").value="";
+document.getElementById("expenseAmount").value="";
+document.getElementById("expenseCategory").value="";
+document.getElementById("expensePerson").value=people[0]||"";
+document.getElementById("expenseDate").value=todayISO();
+document.getElementById("expenseDueDate").value="";
+document.getElementById("expenseStatus").value="Paid";
+document.getElementById("paymentMode").value="Cash";
+document.getElementById("expenseNotes").value="";
 
 }
-
-function closeExpenseModal(){
-
-    document.getElementById("expenseModal").style.display="none";
 
 }
 
 
-/* =========================
+function closeExpense(){
+
+document.getElementById("expenseModal")
+.classList.remove("show");
+
+}
+
+
+/* =========================================================
    SAVE EXPENSE
-========================= */
+========================================================= */
 
 function saveExpense(){
 
-    const name=document.getElementById("expenseName").value.trim();
+let name=document.getElementById("expenseName").value.trim();
+let amount=Number(document.getElementById("expenseAmount").value);
+let category=document.getElementById("expenseCategory").value;
+let person=document.getElementById("expensePerson").value;
+let date=document.getElementById("expenseDate").value;
+let due=document.getElementById("expenseDueDate").value;
+let status=document.getElementById("expenseStatus").value;
+let mode=document.getElementById("paymentMode").value;
+let notes=document.getElementById("expenseNotes").value.trim();
+let id=document.getElementById("editId").value;
 
-    const amount=Number(
-        document.getElementById("expenseAmount").value
-    );
+if(!name){
+alert("Please enter expense name.");
+return;
+}
 
-    const category=document.getElementById("expenseCategory").value;
+if(!amount || amount<0){
+alert("Please enter amount.");
+return;
+}
 
-    const person=document.getElementById("expensePerson").value;
+if(!category){
+alert("Please select category.");
+return;
+}
 
-    const date=document.getElementById("expenseDate").value;
+if(!person){
+alert("Please select person.");
+return;
+}
 
-    const dueDate=document.getElementById("expenseDueDate").value;
+if(!date){
+alert("Please select expense date.");
+return;
+}
 
-    const status=document.getElementById("expenseStatus").value;
+if(id){
 
-    const payment=document.getElementById("expensePayment").value;
+let e=expenses.find(x=>x.id===id);
 
-    const notes=document.getElementById("expenseNotes").value.trim();
+if(e){
 
-    if(!name){
+e.name=name;
+e.amount=amount;
+e.category=category;
+e.person=person;
+e.date=date;
+e.dueDate=due;
+e.status=status;
+e.paymentMode=mode;
+e.notes=notes;
 
-        alert("Enter expense name.");
-        return;
+}
 
-    }
+}else{
 
-    if(!amount || amount<0){
+expenses.push({
 
-        alert("Enter a valid amount.");
-        return;
+id:Date.now().toString()+Math.random(),
 
-    }
+name,
+amount,
+category,
+person,
+date,
+dueDate:due,
+status,
+paymentMode:mode,
+notes,
+created:new Date().toISOString()
 
-    if(!date){
+});
 
-        alert("Select expense date.");
-        return;
+}
 
-    }
+saveData();
 
-    const editId=document.getElementById("editExpenseId").value;
+closeExpense();
 
-    if(editId){
+populateAll();
 
-        const e=expenses.find(x=>x.id===editId);
+renderDashboard();
+renderExpenses();
+renderUpcoming();
 
-        if(e){
-
-            e.name=name;
-            e.amount=amount;
-            e.category=category;
-            e.person=person;
-            e.date=date;
-            e.dueDate=dueDate;
-            e.status=status;
-            e.payment=payment;
-            e.notes=notes;
-
-        }
-
-    }else{
-
-        expenses.push({
-
-            id:Date.now().toString(),
-
-            name,
-
-            amount,
-
-            category,
-
-            person,
-
-            date,
-
-            dueDate,
-
-            status,
-
-            payment,
-
-            notes,
-
-            createdAt:new Date().toISOString()
-
-        });
-
-    }
-
-    saveData();
-
-    closeExpenseModal();
-
-    renderAll();
+alert("Expense saved successfully.");
 
 }
 
 
-/* =========================
+/* =========================================================
+   STATUS
+========================================================= */
+
+function effectiveStatus(e){
+
+if(e.status==="Paid")return"Paid";
+
+if(e.dueDate && e.dueDate<todayISO())
+return"Overdue";
+
+return"Pending";
+
+}
+
+function statusHTML(s){
+
+if(s==="Paid")
+return'<span class="status paid">Paid</span>';
+
+if(s==="Overdue")
+return'<span class="status overdue">Overdue</span>';
+
+return'<span class="status pending">Pending</span>';
+
+}
+
+
+/* =========================================================
    DELETE EXPENSE
-========================= */
+========================================================= */
 
 function deleteExpense(id){
 
-    const e=expenses.find(x=>x.id===id);
+let e=expenses.find(x=>x.id===id);
 
-    if(!e) return;
+if(!e)return;
 
-    if(!confirm(
-        `Delete "${e.name}"?`
-    )) return;
+if(!confirm(
+"Delete "+e.name+" - "+money(e.amount)+"?"
+))return;
 
-    expenses=expenses.filter(x=>x.id!==id);
+expenses=expenses.filter(x=>x.id!==id);
 
-    saveData();
+saveData();
 
-    renderAll();
-
-}
-
-
-/* =========================
-   EXPENSE TABLE
-========================= */
-
-function renderExpenses(){
-
-    const tbody=document.getElementById("expenseTable");
-
-    const search=(
-        document.getElementById("expenseSearch")?.value||""
-    ).toLowerCase();
-
-    let list=expenses.filter(e=>{
-
-        const text=[
-            e.name,
-            e.category,
-            e.person,
-            e.payment,
-            e.status,
-            e.notes
-        ].join(" ").toLowerCase();
-
-        return text.includes(search);
-
-    });
-
-    list.sort((a,b)=>b.date.localeCompare(a.date));
-
-    if(!list.length){
-
-        tbody.innerHTML=
-        `<tr><td colspan="9" class="empty">No expenses found.</td></tr>`;
-
-        return;
-
-    }
-
-    tbody.innerHTML=list.map(e=>{
-
-        const status=getEffectiveStatus(e);
-
-        return `
-        <tr>
-
-        <td>${formatDate(e.date)}</td>
-
-        <td><b>${escapeHTML(e.name)}</b></td>
-
-        <td>${money(e.amount)}</td>
-
-        <td>${escapeHTML(e.category)}</td>
-
-        <td>${escapeHTML(e.person)}</td>
-
-        <td>${escapeHTML(e.payment)}</td>
-
-        <td>
-        <span class="badge ${statusClass(status)}">
-        ${status}
-        </span>
-        </td>
-
-        <td>${formatDate(e.dueDate)}</td>
-
-        <td>
-
-        <button
-            class="btn"
-            onclick="openExpenseModal('${e.id}')">
-            Edit
-        </button>
-
-        <button
-            class="btn red"
-            onclick="deleteExpense('${e.id}')">
-            Delete
-        </button>
-
-        </td>
-
-        </tr>
-        `;
-
-    }).join("");
+renderDashboard();
+renderExpenses();
+renderUpcoming();
 
 }
 
 
-/* =========================
-   UPCOMING
-========================= */
-
-function getUpcoming(){
-
-    const now=today();
-
-    return expenses
-        .filter(e=>e.dueDate && e.status!=="Paid")
-        .sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
-
-}
-
-function getOverdue(){
-
-    const now=today();
-
-    return expenses.filter(e=>
-        e.dueDate &&
-        e.dueDate<now &&
-        e.status!=="Paid"
-    );
-
-}
-
-function renderUpcoming(){
-
-    const list=getUpcoming();
-
-    const overdue=getOverdue();
-
-    const amount=list
-        .filter(e=>e.dueDate>=today())
-        .reduce((s,e)=>s+Number(e.amount),0);
-
-    document.getElementById("upcomingCount").textContent=
-        list.filter(e=>e.dueDate>=today()).length;
-
-    document.getElementById("overdueCount").textContent=
-        overdue.length;
-
-    document.getElementById("upcomingAmount").textContent=
-        money(amount);
-
-    const tbody=document.getElementById("upcomingTable");
-
-    if(!list.length){
-
-        tbody.innerHTML=
-        `<tr><td colspan="6" class="empty">
-        No upcoming or overdue expenses.
-        </td></tr>`;
-
-        return;
-
-    }
-
-    tbody.innerHTML=list.map(e=>{
-
-        const status=getEffectiveStatus(e);
-
-        return `
-        <tr>
-
-        <td>${formatDate(e.dueDate)}</td>
-
-        <td>${escapeHTML(e.name)}</td>
-
-        <td>${money(e.amount)}</td>
-
-        <td>${escapeHTML(e.person)}</td>
-
-        <td>${escapeHTML(e.category)}</td>
-
-        <td>
-        <span class="badge ${statusClass(status)}">
-        ${status}
-        </span>
-        </td>
-
-        </tr>
-        `;
-
-    }).join("");
-
-}
-
-
-/* =========================
+/* =========================================================
    DASHBOARD
-========================= */
+========================================================= */
 
 function renderDashboard(){
 
-    const total=expenses.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
+let total=0;
+let paid=0;
+let pending=0;
+let overdue=0;
 
-    document.getElementById("dashTotal").textContent=money(total);
+expenses.forEach(e=>{
 
-    document.getElementById("dashPeople").textContent=
-        people.length;
+let a=Number(e.amount);
 
-    document.getElementById("dashUpcoming").textContent=
-        getUpcoming().filter(e=>e.dueDate>=today()).length;
+total+=a;
 
-    document.getElementById("dashOverdue").textContent=
-        getOverdue().length;
+let s=effectiveStatus(e);
 
-    const recent=[...expenses]
-        .sort((a,b)=>b.date.localeCompare(a.date))
-        .slice(0,8);
+if(s==="Paid")paid+=a;
+if(s==="Pending")pending+=a;
+if(s==="Overdue")overdue+=a;
 
-    const box=document.getElementById("recentTransactions");
+});
 
-    if(!recent.length){
+document.getElementById("totalAmount").textContent=money(total);
+document.getElementById("paidAmount").textContent=money(paid);
+document.getElementById("pendingAmount").textContent=money(pending);
+document.getElementById("overdueAmount").textContent=money(overdue);
+document.getElementById("peopleCount").textContent=people.length;
 
-        box.innerHTML=
-        '<div class="empty">No transactions yet.</div>';
 
-    }else{
+let recent=[...expenses]
+.sort((a,b)=>b.date.localeCompare(a.date))
+.slice(0,8);
 
-        box.innerHTML=recent.map(e=>`
+if(!recent.length){
 
-        <div style="
-            padding:13px 0;
-            border-bottom:1px solid #eee;
-            display:flex;
-            justify-content:space-between;
-            gap:10px
-        ">
+document.getElementById("recent").innerHTML=
+'<div class="empty">No transactions yet.</div>';
 
-            <div>
-                <b>${escapeHTML(e.name)}</b><br>
-                <small>
-                ${formatDate(e.date)} ·
-                ${escapeHTML(e.person)}
-                </small>
-            </div>
+}else{
 
-            <b>${money(e.amount)}</b>
+document.getElementById("recent").innerHTML=`
 
-        </div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Expense</th>
+<th>Person</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+</thead>
 
-        `).join("");
+<tbody>
 
-    }
+${recent.map(e=>`
 
-    const upcoming=getUpcoming().slice(0,7);
+<tr>
+<td>${dateText(e.date)}</td>
+<td>${esc(e.name)}</td>
+<td>${esc(e.person)}</td>
+<td>${money(e.amount)}</td>
+<td>${statusHTML(effectiveStatus(e))}</td>
+</tr>
 
-    const ub=document.getElementById("dashboardUpcoming");
+`).join("")}
 
-    if(!upcoming.length){
+</tbody>
+</table>
+</div>
 
-        ub.innerHTML=
-        '<div class="empty">No upcoming expenses.</div>';
-
-    }else{
-
-        ub.innerHTML=upcoming.map(e=>`
-
-        <div style="
-            padding:13px 0;
-            border-bottom:1px solid #eee;
-            display:flex;
-            justify-content:space-between
-        ">
-
-            <div>
-                <b>${escapeHTML(e.name)}</b><br>
-                <small>Due ${formatDate(e.dueDate)}</small>
-            </div>
-
-            <b>${money(e.amount)}</b>
-
-        </div>
-
-        `).join("");
-
-    }
-
-    const categoriesTotal={};
-
-    expenses.forEach(e=>{
-
-        categoriesTotal[e.category]=
-        (categoriesTotal[e.category]||0)+Number(e.amount);
-
-    });
-
-    const summary=document.getElementById("dashboardSummary");
-
-    const rows=Object.entries(categoriesTotal)
-        .sort((a,b)=>b[1]-a[1]);
-
-    if(!rows.length){
-
-        summary.innerHTML=
-        '<div class="empty">No expense data available.</div>';
-
-    }else{
-
-        summary.innerHTML=rows.map(([cat,val])=>`
-
-        <div style="
-            display:flex;
-            justify-content:space-between;
-            padding:12px;
-            border-bottom:1px solid #eee
-        ">
-
-            <span>${escapeHTML(cat)}</span>
-            <b>${money(val)}</b>
-
-        </div>
-
-        `).join("");
-
-    }
+`;
 
 }
 
 
-/* =========================
-   REPORT FILTER
-========================= */
+let upcoming=expenses
+.filter(e=>effectiveStatus(e)==="Pending" && e.dueDate)
+.sort((a,b)=>a.dueDate.localeCompare(b.dueDate))
+.slice(0,7);
 
-function filterPeriod(list,mode){
+document.getElementById("dashboardUpcoming").innerHTML=
 
-    const now=new Date();
+upcoming.length
 
-    if(mode==="all") return list;
+?upcoming.map(e=>`
 
-    if(mode==="daily"){
+<div class="manage-row">
 
-        const t=today();
+<div>
+<b>${esc(e.name)}</b><br>
+${esc(e.person)}<br>
+Due: ${dateText(e.dueDate)}
+</div>
 
-        return list.filter(e=>e.date===t);
+<div>
+<b>${money(e.amount)}</b>
+</div>
 
-    }
+</div>
 
-    if(mode==="monthly"){
+`).join("")
 
-        const y=now.getFullYear();
-        const m=String(now.getMonth()+1).padStart(2,"0");
-
-        return list.filter(e=>
-            e.date.startsWith(`${y}-${m}`)
-        );
-
-    }
-
-    if(mode==="yearly"){
-
-        const y=now.getFullYear();
-
-        return list.filter(e=>
-            e.date.startsWith(String(y))
-        );
-
-    }
-
-    return list;
+:'<div class="empty">No upcoming expenses.</div>';
 
 }
 
 
-/* =========================
-   REPORTS
-========================= */
+/* =========================================================
+   EXPENSE TABLE
+========================================================= */
 
-function reportPeriod(mode){
+function renderExpenses(){
 
-    currentReportMode=mode;
+let search=(document.getElementById("search").value||"")
+.toLowerCase();
 
-    const list=filterPeriod(expenses,mode);
+let person=document.getElementById("filterPerson").value;
+let category=document.getElementById("filterCategory").value;
+let status=document.getElementById("filterStatus").value;
 
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
+let list=expenses.filter(e=>{
 
-    const average=list.length?
-        total/list.length:0;
+let okSearch=
+!search ||
+e.name.toLowerCase().includes(search) ||
+(e.notes||"").toLowerCase().includes(search);
 
-    const pending=list
-        .filter(e=>getEffectiveStatus(e)!=="Paid")
-        .reduce((s,e)=>s+Number(e.amount),0);
+let okPerson=!person||e.person===person;
+let okCategory=!category||e.category===category;
+let okStatus=!status||effectiveStatus(e)===status;
 
-    document.getElementById("reportTotal").textContent=money(total);
+return okSearch&&okPerson&&okCategory&&okStatus;
 
-    document.getElementById("reportCount").textContent=list.length;
+});
 
-    document.getElementById("reportAverage").textContent=money(average);
+list.sort((a,b)=>b.date.localeCompare(a.date));
 
-    document.getElementById("reportPending").textContent=money(pending);
+let table=document.getElementById("expenseTable");
 
-    const box=document.getElementById("periodReport");
+if(!list.length){
 
-    if(!list.length){
+table.innerHTML=`
+<tr>
+<td colspan="9">
+<div class="empty">No expenses found.</div>
+</td>
+</tr>
+`;
 
-        box.innerHTML=
-        '<div class="empty">No expenses for this period.</div>';
+return;
 
-        return;
+}
 
-    }
+table.innerHTML=list.map(e=>`
 
-    box.innerHTML=makeExpenseTable(list);
+<tr>
+
+<td>${dateText(e.date)}</td>
+
+<td>
+<b>${esc(e.name)}</b>
+${e.notes?`<br><small>${esc(e.notes)}</small>`:""}
+</td>
+
+<td>${money(e.amount)}</td>
+
+<td>${esc(e.category)}</td>
+
+<td>${esc(e.person)}</td>
+
+<td>${esc(e.paymentMode||"-")}</td>
+
+<td>${dateText(e.dueDate)}</td>
+
+<td>${statusHTML(effectiveStatus(e))}</td>
+
+<td>
+
+<button
+class="btn light"
+onclick="openExpense('${jsEsc(e.id)}')">
+Edit
+</button>
+
+<button
+class="btn danger"
+onclick="deleteExpense('${jsEsc(e.id)}')">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`).join("");
 
 }
 
 
-/* =========================
-   TABLE HTML FOR REPORTS
-========================= */
+/* =========================================================
+   UPCOMING
+========================================================= */
 
-function makeExpenseTable(list){
+function renderUpcoming(){
 
-    return `
-    <div class="table-wrap">
+let upcoming=expenses
+.filter(e=>effectiveStatus(e)==="Pending")
+.sort((a,b)=>(a.dueDate||"9999")
+.localeCompare(b.dueDate||"9999"));
 
-    <table>
+let overdue=expenses
+.filter(e=>effectiveStatus(e)==="Overdue")
+.sort((a,b)=>(a.dueDate||"9999")
+.localeCompare(b.dueDate||"9999"));
 
-    <thead>
-    <tr>
-    <th>Date</th>
-    <th>Expense</th>
-    <th>Amount</th>
-    <th>Person</th>
-    <th>Category</th>
-    <th>Payment</th>
-    <th>Status</th>
-    </tr>
-    </thead>
+document.getElementById("upcomingList").innerHTML=
 
-    <tbody>
+upcoming.length
 
-    ${list.map(e=>{
+?upcoming.map(e=>`
 
-        const status=getEffectiveStatus(e);
+<div class="manage-row">
+<div>
+<b>${esc(e.name)}</b><br>
+Person: ${esc(e.person)}<br>
+Due: ${dateText(e.dueDate)}
+</div>
+<b>${money(e.amount)}</b>
+</div>
 
-        return `
-        <tr>
-        <td>${formatDate(e.date)}</td>
-        <td>${escapeHTML(e.name)}</td>
-        <td>${money(e.amount)}</td>
-        <td>${escapeHTML(e.person)}</td>
-        <td>${escapeHTML(e.category)}</td>
-        <td>${escapeHTML(e.payment)}</td>
-        <td>${status}</td>
-        </tr>
-        `;
+`).join("")
 
-    }).join("")}
+:'<div class="empty">No upcoming expenses.</div>';
 
-    </tbody>
 
-    </table>
+document.getElementById("overdueList").innerHTML=
 
-    </div>
-    `;
+overdue.length
+
+?overdue.map(e=>`
+
+<div class="manage-row">
+<div>
+<b>${esc(e.name)}</b><br>
+Person: ${esc(e.person)}<br>
+Due: ${dateText(e.dueDate)}
+</div>
+<b>${money(e.amount)}</b>
+</div>
+
+`).join("")
+
+:'<div class="empty">No overdue expenses.</div>';
 
 }
 
 
-/* =========================
+/* =========================================================
+   PEOPLE
+========================================================= */
+
+function addPerson(){
+
+let input=document.getElementById("newPerson");
+let name=input.value.trim();
+
+if(!name){
+alert("Enter person name.");
+return;
+}
+
+if(people.some(
+p=>p.toLowerCase()===name.toLowerCase()
+)){
+alert("Person already exists.");
+return;
+}
+
+people.push(name);
+
+saveData();
+
+input.value="";
+
+populateAll();
+
+alert("Person added.");
+
+}
+
+
+function deletePerson(name){
+
+if(expenses.some(e=>e.person===name)){
+
+alert(
+"This person is used by an expense and cannot be deleted. Delete or reassign those expenses first."
+);
+
+return;
+
+}
+
+if(!confirm("Delete "+name+"?"))return;
+
+people=people.filter(x=>x!==name);
+
+saveData();
+
+populateAll();
+
+}
+
+
+function renderPeople(){
+
+let el=document.getElementById("peopleList");
+
+if(!people.length){
+
+el.innerHTML=
+'<div class="empty">No people.</div>';
+
+return;
+
+}
+
+el.innerHTML=people.map(p=>`
+
+<div class="manage-row">
+
+<b>${esc(p)}</b>
+
+<button
+class="btn danger"
+onclick="deletePerson('${jsEsc(p)}')">
+Delete
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =========================================================
+   CATEGORIES
+========================================================= */
+
+function addCategory(){
+
+let input=document.getElementById("newCategory");
+let name=input.value.trim();
+
+if(!name){
+alert("Enter category name.");
+return;
+}
+
+if(categories.some(
+c=>c.toLowerCase()===name.toLowerCase()
+)){
+alert("Category already exists.");
+return;
+}
+
+categories.push(name);
+
+saveData();
+
+input.value="";
+
+populateAll();
+
+alert("Category added.");
+
+}
+
+
+function deleteCategory(name){
+
+if(expenses.some(e=>e.category===name)){
+
+alert(
+"This category is used by an expense and cannot be deleted. Delete or reassign those expenses first."
+);
+
+return;
+
+}
+
+if(!confirm("Delete "+name+"?"))return;
+
+categories=categories.filter(x=>x!==name);
+
+saveData();
+
+populateAll();
+
+}
+
+
+function renderCategories(){
+
+let el=document.getElementById("categoryList");
+
+if(!categories.length){
+
+el.innerHTML=
+'<div class="empty">No categories.</div>';
+
+return;
+
+}
+
+el.innerHTML=categories.map(c=>`
+
+<div class="manage-row">
+
+<b>${esc(c)}</b>
+
+<button
+class="btn danger"
+onclick="deleteCategory('${jsEsc(c)}')">
+Delete
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+
+/* =========================================================
+   REPORT ENGINE
+========================================================= */
+
+function filterPeriod(type,date,month,year){
+
+return expenses.filter(e=>{
+
+if(!e.date)return false;
+
+let d=new Date(e.date+"T00:00:00");
+
+if(type==="daily")
+return e.date===date;
+
+if(type==="monthly")
+return d.getFullYear()==year &&
+d.getMonth()+1==month;
+
+if(type==="yearly")
+return d.getFullYear()==year;
+
+return true;
+
+});
+
+}
+
+
+function summary(list){
+
+let total=0;
+let paid=0;
+let pending=0;
+let overdue=0;
+
+list.forEach(e=>{
+
+let a=Number(e.amount);
+
+total+=a;
+
+let s=effectiveStatus(e);
+
+if(s==="Paid")paid+=a;
+if(s==="Pending")pending+=a;
+if(s==="Overdue")overdue+=a;
+
+});
+
+return{
+total,
+paid,
+pending,
+overdue,
+count:list.length,
+average:list.length?total/list.length:0
+};
+
+}
+
+
+function reportHTML(list,title){
+
+let s=summary(list);
+
+return`
+
+<div class="report-stats">
+
+<div class="report-stat">
+Total
+<strong>${money(s.total)}</strong>
+</div>
+
+<div class="report-stat">
+Expenses
+<strong>${s.count}</strong>
+</div>
+
+<div class="report-stat">
+Average
+<strong>${money(s.average)}</strong>
+</div>
+
+<div class="report-stat">
+Paid
+<strong>${money(s.paid)}</strong>
+</div>
+
+<div class="report-stat">
+Pending
+<strong>${money(s.pending)}</strong>
+</div>
+
+<div class="report-stat">
+Overdue
+<strong>${money(s.overdue)}</strong>
+</div>
+
+</div>
+
+<h3>${esc(title)}</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Expense</th>
+<th>Person</th>
+<th>Category</th>
+<th>Payment Mode</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+${
+list.length
+
+?list.map(e=>`
+
+<tr>
+<td>${dateText(e.date)}</td>
+<td>${esc(e.name)}</td>
+<td>${esc(e.person)}</td>
+<td>${esc(e.category)}</td>
+<td>${esc(e.paymentMode||"-")}</td>
+<td>${money(e.amount)}</td>
+<td>${effectiveStatus(e)}</td>
+</tr>
+
+`).join("")
+
+:`
+
+<tr>
+<td colspan="7">
+<div class="empty">No data found.</div>
+</td>
+</tr>
+
+`
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   PERIOD REPORT
+========================================================= */
+
+function renderPeriodReport(){
+
+let type=document.getElementById("reportType").value;
+let date=document.getElementById("reportDate").value;
+let month=document.getElementById("reportMonth").value;
+let year=document.getElementById("reportYear").value;
+
+document.getElementById("reportDateBox")
+.classList.toggle("hidden",type!=="daily");
+
+document.getElementById("reportMonthBox")
+.classList.toggle("hidden",type!=="monthly");
+
+let list=filterPeriod(type,date,month,year);
+
+let title="";
+
+if(type==="daily")
+title="Daily Report - "+dateText(date);
+
+if(type==="monthly")
+title="Monthly Report - "+
+document.getElementById("reportMonth")
+.selectedOptions[0].text+" "+year;
+
+if(type==="yearly")
+title="Yearly Report - "+year;
+
+document.getElementById("periodReport")
+.innerHTML=reportHTML(list,title);
+
+}
+
+
+/* =========================================================
    PERSON REPORT
-========================= */
+========================================================= */
 
 function renderPersonReport(){
 
-    const person=document.getElementById(
-        "personReportSelect"
-    ).value;
+let person=document.getElementById("personReportPerson").value;
+let type=document.getElementById("personReportType").value;
 
-    const mode=document.getElementById(
-        "personPeriod"
-    ).value;
+document.getElementById("personDateBox")
+.classList.toggle("hidden",type!=="daily");
 
-    const box=document.getElementById("personReport");
+document.getElementById("personMonthBox")
+.classList.toggle("hidden",type!=="monthly");
 
-    if(!person){
+document.getElementById("personYearBox")
+.classList.toggle("hidden",type==="all");
 
-        box.innerHTML=
-        '<div class="empty">Select a person.</div>';
+if(!person){
 
-        return;
+document.getElementById("personReport").innerHTML=
+'<div class="empty">Select a person.</div>';
 
-    }
+return;
 
-    let list=expenses.filter(e=>e.person===person);
+}
 
-    list=filterPeriod(list,mode);
+let list;
 
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
+if(type==="all"){
 
-    box.innerHTML=`
+list=expenses.filter(e=>e.person===person);
 
-    <div class="cards" style="margin-top:20px">
+}else{
 
-    <div class="card blue">
-    <div>Person</div>
-    <div class="stat" style="font-size:22px">
-    ${escapeHTML(person)}
-    </div>
-    </div>
+let date=document.getElementById("personDate").value;
+let month=document.getElementById("personMonth").value;
+let year=document.getElementById("personYear").value;
 
-    <div class="card green">
-    <div>Expenses</div>
-    <div class="stat">${list.length}</div>
-    </div>
+list=filterPeriod(
+type,date,month,year
+).filter(e=>e.person===person);
 
-    <div class="card orange">
-    <div>Total</div>
-    <div class="stat">${money(total)}</div>
-    </div>
+}
 
-    </div>
+let title="Person Report - "+person;
 
-    ${list.length?
-        makeExpenseTable(list):
-        '<div class="empty">No expenses found.</div>'}
-
-    `;
+document.getElementById("personReport")
+.innerHTML=reportHTML(list,title);
 
 }
 
 
-/* =========================
+/* =========================================================
    CATEGORY REPORT
-========================= */
+========================================================= */
 
 function renderCategoryReport(){
 
-    const category=document.getElementById(
-        "categoryReportSelect"
-    ).value;
+let category=
+document.getElementById("categoryReportCategory").value;
 
-    const box=document.getElementById("categoryReport");
+let type=
+document.getElementById("categoryReportType").value;
 
-    if(!category){
+document.getElementById("categoryDateBox")
+.classList.toggle("hidden",type!=="daily");
 
-        box.innerHTML=
-        '<div class="empty">Select a category.</div>';
+document.getElementById("categoryMonthBox")
+.classList.toggle("hidden",type!=="monthly");
 
-        return;
+document.getElementById("categoryYearBox")
+.classList.toggle("hidden",type==="all");
 
-    }
+if(!category){
 
-    const list=expenses.filter(
-        e=>e.category===category
-    );
+document.getElementById("categoryReport").innerHTML=
+'<div class="empty">Select a category.</div>';
 
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
+return;
 
-    box.innerHTML=`
+}
 
-    <div style="padding:20px 0">
+let list;
 
-    <b>${escapeHTML(category)}</b>
+if(type==="all"){
 
-    <div class="stat">${money(total)}</div>
+list=expenses.filter(e=>e.category===category);
 
-    <p>${list.length} expense(s)</p>
+}else{
 
-    </div>
+let date=document.getElementById("categoryDate").value;
+let month=document.getElementById("categoryMonth").value;
+let year=document.getElementById("categoryYear").value;
 
-    ${list.length?
-        makeExpenseTable(list):
-        '<div class="empty">No expenses found.</div>'}
+list=filterPeriod(
+type,date,month,year
+).filter(e=>e.category===category);
 
-    `;
+}
+
+let title="Category Report - "+category;
+
+document.getElementById("categoryReport")
+.innerHTML=reportHTML(list,title);
 
 }
 
 
-/* =========================
-   PAYMENT REPORT
-========================= */
-
-function renderPaymentReport(){
-
-    const map={};
-
-    expenses.forEach(e=>{
-
-        map[e.payment]=
-        (map[e.payment]||0)+Number(e.amount);
-
-    });
-
-    const box=document.getElementById("paymentReport");
-
-    const rows=Object.entries(map)
-        .sort((a,b)=>b[1]-a[1]);
-
-    if(!rows.length){
-
-        box.innerHTML=
-        '<div class="empty">No payment data.</div>';
-
-        return;
-
-    }
-
-    box.innerHTML=rows.map(([payment,total])=>`
-
-    <div style="
-        padding:15px;
-        border-bottom:1px solid #eee;
-        display:flex;
-        justify-content:space-between
-    ">
-
-        <b>${escapeHTML(payment)}</b>
-
-        <span>${money(total)}</span>
-
-    </div>
-
-    `).join("");
-
-}
-
-
-/* =========================
-   CURRENCY
-========================= */
-
-async function loadRate(){
-
-    const box=document.getElementById("liveRate");
-
-    box.textContent="Loading live exchange rate...";
-
-    try{
-
-        const response=await fetch(
-            "https://api.frankfurter.app/latest?from=EUR&to=INR"
-        );
-
-        if(!response.ok) throw new Error("Rate error");
-
-        const data=await response.json();
-
-        liveRate=Number(data.rates.INR);
-
-        box.textContent=
-            `€1 = ₹${liveRate.toFixed(2)}`;
-
-        document.getElementById("rateTime").textContent=
-            "Live market reference rate. Updated: "+
-            new Date().toLocaleString();
-
-    }catch(error){
-
-        box.textContent=
-            "Unable to load live rate.";
-
-        document.getElementById("rateTime").textContent=
-            "Please check your internet connection and refresh.";
-
-    }
-
-}
-
-function convertCurrency(){
-
-    const amount=Number(
-        document.getElementById("convertAmount").value
-    );
-
-    const from=document.getElementById("fromCurrency").value;
-
-    const to=document.getElementById("toCurrency").value;
-
-    if(!amount){
-
-        alert("Enter an amount.");
-        return;
-
-    }
-
-    let result;
-
-    if(from===to){
-
-        result=amount;
-
-    }else if(from==="EUR" && to==="INR"){
-
-        result=amount*liveRate;
-
-    }else{
-
-        result=amount/liveRate;
-
-    }
-
-    const fromSymbol=from==="EUR"?"€":"₹";
-
-    const toSymbol=to==="EUR"?"€":"₹";
-
-    document.getElementById(
-        "conversionResult"
-    ).textContent=
-        `${fromSymbol}${amount.toLocaleString()} = ${toSymbol}${result.toLocaleString(
-            undefined,
-            {
-                minimumFractionDigits:2,
-                maximumFractionDigits:2
-            }
-        )}`;
-
-}
-
-
-/* =========================
-   JSON EXPORT
-========================= */
-
-function exportJSON(){
-
-    const data={
-        exportedAt:new Date().toISOString(),
-        expenses,
-        people,
-        categories
-    };
-
-    downloadFile(
-        JSON.stringify(data,null,2),
-        "evr-expenses-backup.json",
-        "application/json"
-    );
-
-}
-
-
-/* =========================
-   JSON IMPORT
-========================= */
-
-function importJSON(){
-
-    const input=document.getElementById("importFile");
-
-    if(!input.files.length){
-
-        alert("Choose a JSON file first.");
-        return;
-
-    }
-
-    const file=input.files[0];
-
-    const reader=new FileReader();
-
-    reader.onload=function(){
-
-        try{
-
-            const data=JSON.parse(reader.result);
-
-            if(
-                !Array.isArray(data.expenses) ||
-                !Array.isArray(data.people) ||
-                !Array.isArray(data.categories)
-            ){
-
-                throw new Error("Invalid backup");
-
-            }
-
-            if(!confirm(
-                "Importing will replace current data. Continue?"
-            )) return;
-
-            expenses=data.expenses;
-            people=data.people;
-            categories=data.categories;
-
-            saveData();
-
-            renderAll();
-
-            alert("Data imported successfully.");
-
-        }catch(error){
-
-            alert("Invalid EVR Expenses JSON backup.");
-
-        }
-
-    };
-
-    reader.readAsText(file);
-
-}
-
-
-/* =========================
+/* =========================================================
    CSV
-========================= */
+========================================================= */
 
 function csvEscape(value){
 
-    return `"${String(value??"").replace(/"/g,'""')}"`;
+let s=String(value??"");
 
+if(
+s.includes(",") ||
+s.includes('"') ||
+s.includes("\n")
+){
+s='"'+s.replace(/"/g,'""')+'"';
 }
 
-function exportCSV(){
-
-    const headers=[
-        "Date",
-        "Expense",
-        "Amount INR",
-        "Category",
-        "Person",
-        "Payment Mode",
-        "Status",
-        "Due Date",
-        "Notes"
-    ];
-
-    const rows=expenses.map(e=>[
-        e.date,
-        e.name,
-        e.amount,
-        e.category,
-        e.person,
-        e.payment,
-        getEffectiveStatus(e),
-        e.dueDate,
-        e.notes
-    ]);
-
-    let csv=headers.map(csvEscape).join(",")+"\n";
-
-    csv+=rows.map(
-        r=>r.map(csvEscape).join(",")
-    ).join("\n");
-
-    downloadFile(
-        csv,
-        "evr-expenses.csv",
-        "text/csv;charset=utf-8"
-    );
+return s;
 
 }
 
 
-/* =========================
-   DOWNLOAD
-========================= */
-
-function downloadFile(content,filename,type){
-
-    const blob=new Blob(
-        [content],
-        {type}
-    );
-
-    const url=URL.createObjectURL(blob);
-
-    const a=document.createElement("a");
-
-    a.href=url;
-    a.download=filename;
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    a.remove();
-
-    URL.revokeObjectURL(url);
-
-}
-
-
-/* =========================
-   PDF HELPERS
-========================= */
-
-function getPDF(){
-
-    if(!window.jspdf){
-
-        alert(
-            "PDF library has not loaded. Check internet connection."
-        );
-
-        return null;
-
-    }
-
-    const {jsPDF}=window.jspdf;
-
-    return new jsPDF();
-
-}
-
-function pdfHeader(doc,title){
-
-    doc.setFontSize(20);
-
-    doc.text("EVR Expenses",20,20);
-
-    doc.setFontSize(14);
-
-    doc.text(title,20,30);
-
-    doc.setFontSize(9);
-
-    doc.text(
-        "Generated: "+new Date().toLocaleString(),
-        20,
-        38
-    );
-
-}
-
-function pdfRows(doc,list){
-
-    let y=50;
-
-    doc.setFontSize(8);
-
-    const columns=[
-        "Date",
-        "Expense",
-        "Amount",
-        "Person",
-        "Category",
-        "Payment",
-        "Status"
-    ];
-
-    doc.setFont(undefined,"bold");
-
-    doc.text(
-        columns.join(" | "),
-        10,
-        y
-    );
-
-    y+=7;
-
-    doc.setFont(undefined,"normal");
-
-    list.forEach(e=>{
-
-        if(y>280){
-
-            doc.addPage();
-
-            y=20;
-
-        }
-
-        let line=[
-            formatDate(e.date),
-            e.name,
-            money(e.amount),
-            e.person,
-            e.category,
-            e.payment,
-            getEffectiveStatus(e)
-        ].join(" | ");
-
-        if(line.length>125){
-
-            line=line.substring(0,122)+"...";
-
-        }
-
-        doc.text(line,10,y);
-
-        y+=6;
-
-    });
-
-    return y;
-
-}
-
-
-/* =========================
-   ALL EXPENSES PDF
-========================= */
-
-function pdfAll(){
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    pdfHeader(
-        doc,
-        "Complete Expense Report"
-    );
-
-    const total=expenses.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
-
-    doc.text(
-        `Total Expenses: ${money(total)}`,
-        20,
-        45
-    );
-
-    pdfRows(doc,expenses);
-
-    doc.save("evr-all-expenses.pdf");
-
-}
-
-
-/* =========================
-   UPCOMING PDF
-========================= */
-
-function pdfUpcoming(){
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    const list=getUpcoming();
-
-    pdfHeader(
-        doc,
-        "Upcoming & Overdue Expenses"
-    );
-
-    pdfRows(doc,list);
-
-    doc.save("evr-upcoming-expenses.pdf");
-
-}
-
-
-/* =========================
-   PERSON PDF
-========================= */
-
-function pdfPerson(){
-
-    const person=
-        document.getElementById("pdfPersonSelect").value ||
-        document.getElementById("personReportSelect").value;
-
-    if(!person){
-
-        alert("Select a person first.");
-        return;
-
-    }
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    const mode=
-        document.getElementById("personPeriod").value ||
-        "all";
-
-    let list=expenses.filter(
-        e=>e.person===person
-    );
-
-    if(mode!=="all"){
-
-        list=filterPeriod(list,mode);
-
-    }
-
-    pdfHeader(
-        doc,
-        "Person Report: "+person
-    );
-
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
-
-    doc.text(
-        `Total: ${money(total)} | Expenses: ${list.length}`,
-        20,
-        45
-    );
-
-    pdfRows(doc,list);
-
-    doc.save(
-        "evr-person-"+safeFileName(person)+".pdf"
-    );
-
-}
-
-
-/* =========================
-   CATEGORY PDF
-========================= */
-
-function pdfCategory(){
-
-    const category=
-        document.getElementById("pdfCategorySelect").value ||
-        document.getElementById("categoryReportSelect").value;
-
-    if(!category){
-
-        alert("Select a category first.");
-        return;
-
-    }
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    const list=expenses.filter(
-        e=>e.category===category
-    );
-
-    pdfHeader(
-        doc,
-        "Category Report: "+category
-    );
-
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
-
-    doc.text(
-        `Total: ${money(total)} | Expenses: ${list.length}`,
-        20,
-        45
-    );
-
-    pdfRows(doc,list);
-
-    doc.save(
-        "evr-category-"+safeFileName(category)+".pdf"
-    );
-
-}
-
-
-/* =========================
-   PERIOD PDF
-========================= */
-
-function pdfSelectedPeriod(){
-
-    const mode=document.getElementById("pdfPeriod").value;
-
-    const list=filterPeriod(expenses,mode);
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    const title=
-        mode==="daily"?"Daily Expense Report":
-        mode==="monthly"?"Monthly Expense Report":
-        mode==="yearly"?"Yearly Expense Report":
-        "Complete Expense Report";
-
-    pdfHeader(doc,title);
-
-    const total=list.reduce(
-        (s,e)=>s+Number(e.amount),0
-    );
-
-    doc.text(
-        `Total: ${money(total)} | Expenses: ${list.length}`,
-        20,
-        45
-    );
-
-    pdfRows(doc,list);
-
-    doc.save(
-        "evr-"+mode+"-report.pdf"
-    );
-
-}
-
-
-/* =========================
-   CURRENT REPORT PDF
-========================= */
-
-function pdfCurrentReport(){
-
-    const mode=currentReportMode||"all";
-
-    const list=filterPeriod(expenses,mode);
-
-    const doc=getPDF();
-
-    if(!doc) return;
-
-    pdfHeader(
-        doc,
-        mode.toUpperCase()+" Expense Report"
-    );
-
-    pdfRows(doc,list);
-
-    doc.save(
-        "evr-current-report.pdf"
-    );
-
-}
-
-
-/* =========================
-   SAFE FILE NAME
-========================= */
-
-function safeFileName(name){
-
-    return String(name)
-        .replace(/[^a-z0-9_-]/gi,"_")
-        .substring(0,50);
-
-}
-
-
-/* =========================
-   CLEAR DATA
-========================= */
-
-function clearAllData(){
-
-    if(!confirm(
-        "WARNING: This will permanently delete all expenses, people and categories. Continue?"
-    )) return;
-
-    if(!confirm(
-        "Are you absolutely sure?"
-    )) return;
-
-    expenses=[];
-
-    people=["Me"];
-
-    categories=[
-        "Food",
-        "Travel",
-        "Rent",
-        "Utilities",
-        "Shopping",
-        "Medical",
-        "Bills",
-        "Other"
-    ];
-
-    saveData();
-
-    renderAll();
-
-    alert("All data has been cleared.");
-
-}
-
-
-/* =========================
-   RENDER ALL
-========================= */
-
-function renderAll(){
-
-    populateSelects();
-
-    renderDashboard();
-
-    renderExpenses();
-
-    renderUpcoming();
-
-    renderPeople();
-
-    renderCategories();
-
-    renderPaymentReport();
-
-    reportPeriod(currentReportMode);
-
-    renderPersonReport();
-
-    renderCategoryReport();
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-window.addEventListener("load",function(){
-
-    if(localStorage.getItem("evr_logged")==="1"){
-
-        document.getElementById("loginPage").style.display="none";
-
-        document.getElementById("app").style.display="block";
-
-        initialize();
-
-    }else{
-
-        document.getElementById("loginPage").style.display="flex";
-
-        document.getElementById("app").style.display="none";
-
-    }
+function downloadCSV(filename,list){
+
+let headers=[
+"Date",
+"Expense",
+"Amount INR",
+"Category",
+"Person",
+"Payment Mode",
+"Due Date",
+"Status",
+"Notes"
+];
+
+let rows=[headers];
+
+list.forEach(e=>{
+
+rows.push([
+e.date,
+e.name,
+e.amount,
+e.category,
+e.person,
+e.paymentMode,
+e.dueDate,
+effectiveStatus(e),
+e.notes
+]);
 
 });
+
+let csv="\ufeff"+
+rows.map(r=>r.map(csvEscape).join(",")).join("\n");
+
+let blob=new Blob(
+[csv],
+{type:"text/csv;charset=utf-8"}
+);
+
+let url=URL.createObjectURL(blob);
+
+let a=document.createElement("a");
+
+a.href=url;
+a.download=filename;
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+
+function allCSV(){
+
+downloadCSV(
+"EVR_All_Expenses.csv",
+expenses
+);
+
+}
+
+
+function periodCSV(){
+
+let type=document.getElementById("reportType").value;
+let date=document.getElementById("reportDate").value;
+let month=document.getElementById("reportMonth").value;
+let year=document.getElementById("reportYear").value;
+
+let list=filterPeriod(type,date,month,year);
+
+downloadCSV(
+"EVR_Period_Report.csv",
+list
+);
+
+}
+
+
+function personCSV(){
+
+let person=document.getElementById("personReportPerson").value;
+
+if(!person){
+alert("Select person.");
+return;
+}
+
+let type=document.getElementById("personReportType").value;
+
+let list;
+
+if(type==="all"){
+
+list=expenses.filter(e=>e.person===person);
+
+}else{
+
+list=filterPeriod(
+type,
+document.getElementById("personDate").value,
+document.getElementById("personMonth").value,
+document.getElementById("personYear").value
+).filter(e=>e.person===person);
+
+}
+
+downloadCSV(
+"EVR_"+person+"_Report.csv",
+list
+);
+
+}
+
+
+function categoryCSV(){
+
+let category=
+document.getElementById("categoryReportCategory").value;
+
+if(!category){
+alert("Select category.");
+return;
+}
+
+let type=
+document.getElementById("categoryReportType").value;
+
+let list;
+
+if(type==="all"){
+
+list=expenses.filter(e=>e.category===category);
+
+}else{
+
+list=filterPeriod(
+type,
+document.getElementById("categoryDate").value,
+document.getElementById("categoryMonth").value,
+document.getElementById("categoryYear").value
+).filter(e=>e.category===category);
+
+}
+
+downloadCSV(
+"EVR_"+category+"_Report.csv",
+list
+);
+
+}
+
+
+/* =========================================================
+   PDF
+========================================================= */
+
+function makePDF(filename,title,list){
+
+if(!window.jspdf){
+
+alert(
+"PDF library is not available. Connect to the internet and try again."
+);
+
+return;
+
+}
+
+const {jsPDF}=window.jspdf;
+
+let doc=new jsPDF("landscape");
+
+let y=18;
+
+doc.setFontSize(20);
+doc.text("EVR Personal Expenses",14,y);
+
+y+=10;
+
+doc.setFontSize(14);
+doc.text(title,14,y);
+
+y+=10;
+
+let s=summary(list);
+
+doc.setFontSize(10);
+
+doc.text(
+"Total: "+money(s.total)+
+"   Expenses: "+s.count+
+"   Paid: "+money(s.paid)+
+"   Pending: "+money(s.pending)+
+"   Overdue: "+money(s.overdue),
+14,y
+);
+
+y+=10;
+
+doc.setFontSize(8);
+
+let x=[14,38,90,130,170,215,250];
+
+[
+"Date",
+"Expense",
+"Person",
+"Category",
+"Payment",
+"Amount",
+"Status"
+].forEach((h,i)=>{
+doc.text(h,x[i],y);
+});
+
+y+=6;
+
+doc.line(14,y-3,280,y-3);
+
+list.forEach(e=>{
+
+if(y>190){
+
+doc.addPage();
+y=18;
+
+}
+
+let vals=[
+dateText(e.date),
+String(e.name).substring(0,27),
+String(e.person).substring(0,18),
+String(e.category).substring(0,18),
+String(e.paymentMode||"").substring(0,15),
+money(e.amount),
+effectiveStatus(e)
+];
+
+vals.forEach((v,i)=>{
+doc.text(String(v),x[i],y);
+});
+
+y+=6;
+
+});
+
+doc.save(filename);
+
+}
+
+
+function periodPDF(){
+
+let type=document.getElementById("reportType").value;
+
+let date=document.getElementById("reportDate").value;
+
+let month=document.getElementById("reportMonth").value;
+
+let year=document.getElementById("reportYear").value;
+
+let list=filterPeriod(type,date,month,year);
+
+makePDF(
+"EVR_Period_Report.pdf",
+"Daily / Monthly / Yearly Report",
+list
+);
+
+}
+
+
+function personPDF(){
+
+let person=document.getElementById("personReportPerson").value;
+
+if(!person){
+alert("Select a person.");
+return;
+}
+
+let type=document.getElementById("personReportType").value;
+
+let list;
+
+if(type==="all"){
+
+list=expenses.filter(e=>e.person===person);
+
+}else{
+
+list=filterPeriod(
+type,
+document.getElementById("personDate").value,
+document.getElementById("personMonth").value,
+document.getElementById("personYear").value
+).filter(e=>e.person===person);
+
+}
+
+makePDF(
+"EVR_"+person+"_Report.pdf",
+"Individual Person Report - "+person,
+list
+);
+
+}
+
+
+function categoryPDF(){
+
+let category=
+document.getElementById("categoryReportCategory").value;
+
+if(!category){
+alert("Select category.");
+return;
+}
+
+let type=
+document.getElementById("categoryReportType").value;
+
+let list;
+
+if(type==="all"){
+
+list=expenses.filter(e=>e.category===category);
+
+}else{
+
+list=filterPeriod(
+type,
+document.getElementById("categoryDate").value,
+document.getElementById("categoryMonth").value,
+document.getElementById("categoryYear").value
+).filter(e=>e.category===category);
+
+}
+
+makePDF(
+"EVR_"+category+"_Report.pdf",
+"Category Report - "+category,
+list
+);
+
+}
+
+
+/* =========================================================
+   FULL JSON BACKUP
+========================================================= */
+
+function exportBackup(){
+
+/*
+    COMPLETE BACKUP
+    Everything is included.
+*/
+
+let backup={
+
+app:"EVR Personal Expense Manager",
+
+version:"1.0",
+
+backupDate:new Date().toISOString(),
+
+currency:"INR",
+
+expenses:expenses,
+
+people:people,
+
+categories:categories
+
+};
+
+let json=JSON.stringify(
+backup,
+null,
+2
+);
+
+let blob=new Blob(
+[json],
+{type:"application/json"}
+);
+
+let url=URL.createObjectURL(blob);
+
+let a=document.createElement("a");
+
+a.href=url;
+
+let date=new Date()
+.toISOString()
+.slice(0,10);
+
+a.download=
+"EVR_Expenses_Backup_"+date+".json";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+alert(
+"Full backup created successfully."
+);
+
+}
+
+
+/* =========================================================
+   FULL JSON IMPORT
+========================================================= */
+
+function importBackup(){
+
+let file=
+document.getElementById("backupFile").files[0];
+
+if(!file){
+
+alert("Please select a JSON backup file.");
+
+return;
+
+}
+
+if(!confirm(
+"This will replace your current expenses, people and categories with the backup. Continue?"
+))return;
+
+let reader=new FileReader();
+
+reader.onload=function(){
+
+try{
+
+let backup=
+JSON.parse(reader.result);
+
+if(
+!backup ||
+!Array.isArray(backup.expenses) ||
+!Array.isArray(backup.people) ||
+!Array.isArray(backup.categories)
+){
+
+throw new Error("Invalid backup");
+
+}
+
+expenses=backup.expenses;
+
+people=backup.people;
+
+categories=backup.categories;
+
+saveData();
+
+populateAll();
+
+renderDashboard();
+renderExpenses();
+renderUpcoming();
+renderPeriodReport();
+renderPersonReport();
+renderCategoryReport();
+
+alert(
+"Full backup imported successfully."
+);
+
+}catch(error){
+
+alert(
+"This is not a valid EVR Expenses backup file."
+);
+
+}
+
+};
+
+reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   CLEAR ALL DATA
+========================================================= */
+
+function clearEverything(){
+
+if(!confirm(
+"WARNING: This will delete ALL expenses, people and categories from this browser. Continue?"
+))return;
+
+if(!confirm(
+"Are you absolutely sure? Make a JSON backup first if you need your data."
+))return;
+
+expenses=[];
+
+people=[...defaultPeople];
+
+categories=[...defaultCategories];
+
+saveData();
+
+populateAll();
+
+renderDashboard();
+renderExpenses();
+renderUpcoming();
+
+alert("All data has been cleared.");
+
+}
+
+
+/* =========================================================
+   LIVE EUR / INR RATE
+========================================================= */
+
+async function loadRate(){
+
+document.getElementById("eurInr").textContent=
+"Loading...";
+
+try{
+
+/*
+    Public exchange-rate API.
+    Expenses themselves remain INR.
+*/
+
+let response=
+await fetch(
+"https://api.frankfurter.app/latest?from=EUR&to=INR"
+);
+
+let data=await response.json();
+
+let rate=Number(data.rates.INR);
+
+document.getElementById("eurInr").textContent=
+"₹"+rate.toFixed(2);
+
+document.getElementById("inrEur").textContent=
+"€"+(1/rate).toFixed(6);
+
+document.getElementById("rateTime").textContent=
+new Date().toLocaleString();
+
+}catch(error){
+
+document.getElementById("eurInr").textContent=
+"Unavailable";
+
+document.getElementById("inrEur").textContent=
+"Unavailable";
+
+document.getElementById("rateTime").textContent=
+"Could not update";
+
+}
+
+}
+
+
+/* =========================================================
+   SAVE BEFORE PAGE CLOSE
+========================================================= */
+
+window.addEventListener(
+"beforeunload",
+function(){
+saveData();
+}
+);
+
+
+/* =========================================================
+   AUTO SAVE EVERY 10 SECONDS
+========================================================= */
+
+setInterval(
+function(){
+saveData();
+},
+10000
+);
 
 </script>
 
