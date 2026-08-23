@@ -3,1772 +3,1270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>EVR Expenses</title>
 
 <style>
 *{
-  box-sizing:border-box;
+    box-sizing:border-box;
 }
 
 body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f4f6f8;
-  color:#1f2937;
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f3f5f8;
+    color:#222;
 }
 
-button,
-input,
-select,
-textarea{
-  font:inherit;
+button,input,select{
+    font:inherit;
 }
 
 button{
-  cursor:pointer;
+    cursor:pointer;
 }
 
-.hidden{
-  display:none !important;
-}
+/* LOGIN */
 
-/* =========================
-   LOGIN
-========================= */
-
-#loginScreen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  background:linear-gradient(135deg,#111827,#2563eb);
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#101827,#263b61);
+    padding:20px;
 }
 
 .loginBox{
-  width:100%;
-  max-width:430px;
-  background:white;
-  padding:38px;
-  border-radius:20px;
-  box-shadow:0 25px 70px rgba(0,0,0,.25);
+    background:white;
+    width:100%;
+    max-width:540px;
+    padding:45px;
+    border-radius:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
 }
 
-.loginLogo{
-  text-align:center;
-  font-size:36px;
-  font-weight:800;
-  margin-bottom:8px;
+.loginBox h1{
+    text-align:center;
+    margin:0 0 8px;
+    font-size:42px;
 }
 
 .loginSubtitle{
-  text-align:center;
-  color:#6b7280;
-  margin-bottom:30px;
+    text-align:center;
+    color:#777;
+    margin-bottom:35px;
+    font-size:18px;
+}
+
+.loginBox label{
+    display:block;
+    font-weight:bold;
+    margin:18px 0 8px;
+}
+
+.loginBox input{
+    width:100%;
+    padding:16px;
+    border:1px solid #d5dbe3;
+    border-radius:10px;
+}
+
+.loginBtn{
+    width:100%;
+    margin-top:25px;
+    padding:16px;
+    border:0;
+    border-radius:10px;
+    background:#2864e8;
+    color:white;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.loginBtn:hover{
+    background:#174fc9;
 }
 
 .loginHint{
-  text-align:center;
-  color:#777;
-  font-size:13px;
-  margin-top:18px;
+    text-align:center;
+    margin-top:25px;
+    color:#777;
 }
 
 .loginError{
-  display:none;
-  background:#fee2e2;
-  color:#b91c1c;
-  padding:11px;
-  border-radius:8px;
-  margin-bottom:15px;
+    color:#d62828;
+    text-align:center;
+    margin-top:15px;
+    display:none;
 }
 
-/* =========================
-   FORMS
-========================= */
+/* APP */
 
-.formGroup{
-  margin-bottom:16px;
+#app{
+    display:none;
 }
 
-.formGroup label{
-  display:block;
-  font-weight:bold;
-  margin-bottom:7px;
-}
-
-.formGroup input,
-.formGroup select,
-.formGroup textarea{
-  width:100%;
-  border:1px solid #d1d5db;
-  border-radius:9px;
-  padding:12px;
-  outline:none;
-  background:white;
-}
-
-.formGroup textarea{
-  min-height:90px;
-  resize:vertical;
-}
-
-.formGroup input:focus,
-.formGroup select:focus,
-.formGroup textarea:focus{
-  border-color:#2563eb;
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
-.btn{
-  border:0;
-  border-radius:8px;
-  padding:10px 15px;
-  font-weight:600;
-}
-
-.btnBlue{
-  background:#2563eb;
-  color:white;
-}
-
-.btnBlue:hover{
-  background:#1d4ed8;
-}
-
-.btnGreen{
-  background:#16a34a;
-  color:white;
-}
-
-.btnRed{
-  background:#dc2626;
-  color:white;
-}
-
-.btnOrange{
-  background:#ea580c;
-  color:white;
-}
-
-.btnGray{
-  background:#e5e7eb;
-  color:#111827;
-}
-
-.btnPurple{
-  background:#7c3aed;
-  color:white;
-}
-
-/* =========================
-   HEADER
-========================= */
-
-header{
-  background:#111827;
-  color:white;
-  padding:15px 22px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  position:sticky;
-  top:0;
-  z-index:100;
+.topbar{
+    background:#101827;
+    color:white;
+    padding:20px 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 }
 
 .logo{
-  font-size:23px;
-  font-weight:800;
+    font-size:30px;
+    font-weight:bold;
 }
 
-.headerRight{
-  display:flex;
-  align-items:center;
-  gap:12px;
+.userArea{
+    display:flex;
+    align-items:center;
+    gap:15px;
 }
 
 .logoutBtn{
-  background:#dc2626;
-  border:0;
-  color:white;
-  padding:9px 14px;
-  border-radius:8px;
+    border:0;
+    background:#e52d35;
+    color:white;
+    padding:11px 18px;
+    border-radius:8px;
+    font-weight:bold;
 }
 
-/* =========================
-   NAVIGATION
-========================= */
-
-nav{
-  background:white;
-  border-bottom:1px solid #ddd;
-  display:flex;
-  gap:6px;
-  padding:10px 15px;
-  overflow-x:auto;
-  position:sticky;
-  top:63px;
-  z-index:90;
+.logoutBtn:hover{
+    background:#c71f28;
 }
 
-nav button{
-  border:0;
-  background:#f3f4f6;
-  padding:10px 16px;
-  border-radius:9px;
-  white-space:nowrap;
+.nav{
+    background:white;
+    padding:14px 20px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    border-bottom:1px solid #ddd;
 }
 
-nav button.active{
-  background:#2563eb;
-  color:white;
+.nav button{
+    border:0;
+    background:#f0f2f5;
+    padding:13px 20px;
+    border-radius:10px;
 }
 
-/* =========================
-   MAIN
-========================= */
+.nav button.active{
+    background:#2864e8;
+    color:white;
+}
 
-main{
-  max-width:1450px;
-  margin:auto;
-  padding:22px;
+.container{
+    max-width:1500px;
+    margin:auto;
+    padding:30px;
 }
 
 .page{
-  display:none;
+    display:none;
 }
 
 .page.active{
-  display:block;
+    display:block;
 }
 
 .pageTitle{
-  margin:0 0 20px;
+    font-size:34px;
+    margin:0 0 25px;
 }
 
-/* =========================
-   DASHBOARD CARDS
-========================= */
+/* CARDS */
 
 .cards{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-  margin-bottom:25px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:30px;
 }
 
 .card{
-  background:white;
-  border-radius:15px;
-  padding:20px;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 3px 15px rgba(0,0,0,.07);
+    border-left:5px solid #2864e8;
+}
+
+.card.people{
+    border-left-color:#13a65a;
+}
+
+.card.upcoming{
+    border-left-color:#f57c00;
+}
+
+.card.overdue{
+    border-left-color:#e52d35;
 }
 
 .cardTitle{
-  color:#6b7280;
-  font-size:14px;
-  margin-bottom:8px;
+    color:#777;
+    font-size:16px;
+    margin-bottom:10px;
 }
 
 .cardValue{
-  font-size:27px;
-  font-weight:800;
+    font-size:32px;
+    font-weight:bold;
 }
 
-.cardBlue{
-  border-left:5px solid #2563eb;
-}
-
-.cardGreen{
-  border-left:5px solid #16a34a;
-}
-
-.cardOrange{
-  border-left:5px solid #ea580c;
-}
-
-.cardRed{
-  border-left:5px solid #dc2626;
-}
-
-/* =========================
-   SECTIONS
-========================= */
-
-.section{
-  background:white;
-  border-radius:15px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 2px 12px rgba(0,0,0,.06);
-}
-
-.sectionHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-}
-
-.sectionHeader h2{
-  margin:0;
-}
+/* PANELS */
 
 .grid2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
 }
 
-.grid3{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:15px;
+.panel{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 3px 15px rgba(0,0,0,.07);
+    margin-bottom:25px;
 }
 
-/* =========================
-   TABLE
-========================= */
+.panel h2{
+    margin-top:0;
+}
+
+/* BUTTONS */
+
+.primary{
+    background:#2864e8;
+    color:white;
+    border:0;
+    padding:12px 18px;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.success{
+    background:#159957;
+    color:white;
+    border:0;
+    padding:10px 15px;
+    border-radius:8px;
+}
+
+.danger{
+    background:#e52d35;
+    color:white;
+    border:0;
+    padding:9px 13px;
+    border-radius:7px;
+}
+
+.secondary{
+    background:#eef1f5;
+    border:0;
+    padding:10px 15px;
+    border-radius:7px;
+}
+
+/* FORMS */
+
+.formGrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.formGroup label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.formGroup input,
+.formGroup select{
+    width:100%;
+    padding:13px;
+    border:1px solid #d3d9e0;
+    border-radius:8px;
+    background:white;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+/* TABLE */
 
 .tableWrap{
-  overflow-x:auto;
+    overflow-x:auto;
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:850px;
+    width:100%;
+    border-collapse:collapse;
 }
 
-th,
-td{
-  padding:12px;
-  border-bottom:1px solid #e5e7eb;
-  text-align:left;
+th,td{
+    padding:14px 12px;
+    border-bottom:1px solid #e5e8ec;
+    text-align:left;
 }
 
 th{
-  background:#f9fafb;
-  font-weight:700;
+    background:#f7f8fa;
 }
 
-.amount{
-  font-weight:700;
+.empty{
+    text-align:center;
+    padding:30px;
+    color:#777;
 }
 
-.income{
-  color:#16a34a;
-  font-weight:bold;
+/* BADGES */
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
 }
 
-.expense{
-  color:#dc2626;
-  font-weight:bold;
+.badgePaid{
+    background:#d9f7e5;
+    color:#13733d;
 }
 
-.overdue{
-  color:#dc2626;
-  font-weight:bold;
+.badgePending{
+    background:#fff1cf;
+    color:#9a6500;
 }
 
-.upcoming{
-  color:#ea580c;
-  font-weight:bold;
+.badgeOverdue{
+    background:#ffe0e0;
+    color:#b21e1e;
 }
 
-.paid{
-  color:#16a34a;
-  font-weight:bold;
-}
-
-/* =========================
-   PEOPLE
-========================= */
-
-.peopleGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:15px;
-}
-
-.personCard{
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:17px;
-}
-
-.personName{
-  font-size:19px;
-  font-weight:800;
-}
-
-.personInfo{
-  color:#6b7280;
-  margin-top:5px;
-}
-
-.personTotal{
-  font-size:23px;
-  font-weight:800;
-  margin:12px 0;
-}
-
-.personActions{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-}
-
-/* =========================
-   FILTERS
-========================= */
-
-.filters{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-bottom:18px;
-}
-
-.filters input,
-.filters select{
-  width:100%;
-  padding:10px;
-  border:1px solid #d1d5db;
-  border-radius:8px;
-}
-
-/* =========================
-   MODAL
-========================= */
+/* MODAL */
 
 .modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:1000;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
 }
 
 .modal.show{
-  display:flex;
+    display:flex;
 }
 
 .modalBox{
-  background:white;
-  width:100%;
-  max-width:650px;
-  max-height:92vh;
-  overflow:auto;
-  border-radius:16px;
-  padding:23px;
+    background:white;
+    width:100%;
+    max-width:650px;
+    max-height:90vh;
+    overflow:auto;
+    border-radius:18px;
+    padding:28px;
 }
 
 .modalHeader{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
-.modalHeader h2{
-  margin:0;
+.close{
+    border:0;
+    background:#eee;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    font-size:22px;
 }
 
-.closeBtn{
-  width:36px;
-  height:36px;
-  border:0;
-  border-radius:50%;
-  background:#eee;
-  font-size:21px;
-}
-
-/* =========================
-   REPORTS
-========================= */
-
-.reportBox{
-  background:#f9fafb;
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  padding:20px;
-  white-space:pre-wrap;
-  font-family:monospace;
-  line-height:1.6;
-  overflow:auto;
-}
-
-/* =========================
-   CURRENCY
-========================= */
+/* CURRENCY */
 
 .currencyBox{
-  max-width:900px;
+    max-width:750px;
+    margin:auto;
 }
 
-.converterResult{
-  margin-top:18px;
-  padding:20px;
-  background:#eff6ff;
-  border-radius:12px;
-  font-size:25px;
-  font-weight:800;
+.rateBox{
+    background:#eef5ff;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:25px;
 }
 
-.swapBox{
-  text-align:center;
-  margin:8px 0 18px;
+.converter{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
 }
 
-.rateInfo{
-  margin-top:10px;
-  color:#6b7280;
-  font-size:13px;
+.converter input,
+.converter select{
+    width:100%;
+    padding:15px;
+    border:1px solid #d3d9e0;
+    border-radius:9px;
 }
 
-.rateTable{
-  max-height:500px;
-  overflow:auto;
-  margin-top:20px;
+.result{
+    margin-top:25px;
+    background:#f5f7fa;
+    border-radius:12px;
+    padding:25px;
+    text-align:center;
 }
 
-.rateTable table{
-  min-width:400px;
+.resultAmount{
+    font-size:34px;
+    font-weight:bold;
 }
 
-/* =========================
-   UPCOMING
-========================= */
+/* REPORT */
 
-.upcomingCard{
-  border-left:5px solid #ea580c;
-  padding:15px;
-  background:#fff7ed;
-  border-radius:10px;
-  margin-bottom:10px;
+.reportSummary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
 }
 
-.overdueCard{
-  border-left:5px solid #dc2626;
-  background:#fef2f2;
+.reportBox{
+    background:#f7f8fa;
+    padding:20px;
+    border-radius:12px;
 }
 
-/* =========================
-   EMPTY
-========================= */
-
-.empty{
-  color:#777;
-  padding:20px 5px;
-}
-
-/* =========================
-   TOAST
-========================= */
-
-#toast{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:#111827;
-  color:white;
-  padding:14px 18px;
-  border-radius:10px;
-  display:none;
-  z-index:3000;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media(max-width:1000px){
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
 
-  .cards{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .grid2{
-    grid-template-columns:1fr;
-  }
-
-  .filters{
-    grid-template-columns:1fr 1fr;
-  }
-
+    .grid2{
+        grid-template-columns:1fr;
+    }
 }
 
-@media(max-width:600px){
+@media(max-width:700px){
+    .topbar{
+        padding:16px;
+    }
 
-  header{
-    padding:12px;
-  }
+    .logo{
+        font-size:22px;
+    }
 
-  .logo{
-    font-size:18px;
-  }
+    .userArea{
+        gap:7px;
+    }
 
-  main{
-    padding:12px;
-  }
+    .container{
+        padding:18px;
+    }
 
-  .cards{
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-  }
+    .cards{
+        grid-template-columns:1fr;
+    }
 
-  .card{
-    padding:14px;
-  }
+    .formGrid{
+        grid-template-columns:1fr;
+    }
 
-  .cardValue{
-    font-size:20px;
-  }
+    .converter{
+        grid-template-columns:1fr;
+    }
 
-  .filters{
-    grid-template-columns:1fr;
-  }
+    .reportSummary{
+        grid-template-columns:1fr;
+    }
 
-  nav{
-    top:56px;
-  }
+    .loginBox{
+        padding:28px 22px;
+    }
 
-  .loginBox{
-    padding:25px;
-  }
-
-}
-
-/* =========================
-   PRINT
-========================= */
-
-@media print{
-
-  header,
-  nav,
-  button,
-  .filters{
-    display:none !important;
-  }
-
-  body{
-    background:white;
-  }
-
-  main{
-    max-width:none;
-  }
-
-  .section{
-    box-shadow:none;
-  }
-
+    .loginBox h1{
+        font-size:34px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     LOGIN
-===================================================== -->
+<!-- ================= LOGIN ================= -->
 
-<div id="loginScreen">
+<div id="loginPage">
 
-  <div class="loginBox">
+    <div class="loginBox">
 
-    <div class="loginLogo">
-      EVR Expenses
-    </div>
+        <h1>EVR Expenses</h1>
 
-    <div class="loginSubtitle">
-      Expense & Transaction Manager
-    </div>
+        <div class="loginSubtitle">
+            Expense & Transaction Manager
+        </div>
 
-    <div id="loginError" class="loginError">
-      Invalid username or password.
-    </div>
-
-    <div class="formGroup">
-      <label>Username</label>
-      <input
-        id="loginUsername"
-        type="text"
-        placeholder="Username"
-      >
-    </div>
-
-    <div class="formGroup">
-      <label>Password</label>
-      <input
-        id="loginPassword"
-        type="password"
-        placeholder="Password"
-        onkeydown="if(event.key==='Enter') login()"
-      >
-    </div>
-
-    <button
-      class="btn btnBlue"
-      style="width:100%;padding:13px"
-      onclick="login()"
-    >
-      Login
-    </button>
-
-    <div class="loginHint">
-      Default login:
-      <b>admin</b> /
-      <b>admin123</b>
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- =====================================================
-     APPLICATION
-===================================================== -->
-
-<div id="app" class="hidden">
-
-<header>
-
-  <div class="logo">
-    EVR Expenses
-  </div>
-
-  <div class="headerRight">
-
-    <span id="loggedUser">
-      admin
-    </span>
-
-    <button
-      class="logoutBtn"
-      onclick="logout()"
-    >
-      Logout
-    </button>
-
-  </div>
-
-</header>
-
-
-<nav>
-
-  <button
-    class="active"
-    onclick="showPage('dashboard',this)"
-  >
-    Dashboard
-  </button>
-
-  <button
-    onclick="showPage('expenses',this)"
-  >
-    Expenses
-  </button>
-
-  <button
-    onclick="showPage('upcoming',this)"
-  >
-    Upcoming
-  </button>
-
-  <button
-    onclick="showPage('people',this)"
-  >
-    People
-  </button>
-
-  <button
-    onclick="showPage('reports',this)"
-  >
-    Reports
-  </button>
-
-  <button
-    onclick="showPage('currency',this)"
-  >
-    Currency
-  </button>
-
-</nav>
-
-
-<main>
-
-
-<!-- =====================================================
-     DASHBOARD
-===================================================== -->
-
-<section
-  id="dashboard"
-  class="page active"
->
-
-  <h1 class="pageTitle">
-    Dashboard
-  </h1>
-
-  <div class="cards">
-
-    <div class="card cardBlue">
-      <div class="cardTitle">
-        Total Expenses
-      </div>
-
-      <div
-        id="dashboardTotal"
-        class="cardValue"
-      >
-        €0.00
-      </div>
-    </div>
-
-
-    <div class="card cardGreen">
-      <div class="cardTitle">
-        People
-      </div>
-
-      <div
-        id="dashboardPeople"
-        class="cardValue"
-      >
-        0
-      </div>
-    </div>
-
-
-    <div class="card cardOrange">
-      <div class="cardTitle">
-        Upcoming
-      </div>
-
-      <div
-        id="dashboardUpcoming"
-        class="cardValue"
-      >
-        0
-      </div>
-    </div>
-
-
-    <div class="card cardRed">
-      <div class="cardTitle">
-        Overdue
-      </div>
-
-      <div
-        id="dashboardOverdue"
-        class="cardValue"
-      >
-        0
-      </div>
-    </div>
-
-  </div>
-
-
-  <div class="grid2">
-
-    <div class="section">
-
-      <div class="sectionHeader">
-
-        <h2>
-          Recent Transactions
-        </h2>
-
-        <button
-          class="btn btnBlue"
-          onclick="openExpenseModal()"
+        <label>Username</label>
+        <input
+            id="loginUsername"
+            type="text"
+            placeholder="Username"
         >
-          + Add Expense
+
+        <label>Password</label>
+        <input
+            id="loginPassword"
+            type="password"
+            placeholder="Password"
+        >
+
+        <button class="loginBtn" onclick="login()">
+            Login
         </button>
 
-      </div>
+        <div id="loginError" class="loginError">
+            Incorrect username or password.
+        </div>
 
-      <div id="recentTransactions"></div>
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="sectionHeader">
-
-        <h2>
-          Upcoming Expenses
-        </h2>
-
-      </div>
-
-      <div id="dashboardUpcomingList"></div>
+        <div class="loginHint">
+            Default login:
+            <b>admin / admin123</b>
+        </div>
 
     </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     EXPENSES
-===================================================== -->
-
-<section
-  id="expenses"
-  class="page"
->
-
-  <div class="sectionHeader">
-
-    <h1 class="pageTitle">
-      Expenses & Transactions
-    </h1>
-
-    <button
-      class="btn btnBlue"
-      onclick="openExpenseModal()"
-    >
-      + Add Expense
-    </button>
-
-  </div>
-
-
-  <div class="section">
-
-    <div class="filters">
-
-      <input
-        id="expenseSearch"
-        placeholder="Search..."
-        oninput="renderExpenses()"
-      >
-
-      <select
-        id="expensePersonFilter"
-        onchange="renderExpenses()"
-      >
-        <option value="">
-          All People
-        </option>
-      </select>
-
-      <select
-        id="expenseTypeFilter"
-        onchange="renderExpenses()"
-      >
-        <option value="">
-          All Types
-        </option>
-
-        <option value="Expense">
-          Expense
-        </option>
-
-        <option value="Income">
-          Income
-        </option>
-      </select>
-
-      <input
-        id="expenseDateFilter"
-        type="month"
-        onchange="renderExpenses()"
-      >
-
-    </div>
-
-
-    <div class="tableWrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>
-              Date
-            </th>
-
-            <th>
-              Person
-            </th>
-
-            <th>
-              Description
-            </th>
-
-            <th>
-              Category
-            </th>
-
-            <th>
-              Type
-            </th>
-
-            <th>
-              Amount
-            </th>
-
-            <th>
-              Due Date
-            </th>
-
-            <th>
-              Status
-            </th>
-
-            <th>
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="expensesTableBody"></tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     UPCOMING
-===================================================== -->
-
-<section
-  id="upcoming"
-  class="page"
->
-
-  <h1 class="pageTitle">
-    Upcoming Expenses
-  </h1>
-
-  <div class="section">
-
-    <div class="sectionHeader">
-
-      <h2>
-        Due Dates
-      </h2>
-
-      <button
-        class="btn btnBlue"
-        onclick="openExpenseModal()"
-      >
-        + Add Expense
-      </button>
-
-    </div>
-
-    <div id="upcomingList"></div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     PEOPLE
-===================================================== -->
-
-<section
-  id="people"
-  class="page"
->
-
-  <div class="sectionHeader">
-
-    <h1 class="pageTitle">
-      People
-    </h1>
-
-    <button
-      class="btn btnBlue"
-      onclick="openPersonModal()"
-    >
-      + Add Person
-    </button>
-
-  </div>
-
-
-  <div class="section">
-
-    <div
-      id="peopleGrid"
-      class="peopleGrid"
-    ></div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     REPORTS
-===================================================== -->
-
-<section
-  id="reports"
-  class="page"
->
-
-  <div class="sectionHeader">
-
-    <h1 class="pageTitle">
-      Reports
-    </h1>
-
-    <div>
-
-      <button
-        class="btn btnBlue"
-        onclick="printReport()"
-      >
-        🖨 Print
-      </button>
-
-      <button
-        class="btn btnGreen"
-        onclick="shareReport()"
-      >
-        📤 Share
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="section">
-
-    <div
-      id="reportBox"
-      class="reportBox"
-    ></div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
-     CURRENCY
-===================================================== -->
-
-<section
-  id="currency"
-  class="page"
->
-
-  <h1 class="pageTitle">
-    Currency Converter
-  </h1>
-
-
-  <div class="section currencyBox">
-
-    <div class="grid2">
-
-      <div class="formGroup">
-
-        <label>
-          Amount
-        </label>
-
-        <input
-          id="currencyAmount"
-          type="number"
-          value="1"
-          min="0"
-          step="any"
-          oninput="convertCurrency()"
-        >
-
-      </div>
-
-
-      <div class="formGroup">
-
-        <label>
-          From
-        </label>
-
-        <select
-          id="currencyFrom"
-          onchange="convertCurrency()"
-        >
-
-          <option value="EUR">
-            EUR - Euro
-          </option>
-
-          <option value="INR">
-            INR - Indian Rupee
-          </option>
-
-          <option value="USD">
-            USD - US Dollar
-          </option>
-
-          <option value="GBP">
-            GBP - British Pound
-          </option>
-
-          <option value="AED">
-            AED - UAE Dirham
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="swapBox">
-
-      <button
-        type="button"
-        class="btn btnBlue"
-        onclick="swapCurrencies()"
-      >
-        ⇄ Swap Currencies
-      </button>
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        To
-      </label>
-
-      <select
-        id="currencyTo"
-        onchange="convertCurrency()"
-      >
-
-        <option value="INR">
-          INR - Indian Rupee
-        </option>
-
-        <option value="EUR">
-          EUR - Euro
-        </option>
-
-        <option value="USD">
-          USD - US Dollar
-        </option>
-
-        <option value="GBP">
-          GBP - British Pound
-        </option>
-
-        <option value="AED">
-          AED - UAE Dirham
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <button
-      class="btn btnBlue"
-      onclick="convertCurrency()"
-    >
-      Convert
-    </button>
-
-
-    <div
-      id="currencyResult"
-      class="converterResult"
-    >
-      Loading exchange rates...
-    </div>
-
-
-    <div
-      id="rateUpdated"
-      class="rateInfo"
-    ></div>
-
-
-    <h2 style="margin-top:30px">
-      Live Exchange Rates
-    </h2>
-
-    <div
-      id="ratesTable"
-      class="rateTable"
-    >
-      Loading rates...
-    </div>
-
-  </div>
-
-</section>
-
-
-</main>
 
 </div>
 
 
-<!-- =====================================================
-     EXPENSE MODAL
-===================================================== -->
+<!-- ================= APPLICATION ================= -->
+
+<div id="app">
+
+    <div class="topbar">
+
+        <div class="logo">
+            EVR Expenses
+        </div>
+
+        <div class="userArea">
+            <span id="currentUser">admin</span>
+
+            <button class="logoutBtn" onclick="logout()">
+                Logout
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="nav">
+
+        <button
+            id="navDashboard"
+            class="active"
+            onclick="showPage('dashboard')">
+            Dashboard
+        </button>
+
+        <button
+            id="navExpenses"
+            onclick="showPage('expenses')">
+            Expenses
+        </button>
+
+        <button
+            id="navUpcoming"
+            onclick="showPage('upcoming')">
+            Upcoming
+        </button>
+
+        <button
+            id="navPeople"
+            onclick="showPage('people')">
+            People
+        </button>
+
+        <button
+            id="navReports"
+            onclick="showPage('reports')">
+            Reports
+        </button>
+
+        <button
+            id="navCurrency"
+            onclick="showPage('currency')">
+            Currency
+        </button>
+
+    </div>
+
+
+    <div class="container">
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section id="dashboard" class="page active">
+
+            <h1 class="pageTitle">
+                Dashboard
+            </h1>
+
+            <div class="cards">
+
+                <div class="card">
+
+                    <div class="cardTitle">
+                        Total Expenses
+                    </div>
+
+                    <div
+                        class="cardValue"
+                        id="dashboardTotal">
+                        ₹0.00
+                    </div>
+
+                </div>
+
+
+                <div class="card people">
+
+                    <div class="cardTitle">
+                        People
+                    </div>
+
+                    <div
+                        class="cardValue"
+                        id="dashboardPeople">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="card upcoming">
+
+                    <div class="cardTitle">
+                        Upcoming
+                    </div>
+
+                    <div
+                        class="cardValue"
+                        id="dashboardUpcoming">
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="card overdue">
+
+                    <div class="cardTitle">
+                        Overdue
+                    </div>
+
+                    <div
+                        class="cardValue"
+                        id="dashboardOverdue">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="grid2">
+
+                <div class="panel">
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:10px;
+                    ">
+
+                        <h2>
+                            Recent Transactions
+                        </h2>
+
+                        <button
+                            class="primary"
+                            onclick="openExpenseModal()">
+                            + Add Expense
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="recentTransactions"
+                        class="tableWrap">
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <h2>
+                        Upcoming Expenses
+                    </h2>
+
+                    <div id="dashboardUpcomingList">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= EXPENSES ================= -->
+
+        <section id="expenses" class="page">
+
+            <h1 class="pageTitle">
+                Expenses
+            </h1>
+
+            <div class="panel">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                ">
+
+                    <h2>
+                        All Expenses
+                    </h2>
+
+                    <button
+                        class="primary"
+                        onclick="openExpenseModal()">
+                        + Add Expense
+                    </button>
+
+                </div>
+
+                <div
+                    id="expensesTable"
+                    class="tableWrap">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= UPCOMING ================= -->
+
+        <section id="upcoming" class="page">
+
+            <h1 class="pageTitle">
+                Upcoming Expenses
+            </h1>
+
+            <div class="panel">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                ">
+
+                    <h2>
+                        Expenses With Due Dates
+                    </h2>
+
+                    <button
+                        class="primary"
+                        onclick="openExpenseModal(true)">
+                        + Add Upcoming
+                    </button>
+
+                </div>
+
+                <div
+                    id="upcomingTable"
+                    class="tableWrap">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PEOPLE ================= -->
+
+        <section id="people" class="page">
+
+            <h1 class="pageTitle">
+                People
+            </h1>
+
+            <div class="panel">
+
+                <h2>
+                    Add Person
+                </h2>
+
+                <div class="formGrid">
+
+                    <div class="formGroup">
+
+                        <label>
+                            Person Name
+                        </label>
+
+                        <input
+                            id="personName"
+                            type="text"
+                            placeholder="Enter name">
+
+                    </div>
+
+                    <div class="formGroup">
+
+                        <label>
+                            Phone / Note
+                        </label>
+
+                        <input
+                            id="personNote"
+                            type="text"
+                            placeholder="Optional">
+
+                    </div>
+
+                    <div class="full">
+
+                        <button
+                            class="success"
+                            onclick="addPerson()">
+                            + Add Person
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <h2>
+                    People List
+                </h2>
+
+                <div
+                    id="peopleTable"
+                    class="tableWrap">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= REPORTS ================= -->
+
+        <section id="reports" class="page">
+
+            <h1 class="pageTitle">
+                Reports
+            </h1>
+
+            <div class="panel">
+
+                <h2>
+                    Expense Summary
+                </h2>
+
+                <div class="reportSummary">
+
+                    <div class="reportBox">
+
+                        <div>
+                            Total Expenses
+                        </div>
+
+                        <h2 id="reportTotal">
+                            ₹0.00
+                        </h2>
+
+                    </div>
+
+
+                    <div class="reportBox">
+
+                        <div>
+                            Number of Expenses
+                        </div>
+
+                        <h2 id="reportCount">
+                            0
+                        </h2>
+
+                    </div>
+
+
+                    <div class="reportBox">
+
+                        <div>
+                            Average Expense
+                        </div>
+
+                        <h2 id="reportAverage">
+                            ₹0.00
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <h2>
+                    Expenses By Category
+                </h2>
+
+                <div
+                    id="categoryReport"
+                    class="tableWrap">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CURRENCY ================= -->
+
+        <section id="currency" class="page">
+
+            <h1 class="pageTitle">
+                Currency Converter
+            </h1>
+
+            <div class="panel currencyBox">
+
+                <div class="rateBox">
+
+                    <h3>
+                        Live EUR / INR Exchange Rate
+                    </h3>
+
+                    <div id="liveRate">
+                        Loading live exchange rate...
+                    </div>
+
+                    <small id="rateTime">
+                    </small>
+
+                </div>
+
+
+                <div class="converter">
+
+                    <div>
+
+                        <label>
+                            Amount
+                        </label>
+
+                        <input
+                            id="currencyAmount"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="1"
+                            oninput="convertCurrency()">
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            Conversion
+                        </label>
+
+                        <select
+                            id="currencyDirection"
+                            onchange="convertCurrency()">
+
+                            <option value="EUR_INR">
+                                EUR → INR
+                            </option>
+
+                            <option value="INR_EUR">
+                                INR → EUR
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="result">
+
+                    <div>
+                        Result
+                    </div>
+
+                    <div
+                        class="resultAmount"
+                        id="currencyResult">
+                        ₹0.00
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<!-- ================= EXPENSE MODAL ================= -->
 
 <div
-  id="expenseModal"
-  class="modal"
->
+    id="expenseModal"
+    class="modal">
 
-  <div class="modalBox">
+    <div class="modalBox">
 
-    <div class="modalHeader">
+        <div class="modalHeader">
 
-      <h2 id="expenseModalTitle">
-        Add Expense
-      </h2>
+            <h2>
+                Add Expense
+            </h2>
 
-      <button
-        class="closeBtn"
-        onclick="closeExpenseModal()"
-      >
-        ×
-      </button>
+            <button
+                class="close"
+                onclick="closeExpenseModal()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="formGrid">
+
+            <div class="formGroup">
+
+                <label>
+                    Expense Name
+                </label>
+
+                <input
+                    id="expenseName"
+                    type="text"
+                    placeholder="Example: Rent">
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Amount (₹ INR)
+                </label>
+
+                <input
+                    id="expenseAmount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00">
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Category
+                </label>
+
+                <select id="expenseCategory">
+
+                    <option>
+                        Food
+                    </option>
+
+                    <option>
+                        Rent
+                    </option>
+
+                    <option>
+                        Travel
+                    </option>
+
+                    <option>
+                        Shopping
+                    </option>
+
+                    <option>
+                        Bills
+                    </option>
+
+                    <option>
+                        Business
+                    </option>
+
+                    <option>
+                        Medical
+                    </option>
+
+                    <option>
+                        Education
+                    </option>
+
+                    <option>
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Person
+                </label>
+
+                <select id="expensePerson">
+                </select>
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Expense Date
+                </label>
+
+                <input
+                    id="expenseDate"
+                    type="date">
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Due Date
+                </label>
+
+                <input
+                    id="expenseDueDate"
+                    type="date">
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Status
+                </label>
+
+                <select id="expenseStatus">
+
+                    <option value="pending">
+                        Pending
+                    </option>
+
+                    <option value="paid">
+                        Paid
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="formGroup">
+
+                <label>
+                    Notes
+                </label>
+
+                <input
+                    id="expenseNotes"
+                    type="text"
+                    placeholder="Optional">
+
+            </div>
+
+
+            <div class="full">
+
+                <button
+                    class="primary"
+                    onclick="saveExpense()">
+                    Save Expense
+                </button>
+
+            </div>
+
+        </div>
 
     </div>
-
-
-    <input
-      id="expenseId"
-      type="hidden"
-    >
-
-
-    <div class="formGroup">
-
-      <label>
-        Date
-      </label>
-
-      <input
-        id="expenseDate"
-        type="date"
-      >
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Person
-      </label>
-
-      <select id="expensePerson"></select>
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Description
-      </label>
-
-      <input
-        id="expenseDescription"
-        placeholder="Example: Electricity bill"
-      >
-
-    </div>
-
-
-    <div class="grid2">
-
-      <div class="formGroup">
-
-        <label>
-          Category
-        </label>
-
-        <select id="expenseCategory">
-
-          <option>
-            Housing
-          </option>
-
-          <option>
-            Food
-          </option>
-
-          <option>
-            Transport
-          </option>
-
-          <option>
-            Utilities
-          </option>
-
-          <option>
-            Shopping
-          </option>
-
-          <option>
-            Health
-          </option>
-
-          <option>
-            Travel
-          </option>
-
-          <option>
-            Business
-          </option>
-
-          <option>
-            Education
-          </option>
-
-          <option>
-            Other
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="formGroup">
-
-        <label>
-          Type
-        </label>
-
-        <select id="expenseType">
-
-          <option value="Expense">
-            Expense
-          </option>
-
-          <option value="Income">
-            Income
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="grid2">
-
-      <div class="formGroup">
-
-        <label>
-          Amount
-        </label>
-
-        <input
-          id="expenseAmount"
-          type="number"
-          min="0"
-          step="any"
-          placeholder="0.00"
-        >
-
-      </div>
-
-
-      <div class="formGroup">
-
-        <label>
-          Currency
-        </label>
-
-        <select id="expenseCurrency">
-
-          <option value="EUR">
-            EUR
-          </option>
-
-          <option value="INR">
-            INR
-          </option>
-
-          <option value="USD">
-            USD
-          </option>
-
-          <option value="GBP">
-            GBP
-          </option>
-
-          <option value="AED">
-            AED
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Due Date
-      </label>
-
-      <input
-        id="expenseDueDate"
-        type="date"
-      >
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Notes
-      </label>
-
-      <textarea
-        id="expenseNotes"
-        placeholder="Optional notes"
-      ></textarea>
-
-    </div>
-
-
-    <div
-      style="
-        display:flex;
-        gap:10px;
-        justify-content:flex-end;
-      "
-    >
-
-      <button
-        class="btn btnGray"
-        onclick="closeExpenseModal()"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="btn btnBlue"
-        onclick="saveExpense()"
-      >
-        Save Expense
-      </button>
-
-    </div>
-
-  </div>
 
 </div>
-
-
-<!-- =====================================================
-     PERSON MODAL
-===================================================== -->
-
-<div
-  id="personModal"
-  class="modal"
->
-
-  <div class="modalBox">
-
-    <div class="modalHeader">
-
-      <h2 id="personModalTitle">
-        Add Person
-      </h2>
-
-      <button
-        class="closeBtn"
-        onclick="closePersonModal()"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <input
-      id="personId"
-      type="hidden"
-    >
-
-
-    <div class="formGroup">
-
-      <label>
-        Name
-      </label>
-
-      <input
-        id="personNameInput"
-        placeholder="Person name"
-      >
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Email
-      </label>
-
-      <input
-        id="personEmail"
-        type="email"
-        placeholder="Email"
-      >
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Phone
-      </label>
-
-      <input
-        id="personPhone"
-        placeholder="Phone"
-      >
-
-    </div>
-
-
-    <div class="formGroup">
-
-      <label>
-        Notes
-      </label>
-
-      <textarea
-        id="personNotes"
-        placeholder="Optional notes"
-      ></textarea>
-
-    </div>
-
-
-    <div
-      style="
-        display:flex;
-        gap:10px;
-        justify-content:flex-end;
-      "
-    >
-
-      <button
-        class="btn btnGray"
-        onclick="closePersonModal()"
-      >
-        Cancel
-      </button>
-
-      <button
-        class="btn btnBlue"
-        onclick="savePerson()"
-      >
-        Save Person
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<div id="toast"></div>
 
 
 <script>
 
 /* =====================================================
-   DATA
+   SETTINGS
 ===================================================== */
 
-let people =
-  JSON.parse(
-    localStorage.getItem("evr_people") || "[]"
-  );
+const LOGIN_USER = "admin";
+const LOGIN_PASSWORD = "admin123";
 
 let expenses =
-  JSON.parse(
-    localStorage.getItem("evr_expenses") || "[]"
-  );
+    JSON.parse(localStorage.getItem("evrExpenses") || "[]");
 
-let exchangeRates = {};
+let people =
+    JSON.parse(localStorage.getItem("evrPeople") || "[]");
 
-let ratesLoaded = false;
-
-
-/* =====================================================
-   DEFAULT PERSON
-===================================================== */
-
-if(people.length === 0){
-
-  people.push({
-    id:generateId(),
-    name:"General",
-    email:"",
-    phone:"",
-    notes:"Default person"
-  });
-
-  savePeople();
-
-}
+let exchangeRate = 0;
 
 
 /* =====================================================
@@ -1777,578 +1275,145 @@ if(people.length === 0){
 
 function login(){
 
-  const username =
-    document.getElementById("loginUsername").value.trim();
+    const username =
+        document.getElementById("loginUsername").value.trim();
 
-  const password =
-    document.getElementById("loginPassword").value;
+    const password =
+        document.getElementById("loginPassword").value;
 
-  const error =
-    document.getElementById("loginError");
+    const error =
+        document.getElementById("loginError");
 
+    if(
+        username === LOGIN_USER &&
+        password === LOGIN_PASSWORD
+    ){
 
-  if(
-    username === "admin" &&
-    password === "admin123"
-  ){
+        localStorage.setItem("evrLoggedIn","true");
 
-    localStorage.setItem(
-      "evr_logged_in",
-      "true"
-    );
+        document.getElementById("loginPage").style.display="none";
 
-    localStorage.setItem(
-      "evr_username",
-      username
-    );
+        document.getElementById("app").style.display="block";
 
-    showApplication();
+        document.getElementById("currentUser").textContent=username;
 
-  }else{
+        initializeApp();
 
-    error.style.display = "block";
+    }else{
 
-  }
+        error.style.display="block";
 
+    }
 }
 
 
 function logout(){
 
-  localStorage.removeItem(
-    "evr_logged_in"
-  );
+    localStorage.removeItem("evrLoggedIn");
 
-  location.reload();
+    document.getElementById("app").style.display="none";
 
+    document.getElementById("loginPage").style.display="flex";
+
+    document.getElementById("loginUsername").value="";
+    document.getElementById("loginPassword").value="";
 }
 
 
-function showApplication(){
+/* =====================================================
+   START APP
+===================================================== */
 
-  document
-    .getElementById("loginScreen")
-    .classList.add("hidden");
+function initializeApp(){
 
-  document
-    .getElementById("app")
-    .classList.remove("hidden");
+    renderAll();
 
-  document
-    .getElementById("loggedUser")
-    .textContent =
-      localStorage.getItem("evr_username") ||
-      "admin";
-
-  refreshAll();
+    getLiveExchangeRate();
 
 }
 
 
 /* =====================================================
-   NAVIGATION
+   PAGE NAVIGATION
 ===================================================== */
 
-function showPage(pageId,button){
+function showPage(page){
 
-  document
-    .querySelectorAll(".page")
-    .forEach(page=>{
-      page.classList.remove("active");
-    });
+    document
+        .querySelectorAll(".page")
+        .forEach(p => p.classList.remove("active"));
 
-
-  const page =
-    document.getElementById(pageId);
-
-  if(page){
-    page.classList.add("active");
-  }
+    document
+        .getElementById(page)
+        .classList.add("active");
 
 
-  document
-    .querySelectorAll("nav button")
-    .forEach(btn=>{
-      btn.classList.remove("active");
-    });
+    document
+        .querySelectorAll(".nav button")
+        .forEach(b => b.classList.remove("active"));
 
 
-  if(button){
-    button.classList.add("active");
-  }
+    const navButton =
+        document.getElementById("nav" + capitalize(page));
 
-
-  if(pageId === "reports"){
-    renderReport();
-  }
-
-  if(pageId === "currency"){
-    loadExchangeRates();
-  }
+    if(navButton){
+        navButton.classList.add("active");
+    }
 
 }
 
 
 /* =====================================================
-   STORAGE
+   HELPERS
 ===================================================== */
 
-function savePeople(){
+function capitalize(text){
 
-  localStorage.setItem(
-    "evr_people",
-    JSON.stringify(people)
-  );
+    return text.charAt(0).toUpperCase() + text.slice(1);
 
 }
 
 
-function saveExpenses(){
+function money(value){
 
-  localStorage.setItem(
-    "evr_expenses",
-    JSON.stringify(expenses)
-  );
+    return new Intl.NumberFormat("en-IN",{
+        style:"currency",
+        currency:"INR",
+        minimumFractionDigits:2
+    }).format(Number(value)||0);
 
 }
 
 
-/* =====================================================
-   UTILITIES
-===================================================== */
+function saveData(){
 
-function generateId(){
+    localStorage.setItem(
+        "evrExpenses",
+        JSON.stringify(expenses)
+    );
 
-  return Date.now().toString() +
-    Math.random().toString(16).slice(2);
+    localStorage.setItem(
+        "evrPeople",
+        JSON.stringify(people)
+    );
 
 }
 
 
 function today(){
 
-  return new Date()
-    .toISOString()
-    .split("T")[0];
-
-}
-
-
-function escapeHTML(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-
-function money(
-  amount,
-  currency="EUR"
-){
-
-  try{
-
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style:"currency",
-        currency:currency
-      }
-    ).format(
-      Number(amount) || 0
-    );
-
-  }catch(e){
-
-    return (
-      Number(amount || 0).toFixed(2)
-      + " "
-      + currency
-    );
-
-  }
+    return new Date().toISOString().split("T")[0];
 
 }
 
 
 function formatDate(date){
 
-  if(!date){
-    return "-";
-  }
+    if(!date) return "-";
 
-  const d =
-    new Date(date + "T00:00:00");
+    const d = new Date(date + "T00:00:00");
 
-  if(isNaN(d)){
-    return date;
-  }
-
-  return d.toLocaleDateString(
-    "en-GB"
-  );
-
-}
-
-
-/* =====================================================
-   TOAST
-===================================================== */
-
-let toastTimer;
-
-function showToast(message){
-
-  const toast =
-    document.getElementById("toast");
-
-  toast.textContent = message;
-
-  toast.style.display = "block";
-
-  clearTimeout(toastTimer);
-
-  toastTimer =
-    setTimeout(()=>{
-      toast.style.display = "none";
-    },2500);
-
-}
-
-
-/* =====================================================
-   PEOPLE
-===================================================== */
-
-function openPersonModal(personId=null){
-
-  document
-    .getElementById("personModal")
-    .classList.add("show");
-
-
-  if(personId){
-
-    const person =
-      people.find(
-        p => p.id === personId
-      );
-
-    if(!person) return;
-
-
-    document
-      .getElementById("personModalTitle")
-      .textContent =
-        "Edit Person";
-
-
-    document
-      .getElementById("personId")
-      .value =
-        person.id;
-
-
-    document
-      .getElementById("personNameInput")
-      .value =
-        person.name;
-
-
-    document
-      .getElementById("personEmail")
-      .value =
-        person.email || "";
-
-
-    document
-      .getElementById("personPhone")
-      .value =
-        person.phone || "";
-
-
-    document
-      .getElementById("personNotes")
-      .value =
-        person.notes || "";
-
-  }else{
-
-    document
-      .getElementById("personModalTitle")
-      .textContent =
-        "Add Person";
-
-    document
-      .getElementById("personId")
-      .value = "";
-
-    document
-      .getElementById("personNameInput")
-      .value = "";
-
-    document
-      .getElementById("personEmail")
-      .value = "";
-
-    document
-      .getElementById("personPhone")
-      .value = "";
-
-    document
-      .getElementById("personNotes")
-      .value = "";
-
-  }
-
-}
-
-
-function closePersonModal(){
-
-  document
-    .getElementById("personModal")
-    .classList.remove("show");
-
-}
-
-
-function savePerson(){
-
-  const id =
-    document
-      .getElementById("personId")
-      .value;
-
-
-  const name =
-    document
-      .getElementById("personNameInput")
-      .value
-      .trim();
-
-
-  if(!name){
-
-    alert("Please enter a name.");
-
-    return;
-
-  }
-
-
-  const personData = {
-
-    id:
-      id || generateId(),
-
-    name:name,
-
-    email:
-      document
-        .getElementById("personEmail")
-        .value
-        .trim(),
-
-    phone:
-      document
-        .getElementById("personPhone")
-        .value
-        .trim(),
-
-    notes:
-      document
-        .getElementById("personNotes")
-        .value
-        .trim()
-
-  };
-
-
-  if(id){
-
-    const index =
-      people.findIndex(
-        p => p.id === id
-      );
-
-    if(index !== -1){
-
-      people[index] =
-        personData;
-
-    }
-
-  }else{
-
-    people.push(personData);
-
-  }
-
-
-  savePeople();
-
-  closePersonModal();
-
-  refreshAll();
-
-  showToast("Person saved.");
-
-}
-
-
-function deletePerson(id){
-
-  const person =
-    people.find(
-      p => p.id === id
-    );
-
-
-  if(!person) return;
-
-
-  const linked =
-    expenses.filter(
-      e => e.personId === id
-    ).length;
-
-
-  let message =
-    "Delete " +
-    person.name +
-    "?";
-
-
-  if(linked > 0){
-
-    message +=
-      "\n\nThis person has " +
-      linked +
-      " transaction(s).";
-
-  }
-
-
-  if(!confirm(message)){
-    return;
-  }
-
-
-  people =
-    people.filter(
-      p => p.id !== id
-    );
-
-
-  savePeople();
-
-  refreshAll();
-
-  showToast("Person deleted.");
-
-}
-
-
-function renderPeople(){
-
-  const container =
-    document.getElementById(
-      "peopleGrid"
-    );
-
-
-  if(people.length === 0){
-
-    container.innerHTML =
-      '<div class="empty">No people added.</div>';
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    people.map(person=>{
-
-      const total =
-        expenses
-          .filter(
-            e =>
-              e.personId === person.id &&
-              e.type === "Expense"
-          )
-          .reduce(
-            (sum,e)=>
-              sum +
-              convertToEUR(
-                Number(e.amount),
-                e.currency
-              ),
-            0
-          );
-
-
-      return `
-
-        <div class="personCard">
-
-          <div class="personName">
-            ${escapeHTML(person.name)}
-          </div>
-
-          ${
-            person.email
-              ? `<div class="personInfo">
-                   📧 ${escapeHTML(person.email)}
-                 </div>`
-              : ""
-          }
-
-          ${
-            person.phone
-              ? `<div class="personInfo">
-                   📞 ${escapeHTML(person.phone)}
-                 </div>`
-              : ""
-          }
-
-          <div class="personTotal">
-            €${total.toFixed(2)}
-          </div>
-
-          <div class="personInfo">
-            Total expenses
-          </div>
-
-          <div class="personActions">
-
-            <button
-              class="btn btnBlue"
-              onclick="openPersonModal('${person.id}')"
-            >
-              Edit
-            </button>
-
-            <button
-              class="btn btnRed"
-              onclick="deletePerson('${person.id}')"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
+    return d.toLocaleDateString("en-IN");
 
 }
 
@@ -2357,351 +1422,120 @@ function renderPeople(){
    EXPENSE MODAL
 ===================================================== */
 
-function populatePersonSelect(){
+function openExpenseModal(){
 
-  const select =
-    document.getElementById(
-      "expensePerson"
-    );
+    document.getElementById("expenseModal")
+        .classList.add("show");
 
+    document.getElementById("expenseDate").value = today();
 
-  select.innerHTML =
-    people.map(person=>`
-
-      <option value="${person.id}">
-        ${escapeHTML(person.name)}
-      </option>
-
-    `).join("");
-
-}
-
-
-function openExpenseModal(expenseId=null){
-
-  populatePersonSelect();
-
-
-  document
-    .getElementById("expenseModal")
-    .classList.add("show");
-
-
-  if(expenseId){
-
-    const expense =
-      expenses.find(
-        e => e.id === expenseId
-      );
-
-    if(!expense) return;
-
-
-    document
-      .getElementById("expenseModalTitle")
-      .textContent =
-        "Edit Expense";
-
-
-    document
-      .getElementById("expenseId")
-      .value =
-        expense.id;
-
-
-    document
-      .getElementById("expenseDate")
-      .value =
-        expense.date;
-
-
-    document
-      .getElementById("expensePerson")
-      .value =
-        expense.personId;
-
-
-    document
-      .getElementById("expenseDescription")
-      .value =
-        expense.description;
-
-
-    document
-      .getElementById("expenseCategory")
-      .value =
-        expense.category;
-
-
-    document
-      .getElementById("expenseType")
-      .value =
-        expense.type;
-
-
-    document
-      .getElementById("expenseAmount")
-      .value =
-        expense.amount;
-
-
-    document
-      .getElementById("expenseCurrency")
-      .value =
-        expense.currency || "EUR";
-
-
-    document
-      .getElementById("expenseDueDate")
-      .value =
-        expense.dueDate || "";
-
-
-    document
-      .getElementById("expenseNotes")
-      .value =
-        expense.notes || "";
-
-  }else{
-
-    document
-      .getElementById("expenseModalTitle")
-      .textContent =
-        "Add Expense";
-
-
-    document
-      .getElementById("expenseId")
-      .value = "";
-
-
-    document
-      .getElementById("expenseDate")
-      .value =
-        today();
-
-
-    document
-      .getElementById("expenseDescription")
-      .value = "";
-
-
-    document
-      .getElementById("expenseCategory")
-      .value =
-        "Other";
-
-
-    document
-      .getElementById("expenseType")
-      .value =
-        "Expense";
-
-
-    document
-      .getElementById("expenseAmount")
-      .value = "";
-
-
-    document
-      .getElementById("expenseCurrency")
-      .value =
-        "EUR";
-
-
-    document
-      .getElementById("expenseDueDate")
-      .value = "";
-
-
-    document
-      .getElementById("expenseNotes")
-      .value = "";
-
-  }
+    renderPersonSelect();
 
 }
 
 
 function closeExpenseModal(){
 
-  document
-    .getElementById("expenseModal")
-    .classList.remove("show");
+    document.getElementById("expenseModal")
+        .classList.remove("show");
+
+    clearExpenseForm();
+
+}
+
+
+function clearExpenseForm(){
+
+    document.getElementById("expenseName").value="";
+    document.getElementById("expenseAmount").value="";
+    document.getElementById("expenseCategory").value="Food";
+    document.getElementById("expenseDate").value=today();
+    document.getElementById("expenseDueDate").value="";
+    document.getElementById("expenseStatus").value="pending";
+    document.getElementById("expenseNotes").value="";
 
 }
 
 
 /* =====================================================
-   SAVE EXPENSE
+   ADD EXPENSE
 ===================================================== */
 
 function saveExpense(){
 
-  const id =
-    document
-      .getElementById("expenseId")
-      .value;
+    const name =
+        document.getElementById("expenseName").value.trim();
+
+    const amount =
+        Number(document.getElementById("expenseAmount").value);
+
+    const category =
+        document.getElementById("expenseCategory").value;
+
+    const person =
+        document.getElementById("expensePerson").value;
+
+    const date =
+        document.getElementById("expenseDate").value;
+
+    const dueDate =
+        document.getElementById("expenseDueDate").value;
+
+    const status =
+        document.getElementById("expenseStatus").value;
+
+    const notes =
+        document.getElementById("expenseNotes").value.trim();
 
 
-  const date =
-    document
-      .getElementById("expenseDate")
-      .value;
+    if(!name){
 
+        alert("Please enter the expense name.");
 
-  const personId =
-    document
-      .getElementById("expensePerson")
-      .value;
-
-
-  const description =
-    document
-      .getElementById("expenseDescription")
-      .value
-      .trim();
-
-
-  const category =
-    document
-      .getElementById("expenseCategory")
-      .value;
-
-
-  const type =
-    document
-      .getElementById("expenseType")
-      .value;
-
-
-  const amount =
-    Number(
-      document
-        .getElementById("expenseAmount")
-        .value
-    );
-
-
-  const currency =
-    document
-      .getElementById("expenseCurrency")
-      .value;
-
-
-  const dueDate =
-    document
-      .getElementById("expenseDueDate")
-      .value;
-
-
-  const notes =
-    document
-      .getElementById("expenseNotes")
-      .value
-      .trim();
-
-
-  if(!date){
-
-    alert("Please select a date.");
-
-    return;
-
-  }
-
-
-  if(!personId){
-
-    alert("Please add/select a person.");
-
-    return;
-
-  }
-
-
-  if(!description){
-
-    alert("Please enter a description.");
-
-    return;
-
-  }
-
-
-  if(
-    !Number.isFinite(amount) ||
-    amount < 0
-  ){
-
-    alert("Please enter a valid amount.");
-
-    return;
-
-  }
-
-
-  const data = {
-
-    id:
-      id || generateId(),
-
-    date:date,
-
-    personId:personId,
-
-    description:description,
-
-    category:category,
-
-    type:type,
-
-    amount:amount,
-
-    currency:currency,
-
-    dueDate:dueDate,
-
-    notes:notes,
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-
-  if(id){
-
-    const index =
-      expenses.findIndex(
-        e => e.id === id
-      );
-
-    if(index !== -1){
-
-      expenses[index] =
-        data;
+        return;
 
     }
 
-  }else{
 
-    expenses.push(data);
+    if(!amount || amount <= 0){
 
-  }
+        alert("Please enter a valid amount.");
+
+        return;
+
+    }
 
 
-  saveExpenses();
+    expenses.push({
 
-  closeExpenseModal();
+        id:Date.now(),
 
-  refreshAll();
+        name:name,
 
-  showToast(
-    id
-      ? "Expense updated."
-      : "Expense added."
-  );
+        amount:amount,
+
+        category:category,
+
+        person:person,
+
+        date:date || today(),
+
+        dueDate:dueDate,
+
+        status:status,
+
+        notes:notes
+
+    });
+
+
+    saveData();
+
+    closeExpenseModal();
+
+    renderAll();
+
+    alert("Expense added successfully.");
 
 }
 
@@ -2712,730 +1546,155 @@ function saveExpense(){
 
 function deleteExpense(id){
 
-  const expense =
-    expenses.find(
-      e => e.id === id
-    );
+    if(!confirm("Delete this expense?")){
+        return;
+    }
 
+    expenses =
+        expenses.filter(e => e.id !== id);
 
-  if(!expense) return;
+    saveData();
 
-
-  if(
-    !confirm(
-      "Delete this transaction?\n\n" +
-      expense.description
-    )
-  ){
-
-    return;
-
-  }
-
-
-  expenses =
-    expenses.filter(
-      e => e.id !== id
-    );
-
-
-  saveExpenses();
-
-  refreshAll();
-
-  showToast(
-    "Transaction deleted."
-  );
+    renderAll();
 
 }
 
 
 /* =====================================================
-   EXPENSE STATUS
+   PEOPLE
 ===================================================== */
 
-function getStatus(expense){
+function addPerson(){
 
-  if(!expense.dueDate){
-    return "No due date";
-  }
+    const name =
+        document.getElementById("personName").value.trim();
 
-
-  const todayDate =
-    today();
+    const note =
+        document.getElementById("personNote").value.trim();
 
 
-  if(expense.dueDate < todayDate){
+    if(!name){
 
-    return "Overdue";
+        alert("Please enter a person's name.");
 
-  }
+        return;
 
-
-  if(expense.dueDate === todayDate){
-
-    return "Due today";
-
-  }
+    }
 
 
-  return "Upcoming";
+    people.push({
 
-}
+        id:Date.now(),
 
+        name:name,
 
-/* =====================================================
-   EXPENSE RENDER
-===================================================== */
-
-function renderExpenses(){
-
-  const body =
-    document.getElementById(
-      "expensesTableBody"
-    );
-
-
-  const search =
-    (
-      document
-        .getElementById("expenseSearch")
-        .value || ""
-    )
-      .toLowerCase();
-
-
-  const personFilter =
-    document
-      .getElementById(
-        "expensePersonFilter"
-      )
-      .value;
-
-
-  const typeFilter =
-    document
-      .getElementById(
-        "expenseTypeFilter"
-      )
-      .value;
-
-
-  const monthFilter =
-    document
-      .getElementById(
-        "expenseDateFilter"
-      )
-      .value;
-
-
-  let filtered =
-    expenses.filter(e=>{
-
-      const person =
-        people.find(
-          p => p.id === e.personId
-        );
-
-
-      const text =
-        (
-          e.description +
-          " " +
-          e.category +
-          " " +
-          (person ? person.name : "") +
-          " " +
-          e.currency
-        ).toLowerCase();
-
-
-      if(
-        search &&
-        !text.includes(search)
-      ){
-        return false;
-      }
-
-
-      if(
-        personFilter &&
-        e.personId !== personFilter
-      ){
-        return false;
-      }
-
-
-      if(
-        typeFilter &&
-        e.type !== typeFilter
-      ){
-        return false;
-      }
-
-
-      if(
-        monthFilter &&
-        !e.date.startsWith(monthFilter)
-      ){
-        return false;
-      }
-
-
-      return true;
+        note:note
 
     });
 
 
-  filtered.sort(
-    (a,b)=>
-      (b.date || "").localeCompare(
-        a.date || ""
-      )
-  );
+    saveData();
+
+    document.getElementById("personName").value="";
+    document.getElementById("personNote").value="";
+
+    renderAll();
+
+}
 
 
-  if(filtered.length === 0){
+function deletePerson(id){
 
-    body.innerHTML = `
+    if(!confirm("Delete this person?")){
+        return;
+    }
 
-      <tr>
+    people =
+        people.filter(p => p.id !== id);
 
-        <td
-          colspan="9"
-          class="empty"
-        >
-          No transactions found.
+    saveData();
 
-        </td>
+    renderAll();
 
-      </tr>
-
-    `;
-
-    return;
-
-  }
+}
 
 
-  body.innerHTML =
-    filtered.map(e=>{
+function renderPersonSelect(){
 
-      const person =
-        people.find(
-          p => p.id === e.personId
-        );
+    const select =
+        document.getElementById("expensePerson");
 
-
-      const status =
-        getStatus(e);
+    select.innerHTML =
+        '<option value="">-- No person --</option>';
 
 
-      let statusClass = "";
+    people.forEach(person => {
 
-      if(status === "Overdue"){
-        statusClass = "overdue";
-      }
+        const option =
+            document.createElement("option");
 
-      if(
-        status === "Upcoming" ||
-        status === "Due today"
-      ){
-        statusClass = "upcoming";
-      }
+        option.value = person.name;
 
+        option.textContent = person.name;
 
-      if(
-        e.type === "Income"
-      ){
-        statusClass = "paid";
-      }
+        select.appendChild(option);
 
-
-      return `
-
-        <tr>
-
-          <td>
-            ${formatDate(e.date)}
-          </td>
-
-          <td>
-            ${escapeHTML(
-              person
-                ? person.name
-                : "Unknown"
-            )}
-          </td>
-
-          <td>
-            ${escapeHTML(e.description)}
-          </td>
-
-          <td>
-            ${escapeHTML(e.category)}
-          </td>
-
-          <td
-            class="${
-              e.type === "Income"
-                ? "income"
-                : "expense"
-            }"
-          >
-            ${e.type}
-          </td>
-
-          <td class="amount">
-            ${money(
-              e.amount,
-              e.currency
-            )}
-          </td>
-
-          <td>
-            ${formatDate(e.dueDate)}
-          </td>
-
-          <td
-            class="${statusClass}"
-          >
-            ${status}
-          </td>
-
-          <td>
-
-            <button
-              class="btn btnBlue"
-              onclick="openExpenseModal('${e.id}')"
-            >
-              Edit
-            </button>
-
-            <button
-              class="btn btnRed"
-              onclick="deleteExpense('${e.id}')"
-            >
-              Delete
-            </button>
-
-          </td>
-
-        </tr>
-
-      `;
-
-    }).join("");
+    });
 
 }
 
 
 /* =====================================================
-   FILTER PEOPLE
+   UPCOMING / OVERDUE
 ===================================================== */
 
-function renderPersonFilter(){
+function isOverdue(expense){
 
-  const select =
-    document.getElementById(
-      "expensePersonFilter"
-    );
+    if(!expense.dueDate){
+        return false;
+    }
 
+    if(expense.status === "paid"){
+        return false;
+    }
 
-  const current =
-    select.value;
+    return expense.dueDate < today();
 
-
-  select.innerHTML =
-    `
-      <option value="">
-        All People
-      </option>
-    ` +
-    people.map(p=>`
-
-      <option value="${p.id}">
-        ${escapeHTML(p.name)}
-      </option>
-
-    `).join("");
+}
 
 
-  if(
-    people.some(
-      p => p.id === current
-    )
-  ){
+function isUpcoming(expense){
 
-    select.value =
-      current;
+    if(!expense.dueDate){
+        return false;
+    }
 
-  }
+    if(expense.status === "paid"){
+        return false;
+    }
+
+    return expense.dueDate >= today();
 
 }
 
 
 /* =====================================================
-   UPCOMING
+   RENDER ALL
 ===================================================== */
 
-function renderUpcoming(){
+function renderAll(){
 
-  const container =
-    document.getElementById(
-      "upcomingList"
-    );
+    renderDashboard();
 
+    renderExpenses();
 
-  const todayDate =
-    today();
+    renderUpcoming();
 
+    renderPeople();
 
-  const list =
-    expenses
-      .filter(
-        e =>
-          e.type === "Expense" &&
-          e.dueDate
-      )
-      .sort(
-        (a,b)=>
-          a.dueDate.localeCompare(
-            b.dueDate
-          )
-      );
+    renderReports();
 
-
-  if(list.length === 0){
-
-    container.innerHTML =
-      '<div class="empty">No upcoming expenses.</div>';
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    list.map(e=>{
-
-      const person =
-        people.find(
-          p => p.id === e.personId
-        );
-
-
-      const overdue =
-        e.dueDate < todayDate;
-
-
-      const cardClass =
-        overdue
-          ? "upcomingCard overdueCard"
-          : "upcomingCard";
-
-
-      return `
-
-        <div class="${cardClass}">
-
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              gap:10px;
-              flex-wrap:wrap;
-            "
-          >
-
-            <div>
-
-              <strong>
-                ${escapeHTML(e.description)}
-              </strong>
-
-              <div style="margin-top:5px">
-                ${escapeHTML(
-                  person
-                    ? person.name
-                    : "Unknown"
-                )}
-              </div>
-
-            </div>
-
-
-            <div style="font-weight:bold">
-              ${money(
-                e.amount,
-                e.currency
-              )}
-            </div>
-
-          </div>
-
-
-          <div
-            style="
-              margin-top:10px;
-              font-weight:bold;
-              color:${
-                overdue
-                  ? "#dc2626"
-                  : "#ea580c"
-              };
-            "
-          >
-
-            ${
-              overdue
-                ? "⚠️ Overdue"
-                : "📅 Due"
-            }
-
-            ${formatDate(e.dueDate)}
-
-          </div>
-
-
-          <div style="margin-top:10px">
-
-            <button
-              class="btn btnBlue"
-              onclick="openExpenseModal('${e.id}')"
-            >
-              Edit
-            </button>
-
-            <button
-              class="btn btnRed"
-              onclick="deleteExpense('${e.id}')"
-            >
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-}
-
-
-/* =====================================================
-   DASHBOARD UPCOMING
-===================================================== */
-
-function renderDashboardUpcoming(){
-
-  const container =
-    document.getElementById(
-      "dashboardUpcomingList"
-    );
-
-
-  const todayDate =
-    today();
-
-
-  const list =
-    expenses
-      .filter(
-        e =>
-          e.type === "Expense" &&
-          e.dueDate &&
-          e.dueDate >= todayDate
-      )
-      .sort(
-        (a,b)=>
-          a.dueDate.localeCompare(
-            b.dueDate
-          )
-      )
-      .slice(0,5);
-
-
-  if(list.length === 0){
-
-    container.innerHTML =
-      '<div class="empty">No upcoming expenses.</div>';
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    list.map(e=>{
-
-      const person =
-        people.find(
-          p => p.id === e.personId
-        );
-
-
-      return `
-
-        <div class="upcomingCard">
-
-          <strong>
-            ${escapeHTML(e.description)}
-          </strong>
-
-          <div>
-            ${escapeHTML(
-              person
-                ? person.name
-                : "Unknown"
-            )}
-          </div>
-
-          <div style="margin-top:8px">
-
-            Due:
-            <b>
-              ${formatDate(e.dueDate)}
-            </b>
-
-          </div>
-
-          <div style="margin-top:5px">
-
-            <b>
-              ${money(
-                e.amount,
-                e.currency
-              )}
-            </b>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-}
-
-
-/* =====================================================
-   RECENT TRANSACTIONS
-===================================================== */
-
-function renderRecent(){
-
-  const container =
-    document.getElementById(
-      "recentTransactions"
-    );
-
-
-  const list =
-    [...expenses]
-      .sort(
-        (a,b)=>
-          (b.date || "").localeCompare(
-            a.date || ""
-          )
-      )
-      .slice(0,6);
-
-
-  if(list.length === 0){
-
-    container.innerHTML =
-      '<div class="empty">No transactions yet.</div>';
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    list.map(e=>{
-
-      const person =
-        people.find(
-          p => p.id === e.personId
-        );
-
-
-      return `
-
-        <div
-          style="
-            padding:12px 0;
-            border-bottom:1px solid #eee;
-          "
-        >
-
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              gap:10px;
-            "
-          >
-
-            <div>
-
-              <strong>
-                ${escapeHTML(e.description)}
-              </strong>
-
-              <div
-                style="
-                  color:#777;
-                  font-size:13px;
-                  margin-top:4px;
-                "
-              >
-
-                ${formatDate(e.date)}
-                •
-                ${escapeHTML(
-                  person
-                    ? person.name
-                    : "Unknown"
-                )}
-
-              </div>
-
-            </div>
-
-
-            <div
-              class="${
-                e.type === "Income"
-                  ? "income"
-                  : "expense"
-              }"
-            >
-
-              ${
-                e.type === "Income"
-                  ? "+"
-                  : "-"
-              }
-
-              ${money(
-                e.amount,
-                e.currency
-              )}
-
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
+    renderPersonSelect();
 
 }
 
@@ -3446,740 +1705,844 @@ function renderRecent(){
 
 function renderDashboard(){
 
-  const total =
-    expenses
-      .filter(
-        e => e.type === "Expense"
-      )
-      .reduce(
-        (sum,e)=>
-          sum +
-          convertToEUR(
-            Number(e.amount),
-            e.currency
-          ),
-        0
-      );
-
-
-  const upcoming =
-    expenses.filter(
-      e =>
-        e.type === "Expense" &&
-        e.dueDate &&
-        e.dueDate >= today()
-    ).length;
-
-
-  const overdue =
-    expenses.filter(
-      e =>
-        e.type === "Expense" &&
-        e.dueDate &&
-        e.dueDate < today()
-    ).length;
-
-
-  document
-    .getElementById("dashboardTotal")
-    .textContent =
-      "€" +
-      total.toFixed(2);
-
-
-  document
-    .getElementById("dashboardPeople")
-    .textContent =
-      people.length;
-
-
-  document
-    .getElementById("dashboardUpcoming")
-    .textContent =
-      upcoming;
-
-
-  document
-    .getElementById("dashboardOverdue")
-    .textContent =
-      overdue;
-
-}
-
-
-/* =====================================================
-   CURRENCY
-===================================================== */
-
-function swapCurrencies(){
-
-  const from =
-    document.getElementById(
-      "currencyFrom"
-    );
-
-  const to =
-    document.getElementById(
-      "currencyTo"
-    );
-
-
-  const oldFrom =
-    from.value;
-
-
-  from.value =
-    to.value;
-
-
-  to.value =
-    oldFrom;
-
-
-  convertCurrency();
-
-}
-
-
-function convertToEUR(
-  amount,
-  currency
-){
-
-  amount =
-    Number(amount) || 0;
-
-
-  if(
-    !ratesLoaded ||
-    !exchangeRates ||
-    !exchangeRates[currency]
-  ){
-
-    if(currency === "EUR"){
-      return amount;
-    }
-
-    return amount;
-
-  }
-
-
-  const eurRate =
-    exchangeRates["EUR"] || 1;
-
-
-  if(currency === "EUR"){
-    return amount;
-  }
-
-
-  return amount / exchangeRates[currency];
-
-}
-
-
-async function loadExchangeRates(){
-
-  const result =
-    document.getElementById(
-      "currencyResult"
-    );
-
-
-  result.textContent =
-    "Loading live exchange rates...";
-
-
-  try{
-
-    /*
-      Public exchange-rate service.
-      No API key is required for this demo.
-    */
-
-    const url =
-      "https://" +
-      "open.er-api.com/v6/latest/EUR";
-
-
-    const response =
-      await fetch(url);
-
-
-    if(!response.ok){
-      throw new Error(
-        "Exchange rate request failed"
-      );
-    }
-
-
-    const data =
-      await response.json();
-
-
-    if(
-      data.result !== "success" ||
-      !data.rates
-    ){
-
-      throw new Error(
-        "Invalid exchange data"
-      );
-
-    }
-
-
-    exchangeRates =
-      data.rates;
-
-
-    exchangeRates.EUR =
-      1;
-
-
-    ratesLoaded = true;
-
-
-    document
-      .getElementById("rateUpdated")
-      .textContent =
-        "Live rates loaded: " +
-        new Date().toLocaleString();
-
-
-    renderRatesTable();
-
-    convertCurrency();
-
-
-  }catch(error){
-
-    console.error(error);
-
-    result.innerHTML =
-      "Unable to load live exchange rates.<br>" +
-      "<small>Please check your internet connection and try again.</small>";
-
-    document
-      .getElementById("rateUpdated")
-      .textContent =
-        "";
-
-  }
-
-}
-
-
-function convertCurrency(){
-
-  const amount =
-    Number(
-      document
-        .getElementById(
-          "currencyAmount"
-        )
-        .value
-    ) || 0;
-
-
-  const from =
-    document
-      .getElementById(
-        "currencyFrom"
-      )
-      .value;
-
-
-  const to =
-    document
-      .getElementById(
-        "currencyTo"
-      )
-      .value;
-
-
-  const result =
-    document
-      .getElementById(
-        "currencyResult"
-      );
-
-
-  if(!ratesLoaded){
-
-    result.textContent =
-      "Loading exchange rates...";
-
-    return;
-
-  }
-
-
-  if(
-    !exchangeRates[from] ||
-    !exchangeRates[to]
-  ){
-
-    result.textContent =
-      "Rate unavailable.";
-
-    return;
-
-  }
-
-
-  /*
-    Rates are based on EUR.
-
-    Convert:
-    From -> EUR -> To
-  */
-
-  const amountInEUR =
-    amount /
-    exchangeRates[from];
-
-
-  const converted =
-    amountInEUR *
-    exchangeRates[to];
-
-
-  result.innerHTML = `
-
-    ${amount.toLocaleString(
-      "en-US",
-      {
-        maximumFractionDigits:2
-      }
-    )}
-
-    ${from}
-
-    =
-
-    ${converted.toLocaleString(
-      "en-US",
-      {
-        maximumFractionDigits:2
-      }
-    )}
-
-    ${to}
-
-  `;
-
-}
-
-
-function renderRatesTable(){
-
-  const container =
-    document.getElementById(
-      "ratesTable"
-    );
-
-
-  if(
-    !ratesLoaded ||
-    !exchangeRates
-  ){
-
-    container.innerHTML =
-      "No rates available.";
-
-    return;
-
-  }
-
-
-  const currencies =
-    Object.keys(exchangeRates)
-      .sort();
-
-
-  let html = `
-
-    <table>
-
-      <thead>
-
-        <tr>
-
-          <th>
-            Currency
-          </th>
-
-          <th>
-            1 EUR =
-          </th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-  `;
-
-
-  currencies.forEach(currency=>{
-
-    html += `
-
-      <tr>
-
-        <td>
-          <strong>
-            ${currency}
-          </strong>
-        </td>
-
-        <td>
-          ${Number(
-            exchangeRates[currency]
-          ).toFixed(4)}
-        </td>
-
-      </tr>
-
-    `;
-
-  });
-
-
-  html += `
-
-      </tbody>
-
-    </table>
-
-  `;
-
-
-  container.innerHTML =
-    html;
-
-}
-
-
-/* =====================================================
-   REPORT
-===================================================== */
-
-function renderReport(){
-
-  const report =
-    document.getElementById(
-      "reportBox"
-    );
-
-
-  const totalExpense =
-    expenses
-      .filter(
-        e => e.type === "Expense"
-      )
-      .reduce(
-        (sum,e)=>
-          sum +
-          convertToEUR(
-            Number(e.amount),
-            e.currency
-          ),
-        0
-      );
-
-
-  const totalIncome =
-    expenses
-      .filter(
-        e => e.type === "Income"
-      )
-      .reduce(
-        (sum,e)=>
-          sum +
-          convertToEUR(
-            Number(e.amount),
-            e.currency
-          ),
-        0
-      );
-
-
-  const overdue =
-    expenses.filter(
-      e =>
-        e.type === "Expense" &&
-        e.dueDate &&
-        e.dueDate < today()
-    ).length;
-
-
-  const upcoming =
-    expenses.filter(
-      e =>
-        e.type === "Expense" &&
-        e.dueDate &&
-        e.dueDate >= today()
-    ).length;
-
-
-  const net =
-    totalIncome -
-    totalExpense;
-
-
-  let text = "";
-
-  text +=
-    "EVR EXPENSES REPORT\n";
-
-  text +=
-    "==============================\n\n";
-
-  text +=
-    "Generated: " +
-    new Date().toLocaleString() +
-    "\n\n";
-
-
-  text +=
-    "SUMMARY\n";
-
-  text +=
-    "------------------------------\n";
-
-  text +=
-    "People: " +
-    people.length +
-    "\n";
-
-  text +=
-    "Transactions: " +
-    expenses.length +
-    "\n";
-
-  text +=
-    "Total Expenses: €" +
-    totalExpense.toFixed(2) +
-    "\n";
-
-  text +=
-    "Total Income: €" +
-    totalIncome.toFixed(2) +
-    "\n";
-
-  text +=
-    "Net: €" +
-    net.toFixed(2) +
-    "\n";
-
-  text +=
-    "Upcoming: " +
-    upcoming +
-    "\n";
-
-  text +=
-    "Overdue: " +
-    overdue +
-    "\n\n";
-
-
-  text +=
-    "TRANSACTIONS\n";
-
-  text +=
-    "==============================\n\n";
-
-
-  expenses
-    .slice()
-    .sort(
-      (a,b)=>
-        (b.date || "").localeCompare(
-          a.date || ""
-        )
-    )
-    .forEach(e=>{
-
-      const person =
-        people.find(
-          p => p.id === e.personId
+    const total =
+        expenses.reduce(
+            (sum,e) => sum + Number(e.amount),
+            0
         );
 
 
-      text +=
-        formatDate(e.date) +
-        " | " +
-        (person
-          ? person.name
-          : "Unknown") +
-        " | " +
-        e.description +
-        " | " +
-        e.type +
-        " | " +
-        money(
-          e.amount,
-          e.currency
-        ) +
-        "\n";
+    const overdue =
+        expenses.filter(isOverdue).length;
+
+
+    const upcoming =
+        expenses.filter(isUpcoming).length;
+
+
+    document.getElementById("dashboardTotal")
+        .textContent = money(total);
+
+    document.getElementById("dashboardPeople")
+        .textContent = people.length;
+
+    document.getElementById("dashboardUpcoming")
+        .textContent = upcoming;
+
+    document.getElementById("dashboardOverdue")
+        .textContent = overdue;
+
+
+    renderRecentTransactions();
+
+    renderDashboardUpcoming();
+
+}
+
+
+/* =====================================================
+   RECENT TRANSACTIONS
+===================================================== */
+
+function renderRecentTransactions(){
+
+    const box =
+        document.getElementById("recentTransactions");
+
+
+    const list =
+        [...expenses]
+        .sort((a,b) => b.id-a.id)
+        .slice(0,8);
+
+
+    if(list.length === 0){
+
+        box.innerHTML =
+            '<div class="empty">No transactions yet.</div>';
+
+        return;
+
+    }
+
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+
+    list.forEach(e => {
+
+        html += `
+            <tr>
+                <td>${escapeHTML(e.name)}</td>
+                <td><b>${money(e.amount)}</b></td>
+                <td>${formatDate(e.date)}</td>
+            </tr>
+        `;
 
     });
 
 
-  report.textContent =
-    text;
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    box.innerHTML=html;
 
 }
 
 
-function printReport(){
+/* =====================================================
+   DASHBOARD UPCOMING
+===================================================== */
 
-  renderReport();
+function renderDashboardUpcoming(){
 
-  window.print();
+    const box =
+        document.getElementById("dashboardUpcomingList");
+
+
+    const list =
+        expenses
+        .filter(isUpcoming)
+        .sort((a,b) =>
+            a.dueDate.localeCompare(b.dueDate)
+        )
+        .slice(0,6);
+
+
+    if(list.length===0){
+
+        box.innerHTML =
+            '<div class="empty">No upcoming expenses.</div>';
+
+        return;
+
+    }
+
+
+    let html="";
+
+
+    list.forEach(e => {
+
+        html += `
+            <div style="
+                padding:14px 0;
+                border-bottom:1px solid #eee;
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:10px;
+                ">
+
+                    <b>
+                        ${escapeHTML(e.name)}
+                    </b>
+
+                    <b>
+                        ${money(e.amount)}
+                    </b>
+
+                </div>
+
+                <small style="color:#777;">
+                    Due: ${formatDate(e.dueDate)}
+                </small>
+
+            </div>
+        `;
+
+    });
+
+
+    box.innerHTML=html;
 
 }
 
 
-async function shareReport(){
+/* =====================================================
+   EXPENSE TABLE
+===================================================== */
 
-  renderReport();
+function renderExpenses(){
+
+    const box =
+        document.getElementById("expensesTable");
 
 
-  const text =
-    document.getElementById(
-      "reportBox"
-    ).textContent;
+    if(expenses.length===0){
+
+        box.innerHTML =
+            '<div class="empty">No expenses added yet.</div>';
+
+        return;
+
+    }
 
 
-  if(
-    navigator.share
-  ){
+    const list =
+        [...expenses].sort((a,b) => b.id-a.id);
+
+
+    let html=`
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+
+                    <th>Amount</th>
+
+                    <th>Category</th>
+
+                    <th>Person</th>
+
+                    <th>Date</th>
+
+                    <th>Due Date</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    list.forEach(e => {
+
+        let statusHTML;
+
+
+        if(isOverdue(e)){
+
+            statusHTML =
+                '<span class="badge badgeOverdue">Overdue</span>';
+
+        }else if(e.status==="paid"){
+
+            statusHTML =
+                '<span class="badge badgePaid">Paid</span>';
+
+        }else{
+
+            statusHTML =
+                '<span class="badge badgePending">Pending</span>';
+
+        }
+
+
+        html += `
+
+            <tr>
+
+                <td>
+                    <b>${escapeHTML(e.name)}</b>
+                    ${
+                        e.notes
+                        ? `<br><small>${escapeHTML(e.notes)}</small>`
+                        : ""
+                    }
+                </td>
+
+                <td>
+                    <b>${money(e.amount)}</b>
+                </td>
+
+                <td>
+                    ${escapeHTML(e.category)}
+                </td>
+
+                <td>
+                    ${escapeHTML(e.person || "-")}
+                </td>
+
+                <td>
+                    ${formatDate(e.date)}
+                </td>
+
+                <td>
+                    ${formatDate(e.dueDate)}
+                </td>
+
+                <td>
+                    ${statusHTML}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+                        onclick="deleteExpense(${e.id})">
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+    });
+
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    box.innerHTML=html;
+
+}
+
+
+/* =====================================================
+   UPCOMING TABLE
+===================================================== */
+
+function renderUpcoming(){
+
+    const box =
+        document.getElementById("upcomingTable");
+
+
+    const list =
+        expenses
+        .filter(e => e.dueDate)
+        .sort((a,b) =>
+            a.dueDate.localeCompare(b.dueDate)
+        );
+
+
+    if(list.length===0){
+
+        box.innerHTML =
+            '<div class="empty">No expenses with due dates.</div>';
+
+        return;
+
+    }
+
+
+    let html=`
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Expense</th>
+
+                    <th>Amount</th>
+
+                    <th>Due Date</th>
+
+                    <th>Person</th>
+
+                    <th>Status</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    list.forEach(e => {
+
+        let status;
+
+
+        if(isOverdue(e)){
+
+            status =
+                '<span class="badge badgeOverdue">Overdue</span>';
+
+        }else if(e.status==="paid"){
+
+            status =
+                '<span class="badge badgePaid">Paid</span>';
+
+        }else{
+
+            status =
+                '<span class="badge badgePending">Upcoming</span>';
+
+        }
+
+
+        html += `
+
+            <tr>
+
+                <td>
+                    <b>${escapeHTML(e.name)}</b>
+                </td>
+
+                <td>
+                    ${money(e.amount)}
+                </td>
+
+                <td>
+                    ${formatDate(e.dueDate)}
+                </td>
+
+                <td>
+                    ${escapeHTML(e.person || "-")}
+                </td>
+
+                <td>
+                    ${status}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+                        onclick="deleteExpense(${e.id})">
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    box.innerHTML=html;
+
+}
+
+
+/* =====================================================
+   PEOPLE TABLE
+===================================================== */
+
+function renderPeople(){
+
+    const box =
+        document.getElementById("peopleTable");
+
+
+    if(people.length===0){
+
+        box.innerHTML =
+            '<div class="empty">No people added yet.</div>';
+
+        return;
+
+    }
+
+
+    let html=`
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+
+                    <th>Note</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    people.forEach(p => {
+
+        html += `
+
+            <tr>
+
+                <td>
+                    <b>${escapeHTML(p.name)}</b>
+                </td>
+
+                <td>
+                    ${escapeHTML(p.note || "-")}
+                </td>
+
+                <td>
+
+                    <button
+                        class="danger"
+                        onclick="deletePerson(${p.id})">
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+    });
+
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    box.innerHTML=html;
+
+}
+
+
+/* =====================================================
+   REPORTS
+===================================================== */
+
+function renderReports(){
+
+    const total =
+        expenses.reduce(
+            (sum,e) => sum + Number(e.amount),
+            0
+        );
+
+
+    const count =
+        expenses.length;
+
+
+    const average =
+        count ? total/count : 0;
+
+
+    document.getElementById("reportTotal")
+        .textContent=money(total);
+
+
+    document.getElementById("reportCount")
+        .textContent=count;
+
+
+    document.getElementById("reportAverage")
+        .textContent=money(average);
+
+
+    renderCategoryReport();
+
+}
+
+
+function renderCategoryReport(){
+
+    const box =
+        document.getElementById("categoryReport");
+
+
+    const categories={};
+
+
+    expenses.forEach(e => {
+
+        if(!categories[e.category]){
+            categories[e.category]=0;
+        }
+
+        categories[e.category] += Number(e.amount);
+
+    });
+
+
+    const keys =
+        Object.keys(categories)
+        .sort((a,b) =>
+            categories[b]-categories[a]
+        );
+
+
+    if(keys.length===0){
+
+        box.innerHTML =
+            '<div class="empty">No expense data available.</div>';
+
+        return;
+
+    }
+
+
+    let html=`
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Category</th>
+
+                    <th>Total</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    keys.forEach(category => {
+
+        html += `
+
+            <tr>
+
+                <td>
+                    ${escapeHTML(category)}
+                </td>
+
+                <td>
+                    <b>${money(categories[category])}</b>
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+
+    box.innerHTML=html;
+
+}
+
+
+/* =====================================================
+   LIVE EUR / INR RATE
+===================================================== */
+
+async function getLiveExchangeRate(){
+
+    const rateBox =
+        document.getElementById("liveRate");
 
     try{
 
-      await navigator.share({
+        rateBox.textContent =
+            "Loading live EUR / INR rate...";
 
-        title:
-          "EVR Expense Report",
 
-        text:text
+        /*
+          Frankfurter provides current exchange
+          rates from the European Central Bank.
+        */
 
-      });
+        const response =
+            await fetch(
+                "https://api.frankfurter.app/latest?from=EUR&to=INR"
+            );
 
-    }catch(e){}
 
-  }else{
+        if(!response.ok){
+            throw new Error("Rate request failed");
+        }
 
-    try{
 
-      await navigator.clipboard.writeText(
-        text
-      );
+        const data =
+            await response.json();
 
-      showToast(
-        "Report copied to clipboard."
-      );
 
-    }catch(e){
+        exchangeRate =
+            Number(data.rates.INR);
 
-      alert(
-        "Sharing is not supported on this device."
-      );
+
+        rateBox.innerHTML =
+            `<b>€1 = ₹${exchangeRate.toFixed(2)}</b>`;
+
+
+        document.getElementById("rateTime")
+            .textContent =
+            "Latest available market reference rate.";
+
+
+        convertCurrency();
+
+
+    }catch(error){
+
+        rateBox.innerHTML =
+            "Live rate unavailable. Please check your internet connection.";
+
+        exchangeRate=0;
 
     }
-
-  }
 
 }
 
 
 /* =====================================================
-   REFRESH EVERYTHING
+   CURRENCY CONVERTER
 ===================================================== */
 
-function refreshAll(){
+function convertCurrency(){
 
-  renderDashboard();
+    const amount =
+        Number(
+            document.getElementById("currencyAmount").value
+        ) || 0;
 
-  renderRecent();
 
-  renderDashboardUpcoming();
+    const direction =
+        document.getElementById("currencyDirection").value;
 
-  renderExpenses();
 
-  renderUpcoming();
+    const result =
+        document.getElementById("currencyResult");
 
-  renderPeople();
 
-  renderPersonFilter();
+    if(!exchangeRate){
 
-  renderReport();
+        result.textContent =
+            "Rate unavailable";
+
+        return;
+
+    }
+
+
+    if(direction==="EUR_INR"){
+
+        const converted =
+            amount * exchangeRate;
+
+
+        result.textContent =
+            `₹${converted.toLocaleString("en-IN",{
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            })}`;
+
+    }else{
+
+        const converted =
+            amount / exchangeRate;
+
+
+        result.textContent =
+            `€${converted.toLocaleString("en-IN",{
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            })}`;
+
+    }
 
 }
 
 
 /* =====================================================
-   INITIALIZATION
+   HTML SECURITY
 ===================================================== */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function(){
+function escapeHTML(value){
 
-    if(
-      localStorage.getItem(
-        "evr_logged_in"
-      ) === "true"
-    ){
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
-      showApplication();
-
-    }
-
-  }
-);
+}
 
 
 /* =====================================================
-   CLOSE MODALS BY CLICKING OUTSIDE
+   AUTO LOGIN
 ===================================================== */
 
-document
-  .getElementById("expenseModal")
-  .addEventListener(
-    "click",
-    function(e){
+window.addEventListener("DOMContentLoaded",function(){
 
-      if(
-        e.target === this
-      ){
-        closeExpenseModal();
-      }
-
-    }
-  );
+    const loggedIn =
+        localStorage.getItem("evrLoggedIn");
 
 
-document
-  .getElementById("personModal")
-  .addEventListener(
-    "click",
-    function(e){
+    if(loggedIn==="true"){
 
-      if(
-        e.target === this
-      ){
-        closePersonModal();
-      }
+        document.getElementById("loginPage")
+            .style.display="none";
+
+        document.getElementById("app")
+            .style.display="block";
+
+        initializeApp();
 
     }
-  );
 
+});
+
+
+/* ENTER KEY LOGIN */
+
+document.addEventListener("keydown",function(event){
+
+    if(event.key==="Enter"){
+
+        const loginPage =
+            document.getElementById("loginPage");
+
+
+        if(
+            loginPage &&
+            loginPage.style.display !== "none"
+        ){
+
+            login();
+
+        }
+
+    }
+
+});
 
 </script>
 
