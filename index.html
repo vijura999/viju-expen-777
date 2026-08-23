@@ -252,10 +252,31 @@ function saveExpense(){let name=document.getElementById('eName').value.trim(),am
 let obj={id:editId||Date.now().toString(),name,amount,category:document.getElementById('eCategory').value,person:document.getElementById('ePerson').value,date:document.getElementById('eDate').value,dueDate:document.getElementById('eDueDate').value,payment:document.getElementById('ePayment').value,status:document.getElementById('eStatus').value,notes:document.getElementById('eNotes').value.trim(),createdAt:new Date().toISOString()};
 if(editId){let i=db.expenses.findIndex(x=>x.id===editId);if(i>=0)db.expenses[i]=obj}else db.expenses.push(obj);closeExpense();saveDB();toast('Expense saved successfully')}
 
+function markExpensePaid(id){
+  const expense=db.expenses.find(e=>e.id===id);
+  if(!expense)return;
+
+  if(expense.status==="Paid"){
+    toast("Expense is already Paid.");
+    return;
+  }
+
+  if(!confirm('Mark "'+expense.name+'" as Paid?'))return;
+
+  expense.status="Paid";
+  expense.updatedAt=new Date().toISOString();
+
+  saveDB();
+  refreshAll();
+  toast("Expense marked as Paid.");
+}
+
 function deleteExpense(id){if(!confirm('Delete this expense?'))return;db.expenses=db.expenses.filter(x=>x.id!==id);saveDB();toast('Expense deleted')}
 function renderExpenses(){let q=(document.getElementById('search')?.value||'').toLowerCase(),p=document.getElementById('filterPerson')?.value||'',c=document.getElementById('filterCategory')?.value||'',st=document.getElementById('filterStatus')?.value||'';
 let a=getExpenses().filter(e=>(!q||(e.name+' '+e.notes+' '+e.category+' '+e.person).toLowerCase().includes(q))&&(!p||e.person===p)&&(!c||e.category===c)&&(!st||statusOf(e)===st));
-let tb=document.getElementById('expenseTable');tb.innerHTML=a.length?a.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.category)}</td><td>${esc(e.person)}</td><td>${esc(e.payment)}</td><td>${fmtDate(e.dueDate)}</td><td><span class="status ${statusOf(e).toLowerCase()}">${statusOf(e)}</span></td><td><button class="btn light" onclick="openExpense('${e.id}')">Edit</button> <button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="9" class="empty">No expenses found.</td></tr>'}
+let tb=document.getElementById('expenseTable');tb.innerHTML=a.length?a.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.category)}</td><td>${esc(e.person)}</td><td>${esc(e.payment)}</td><td>${fmtDate(e.dueDate)}</td><td><span class="status ${statusOf(e).toLowerCase()}">${statusOf(e)}</span></td><td><button class="btn success" onclick="markExpensePaid('${e.id}')">Paid</button>
+<button class="btn light" onclick="openExpense('${e.id}')">Edit</button>
+<button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button></td></tr>`).join(''):'<tr><td colspan="9" class="empty">No expenses found.</td></tr>'}
 function renderPeople(){
   document.getElementById('peopleList').innerHTML=db.people.map((p,i)=>`
     <div class="manage-row">
