@@ -150,7 +150,7 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 <div class="grid2">
 <div class="card"><h2>Export Full Backup JSON</h2><p>Save expenses, people, categories and settings as one JSON backup file.</p><button class="btn primary" onclick="exportJSON()">Download Full Backup JSON</button></div>
 <div class="card"><h2>Import Full Backup JSON</h2><p>Restore a previous complete backup.</p><input id="importFile" type="file" accept=".json,application/json"><div class="buttons"><button class="btn success" onclick="importJSON()">Import Full Backup</button></div></div>
-<div class="card"><h2>Export All Expenses CSV</h2><p>Spreadsheet-compatible CSV file containing all expenses.</p><button class="btn primary" onclick="downloadCSV(getExpenses(), 'EVR-All-Expenses.csv')">Download Expenses CSV</button></div>
+<div class="card"><h2>Export All Expenses CSV</h2><p>Spreadsheet-compatible CSV file containing all expenses.</p><button class="btn primary" onclick="downloadAllCSV()">Download Expenses CSV</button></div>
 <div class="card"><h2>Save Complete PDF</h2><p>Create a PDF containing all current expenses.</p><button class="btn success" onclick="allExpensesPDF()">Save All Expenses PDF</button></div>
 <div class="card"><h2>Clear Everything</h2><p>This permanently removes local expenses, people and categories from this browser.</p><button class="btn danger" onclick="clearAll()">Clear All Data</button></div>
 </div>
@@ -593,6 +593,134 @@ function categoryPDF(){
 
 function allExpensesPDF(){
   saveArrayPDF("All EVR Expenses",getExpenses(),"EVR-All-Expenses.pdf");
+}
+
+
+function downloadBlobFile(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=filename;
+  a.style.display="none";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){
+    a.remove();
+    URL.revokeObjectURL(url);
+  },1500);
+}
+
+function exportJSON(){
+  try{
+    const backup={
+      app:"EVR Personal Expense Manager",
+      version:3,
+      exportedAt:new Date().toISOString(),
+      data:{
+        expenses:Array.isArray(db.expenses)?db.expenses:[],
+        people:Array.isArray(db.people)?db.people:[],
+        categories:Array.isArray(db.categories)?db.categories:[]
+      }
+    };
+
+    const blob=new Blob(
+      [JSON.stringify(backup,null,2)],
+      {type:"application/json;charset=utf-8"}
+    );
+
+    downloadBlobFile(
+      blob,
+      "EVR-Full-Backup-"+today()+".json"
+    );
+
+    toast("Full backup JSON downloaded.");
+  }catch(error){
+    console.error(error);
+    alert("Could not create the JSON backup.");
+  }
+}
+
+function importJSON(){
+  const input=document.getElementById("importFile");
+
+  if(!input || !input.files || !input.files[0]){
+    alert("Please choose a JSON backup file first.");
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=function(){
+    try{
+      const parsed=JSON.parse(reader.result);
+      const source=parsed.data || parsed;
+
+      if(
+        !source ||
+        !Array.isArray(source.expenses) ||
+        !Array.isArray(source.people) ||
+        !Array.isArray(source.categories)
+      ){
+        throw new Error("Invalid EVR backup");
+      }
+
+      if(!confirm(
+        "Import this backup and replace your current local data?"
+      )){
+        return;
+      }
+
+      db={
+        expenses:source.expenses,
+        people:source.people,
+        categories:source.categories,
+        version:3
+      };
+
+      localStorage.setItem(KEY,JSON.stringify(db));
+
+      renderAll();
+
+      input.value="";
+
+      alert("Full backup imported successfully.");
+    }catch(error){
+      console.error(error);
+      alert("Invalid EVR backup JSON file.");
+    }
+  };
+
+  reader.onerror=function(){
+    alert("Could not read the selected backup file.");
+  };
+
+  reader.readAsText(input.files[0]);
+}
+
+function clearAll(){
+  if(!confirm(
+    "This will permanently delete all local expenses, people and categories. Continue?"
+  )){
+    return;
+  }
+
+  db={
+    expenses:[],
+    people:["Me"],
+    categories:[...DEFAULT_CATS],
+    version:3
+  };
+
+  localStorage.setItem(KEY,JSON.stringify(db));
+  renderAll();
+  toast("All data cleared.");
+}
+
+function downloadAllCSV(){
+  downloadCSV(
+    getExpenses(),
+    "EVR-All-Expenses.csv"
+  );
 }
 
 function renderAll(){fillSelect('filterPerson',db.people,'All People');fillSelect('filterCategory',db.categories,'All Categories');renderDashboard();renderExpenses();renderUpcoming();renderPeople();renderCategories();renderReports()}
