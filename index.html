@@ -345,43 +345,293 @@ function renderCategoryReport(){const type=document.getElementById('categoryRepo
 function renderUpcomingReport(){const rows=sortByDueAsc(db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()));document.getElementById('upcomingReport').innerHTML=rows.length?expenseActionTable(rows):'<div class="empty">No upcoming expenses.</div>'}
 function renderReports(){fillSelect('personReportPerson',db.people);fillSelect('categoryReportCategory',db.categories);renderPeriodReport();renderPersonReport();renderCategoryReport();renderUpcomingReport()}
 
-/* PDF generation: pdfMake creates the PDF directly, so there is NO browser URL/footer. */
-function pdfSummary(rows){const total=rows.reduce((s,e)=>s+Number(e.amount||0),0),paid=rows.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0),pending=rows.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0),overdue=rows.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);return{total,paid,pending,overdue}}
-function makePDF(title,subtitle,rows,filename,peopleText=''){
- if(!window.pdfMake){alert('PDF library is not loaded. Please check your internet connection and try again.');return}
- rows=sortDateDesc(rows);
- const s=pdfSummary(rows),people=peopleText||[...new Set(rows.map(e=>String(e.person||'').trim()).filter(Boolean))].join(' • ');
- const body=rows.map(e=>[fmtDate(e.date),e.name,money(e.amount),e.category,e.person,e.payment||'',fmtDate(e.dueDate),statusOf(e)]);
- const doc={
-  pageSize:'A4',pageOrientation:'landscape',pageMargins:[22,20,22,24],
-  defaultStyle:{font:'Roboto',fontSize:8,color:'#20242a'},
-  content:[
-   {text:title||'EVR Dashboard',fontSize:18,bold:true,margin:[0,0,0,4]},
-   subtitle?{text:subtitle,fontSize:9,margin:[0,0,0,5]}:null,
-   {columns:[
-    {text:[{text:'Total\n',fontSize:7,color:'#667085'},{text:money(s.total),bold:true,fontSize:11}],margin:[0,0,10,5]},
-    {text:[{text:'Paid\n',fontSize:7,color:'#667085'},{text:money(s.paid),bold:true,fontSize:11}],margin:[0,0,10,5]},
-    {text:[{text:'Pending\n',fontSize:7,color:'#667085'},{text:money(s.pending),bold:true,fontSize:11}],margin:[0,0,10,5]},
-    {text:[{text:'Overdue\n',fontSize:7,color:'#667085'},{text:money(s.overdue),bold:true,fontSize:11}],margin:[0,0,10,5]}
-   ],columnGap:10},
-   people?{text:[{text:'People: ',bold:true},{text:people}],fontSize:9,margin:[0,1,0,7]}:null,
-   {table:{headerRows:1,widths:['11%','17%','12%','11%','12%','13%','11%','13%'],body:[['Date','Expense','Amount','Category','Person','Payment','Due','Status'],...body]},layout:{
-    fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f5f7fa':null),
-    hLineColor:'#cfd4dc',vLineColor:'#cfd4dc',hLineWidth:()=>0.6,vLineWidth:()=>0.6,
-    paddingLeft:()=>4,paddingRight:()=>4,paddingTop:()=>3,paddingBottom:()=>3
-   }}
-  ].filter(Boolean),
-  footer:(currentPage,pageCount)=>({text:`Page ${currentPage} of ${pageCount}`,alignment:'right',fontSize:7,color:'#777',margin:[0,0,22,8]})
- };
- try{pdfMake.createPdf(doc).download(filename||'EVR-Report.pdf')}catch(err){console.error(err);alert('PDF could not be created. Please try again.')}
+/* PDF generation — matches the compact EVR PDF layout shown in the reference:
+   portrait A4, compact heading, summary cards, highlighted People row,
+   blue table header, alternating rows, ₹ amounts, and NO web address/footer URL. */
+function pdfSummary(rows){
+  const total=rows.reduce((s,e)=>s+Number(e.amount||0),0);
+  const paid=rows.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0);
+  const pending=rows.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0);
+  const overdue=rows.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);
+  return {total,paid,pending,overdue};
 }
-function saveDashboardPDF(){const m=Number(document.getElementById('dashboardMonth').value),y=Number(document.getElementById('dashboardYear').value),month=document.getElementById('dashboardMonth').selectedOptions[0].text;const rows=db.expenses.filter(e=>{const d=new Date((e.date||'')+'T00:00:00');return d.getMonth()+1===m&&d.getFullYear()===y});makePDF('EVR Dashboard',`${month} ${y} · Total ${money(rows.reduce((s,e)=>s+Number(e.amount||0),0))}`,rows,'EVR-Dashboard.pdf')}
-function saveExpensesPDF(){const search=(document.getElementById('search').value||'').toLowerCase(),person=document.getElementById('filterPerson').value,cat=document.getElementById('filterCategory').value,stat=document.getElementById('filterStatus').value;const rows=db.expenses.filter(e=>{const hay=[e.name,e.person,e.category,e.payment,e.notes].join(' ').toLowerCase();return(!search||hay.includes(search))&&(!person||e.person===person)&&(!cat||e.category===cat)&&(!stat||statusOf(e)===stat)});const people=[...new Set(rows.map(e=>String(e.person||'').trim()).filter(Boolean))].join(' • '),s=pdfSummary(rows);makePDF('EVR Expenses',`Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,rows,'EVR-Expenses.pdf',people)}
-function saveUpcomingPDF(){const rows=sortByDueAsc(db.expenses.filter(e=>(statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())||statusOf(e)==='Overdue'));makePDF('EVR Upcoming & Overdue Expenses','Upcoming and overdue expenses',rows,'EVR-Upcoming-Overdue.pdf')}
-function periodPDF(){makePDF('EVR Period Report',document.getElementById('reportType').value,periodExpenses(),'EVR-Period-Report.pdf')}
-function personPDF(){const p=document.getElementById('personReportPerson').value;makePDF('EVR Person Report',p,personRows(),'EVR-Person-Report.pdf',p)}
-function categoryPDF(){const c=document.getElementById('categoryReportCategory').value;makePDF('EVR Category Report',c,categoryRows(),'EVR-Category-Report.pdf')}
-function upcomingReportPDF(){const rows=sortByDueAsc(db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()));makePDF('EVR Upcoming Expenses Report','Pending expenses with future due dates',rows,'EVR-Upcoming-Report.pdf')}
+
+function makePDF(title,subtitle,rows,filename,peopleText=''){
+  if(!window.pdfMake){
+    alert('PDF library is not loaded. Please check your internet connection and try again.');
+    return;
+  }
+
+  rows=sortDateDesc(rows);
+  const s=pdfSummary(rows);
+  const people=peopleText || [...new Set(
+    rows.map(e=>String(e.person||'').trim()).filter(Boolean)
+  )].join(' • ');
+
+  const body=rows.map(e=>[
+    fmtDate(e.date),
+    String(e.name||''),
+    money(e.amount),
+    String(e.category||''),
+    String(e.person||''),
+    String(e.payment||''),
+    e.dueDate ? fmtDate(e.dueDate) : '-',
+    statusOf(e)
+  ]);
+
+  const summaryCard=(label,value)=>({
+    table:{
+      widths:['*'],
+      body:[[
+        {
+          stack:[
+            {text:label,fontSize:8,color:'#667085',margin:[0,0,0,4]},
+            {text:value,bold:true,fontSize:12,color:'#20242a'}
+          ],
+          margin:[8,7,8,7]
+        }
+      ]]
+    },
+    layout:{
+      hLineColor:'#cfd4dc',
+      vLineColor:'#cfd4dc',
+      hLineWidth:()=>0.8,
+      vLineWidth:()=>0.8,
+      fillColor:()=>'#f8fafc',
+      paddingLeft:()=>0,
+      paddingRight:()=>0,
+      paddingTop:()=>0,
+      paddingBottom:()=>0
+    }
+  });
+
+  const tableBody=[
+    [
+      {text:'Date',bold:true,color:'#ffffff'},
+      {text:'Expense',bold:true,color:'#ffffff'},
+      {text:'Amount',bold:true,color:'#ffffff'},
+      {text:'Category',bold:true,color:'#ffffff'},
+      {text:'Person',bold:true,color:'#ffffff'},
+      {text:'Payment',bold:true,color:'#ffffff'},
+      {text:'Due',bold:true,color:'#ffffff'},
+      {text:'Status',bold:true,color:'#ffffff'}
+    ],
+    ...body.map(r=>r.map((v,i)=>({
+      text:String(v),
+      fontSize:8,
+      color:'#20242a',
+      bold:i===2
+    })))
+  ];
+
+  const doc={
+    pageSize:'A4',
+    pageOrientation:'portrait',
+    pageMargins:[36,30,36,30],
+    defaultStyle:{
+      font:'Roboto',
+      fontSize:8,
+      color:'#20242a'
+    },
+
+    /* Important: no footer URL, no browser URL, no link field. */
+    content:[
+      {
+        text:title || 'EVR Dashboard',
+        fontSize:21,
+        bold:true,
+        color:'#111827',
+        margin:[0,0,0,7]
+      },
+
+      subtitle ? {
+        text:subtitle,
+        fontSize:10,
+        color:'#111827',
+        margin:[0,0,0,12]
+      } : null,
+
+      {
+        columns:[
+          summaryCard('Total',money(s.total)),
+          summaryCard('Paid',money(s.paid)),
+          summaryCard('Pending',money(s.pending)),
+          summaryCard('Overdue',money(s.overdue))
+        ],
+        columnGap:8,
+        margin:[0,0,0,10]
+      },
+
+      people ? {
+        table:{
+          widths:['*'],
+          body:[[
+            {
+              text:[
+                {text:'People: ',bold:true,fontSize:10},
+                ...people.split(' • ').flatMap((p,i)=>[
+                  {text:p,bold:true,fontSize:10,background:'#eef4ff',color:'#173b7a',margin:[2,1,2,1]},
+                  ...(i<people.split(' • ').length-1?[{text:'  •  ',color:'#64748b'}]:[])
+                ])
+              ],
+              margin:[8,6,8,6]
+            }
+          ]]
+        },
+        layout:{
+          hLineColor:'#d4dbe5',
+          vLineColor:'#d4dbe5',
+          hLineWidth:()=>0.8,
+          vLineWidth:()=>0.8,
+          fillColor:()=>'#f8fafc',
+          paddingLeft:()=>0,
+          paddingRight:()=>0,
+          paddingTop:()=>0,
+          paddingBottom:()=>0
+        },
+        margin:[0,0,0,10]
+      } : null,
+
+      {
+        table:{
+          headerRows:1,
+          widths:['12%','18%','12%','12%','12%','13%','10%','11%'],
+          body:tableBody
+        },
+        layout:{
+          fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f3f6f9':null),
+          hLineColor:'#cfd4dc',
+          vLineColor:'#cfd4dc',
+          hLineWidth:()=>0.7,
+          vLineWidth:()=>0.7,
+          paddingLeft:()=>5,
+          paddingRight:()=>5,
+          paddingTop:()=>4,
+          paddingBottom:()=>4
+        }
+      }
+    ].filter(Boolean)
+  };
+
+  try{
+    pdfMake.createPdf(doc).download(filename||'EVR-Report.pdf');
+  }catch(err){
+    console.error(err);
+    alert('PDF could not be created. Please try again.');
+  }
+}
+
+function saveDashboardPDF(){
+  const m=Number(document.getElementById('dashboardMonth').value);
+  const y=Number(document.getElementById('dashboardYear').value);
+  const month=document.getElementById('dashboardMonth').selectedOptions[0].text;
+
+  const rows=db.expenses.filter(e=>{
+    const d=new Date((e.date||'')+'T00:00:00');
+    return d.getMonth()+1===m && d.getFullYear()===y;
+  });
+
+  makePDF(
+    'EVR Dashboard',
+    `${month} ${y} · Total ${money(rows.reduce((s,e)=>s+Number(e.amount||0),0))}`,
+    rows,
+    'EVR-Dashboard.pdf'
+  );
+}
+
+function saveExpensesPDF(){
+  const search=(document.getElementById('search').value||'').toLowerCase();
+  const person=document.getElementById('filterPerson').value;
+  const cat=document.getElementById('filterCategory').value;
+  const stat=document.getElementById('filterStatus').value;
+
+  const rows=db.expenses.filter(e=>{
+    const hay=[e.name,e.person,e.category,e.payment,e.notes].join(' ').toLowerCase();
+    return (!search||hay.includes(search)) &&
+           (!person||e.person===person) &&
+           (!cat||e.category===cat) &&
+           (!stat||statusOf(e)===stat);
+  });
+
+  const people=[...new Set(
+    rows.map(e=>String(e.person||'').trim()).filter(Boolean)
+  )].join(' • ');
+
+  const s=pdfSummary(rows);
+
+  makePDF(
+    'EVR Expenses',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Expenses.pdf',
+    people
+  );
+}
+
+function saveUpcomingPDF(){
+  const rows=sortByDueAsc(
+    db.expenses.filter(e=>
+      (statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()) ||
+      statusOf(e)==='Overdue'
+    )
+  );
+  makePDF(
+    'EVR Upcoming & Overdue Expenses',
+    'Upcoming and overdue expenses',
+    rows,
+    'EVR-Upcoming-Overdue.pdf'
+  );
+}
+
+function periodPDF(){
+  const rows=periodExpenses();
+  const s=pdfSummary(rows);
+  const type=document.getElementById('reportType').value;
+  makePDF(
+    'EVR Period Report',
+    `${type} · Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Period-Report.pdf'
+  );
+}
+
+function personPDF(){
+  const p=document.getElementById('personReportPerson').value;
+  const rows=personRows();
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Person Report',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Person-Report.pdf',
+    p
+  );
+}
+
+function categoryPDF(){
+  const c=document.getElementById('categoryReportCategory').value;
+  const rows=categoryRows();
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Category Report',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Category-Report.pdf'
+  );
+}
+
+function upcomingReportPDF(){
+  const rows=sortByDueAsc(
+    db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
+  );
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Upcoming Expenses Report',
+    `Total ${money(s.total)} · Pending ${money(s.pending)}`,
+    rows,
+    'EVR-Upcoming-Report.pdf'
+  );
+}
 
 function csvEscape(v){return'"'+String(v??'').replace(/"/g,'""')+'"'}
 function rowsCSV(rows){const head=['Date','Expense','Amount','Category','Person','Payment Mode','Due Date','Status','Notes'];return[head.map(csvEscape).join(','),...sortDateDesc(rows).map(e=>[e.date,e.name,e.amount,e.category,e.person,e.payment,e.dueDate,statusOf(e),e.notes].map(csvEscape).join(','))].join('\n')}
