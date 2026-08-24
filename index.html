@@ -74,6 +74,26 @@ th{background:#f5f7fa}
 /* PDF actions are intentionally placed at the bottom of the page. */
 </style>
 
+
+<style id="single-bottom-pdf-style">
+.page-pdf-bottom{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  box-sizing:border-box;
+  padding:24px 20px 34px;
+  margin-top:28px;
+}
+.page-pdf-bottom .btn{
+  min-width:280px;
+}
+@media(max-width:700px){
+  .page-pdf-bottom{padding:20px 14px 28px;}
+  .page-pdf-bottom .btn{width:100%;min-width:0;}
+}
+</style>
+
 </head>
 
 <body>
@@ -115,7 +135,6 @@ th{background:#f5f7fa}
       <label>Year</label>
       <select id="dashboardYear" onchange="updateDashboardPeriod()"></select>
     </div>
-    <button class="btn primary" onclick="saveDashboardPDF()">📄 Save Dashboard as PDF</button>
   </div>
 </div>
 
@@ -144,6 +163,10 @@ th{background:#f5f7fa}
     <div id="dashboardUpcoming"></div>
   </div>
 </div>
+
+  <div class="page-pdf-bottom">
+    <button type="button" class="btn primary" onclick="saveDashboardPDF()">📄 Save Dashboard as PDF</button>
+  </div>
 </section>
 
 <section id="expenses" class="page">
@@ -179,9 +202,12 @@ th{background:#f5f7fa}
   </div>
 
   <div style="margin-top:20px;text-align:center">
-    <button class="btn primary" onclick="saveExpensesPDF()">📄 Save Expenses as PDF</button>
   </div>
 </div>
+
+  <div class="page-pdf-bottom">
+    <button type="button" class="btn primary" onclick="saveExpensesPDF()">📄 Save Expenses as PDF</button>
+  </div>
 </section>
 
 <section id="upcoming" class="page">
@@ -201,9 +227,9 @@ th{background:#f5f7fa}
   </div>
 </div>
 
-<div class="card" style="text-align:center">
-  <button class="btn primary" onclick="saveUpcomingPDF()">📄 Save Upcoming &amp; Overdue as PDF</button>
-</div>
+  <div class="page-pdf-bottom">
+    <button type="button" class="btn primary" onclick="saveUpcomingPDF()">📄 Save Upcoming &amp; Overdue as PDF</button>
+  </div>
 </section>
 
 <section id="people" class="page">
@@ -1153,42 +1179,5 @@ document.addEventListener('DOMContentLoaded',function(){
   renderAll();
 });
 </script>
-
-<!-- Bottom PDF action bar -->
-<div id="bottomPdfBar" class="bottom-pdf-bar">
-  <button type="button" class="pdf-bottom-btn" onclick="saveDashboardPDF()">📄 Save Dashboard as PDF</button>
-  <button type="button" class="pdf-bottom-btn" onclick="saveExpensesPDF()">📄 Save Expenses as PDF</button>
-  <button type="button" class="pdf-bottom-btn" onclick="saveUpcomingPDF()">📄 Save Upcoming &amp; Overdue as PDF</button>
-</div>
-<style>
-.bottom-pdf-bar{
-  width:100%;
-  box-sizing:border-box;
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  justify-content:center;
-  padding:24px 20px 32px;
-  margin-top:28px;
-  border-top:1px solid #d9dee7;
-  background:#fff;
-}
-.pdf-bottom-btn{
-  border:0;
-  border-radius:10px;
-  padding:13px 18px;
-  font-size:15px;
-  font-weight:700;
-  cursor:pointer;
-  background:#2563eb;
-  color:#fff;
-}
-.pdf-bottom-btn:hover{filter:brightness(.95)}
-@media(max-width:700px){
-  .bottom-pdf-bar{flex-direction:column;padding:20px 14px 28px}
-  .pdf-bottom-btn{width:100%}
-}
-</style>
-
 </body>
 </html>
