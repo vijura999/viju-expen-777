@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EVR Personal Expense Manager</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src=""></script>
+<script src=""></script>
 
 <style>
 *{box-sizing:border-box}
@@ -91,6 +91,26 @@ th{background:#f5f7fa}
 @media(max-width:700px){
   .page-pdf-bottom{padding:20px 14px 28px;}
   .page-pdf-bottom .btn{width:100%;min-width:0;}
+}
+</style>
+
+
+<style id="evr-final-pdf-clean">
+@media print {
+  .site-url, .website-url, .web-address, .print-url, .pdf-url { display:none !important; }
+}
+</style>
+
+
+<style id="evr-final-people-compact">
+.pdf-people, .people-summary {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin: 4px 0 7px !important;
+  padding: 2px 0 !important;
+}
+.pdf-people strong, .people-summary strong {
+  font-weight: 700 !important;
 }
 </style>
 
@@ -1021,7 +1041,59 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
       <script>
         window.onload=function(){setTimeout(function(){window.focus();window.print();},350);};
       <\/script>
-    </body></html>`;
+    
+<script id="evr-final-date-sort">
+function evrDateValue(item) {
+  const raw = item?.date || item?.expenseDate || item?.dueDate || item?.createdAt || "";
+  if (!raw) return 0;
+  const s = String(raw).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]).getTime();
+  m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]).getTime();
+  const t = Date.parse(s);
+  return Number.isNaN(t) ? 0 : t;
+}
+function evrNewestFirst(arr) {
+  return Array.isArray(arr) ? arr.slice().sort((a,b) => evrDateValue(b) - evrDateValue(a)) : [];
+}
+</script>
+
+
+<script id="evr-final-render-sort">
+function evrSortVisibleExpenseTables() {
+  document.querySelectorAll("table").forEach(table => {
+    const body = table.querySelector("tbody");
+    if (!body) return;
+    const heads = Array.from(table.querySelectorAll("thead th"));
+    const dateIndex = heads.findIndex(th => /date/i.test(th.textContent || ""));
+    if (dateIndex < 0) return;
+    const rows = Array.from(body.querySelectorAll("tr"));
+    rows.sort((a,b) => evrDateValue({date: b.children[dateIndex]?.textContent || ""}) -
+                       evrDateValue({date: a.children[dateIndex]?.textContent || ""}));
+    rows.forEach(r => body.appendChild(r));
+  });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(evrSortVisibleExpenseTables, 150);
+  setTimeout(evrSortVisibleExpenseTables, 700);
+});
+</script>
+
+
+<script id="evr-final-pdf-helper">
+function evrPdfMoney(amount) {
+  return "₹" + Number(amount || 0).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+function evrPdfSorted(items) {
+  return evrNewestFirst(items || []);
+}
+</script>
+
+</body></html>`;
 
   const w=window.open('','_blank','width=1200,height=800');
   if(!w){
