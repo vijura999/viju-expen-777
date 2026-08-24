@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Diary Notes</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#292a2f;color:#eee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{min-height:100vh}
+.app{max-width:760px;margin:auto;min-height:100vh;padding:28px 30px 105px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.back{font-size:42px;line-height:1;color:#ddd;font-weight:200}
+.title{font-size:30px;color:#a9a9ae;font-weight:400;background:transparent;border:0;outline:0;width:75%;padding:4px 0}
+.menu{font-size:31px;color:#aaa}
+.row{display:grid;grid-template-columns:30px 32px 38px 1fr 25px;align-items:center;min-height:70px;column-gap:7px}
+.drag{font-size:28px;color:#5c5d62;letter-spacing:-7px;overflow:hidden;line-height:1}
+.num{font-size:18px;color:#8a8b90;text-align:right}
+.check{appearance:none;width:34px;height:34px;border:3px solid #aaa;border-radius:4px;background:transparent;position:relative}
+.check:checked:after{content:"✓";position:absolute;left:4px;top:-6px;font-size:31px;color:#ddd}
+.note{width:100%;background:transparent;border:0;outline:0;color:#eee;font-size:22px;padding:8px 2px}
+.note::placeholder{color:#888}
+.row.done .note{text-decoration:line-through;color:#777}
+.row.done .num{color:#555}
+.row.done .drag{color:#444}
+.delete{background:none;border:0;color:#777;font-size:20px}
+.add{margin:8px 0 0 104px;display:flex;align-items:center;gap:14px;color:#aaa;font-size:21px;cursor:pointer}
+.plus{font-size:38px;line-height:20px;font-weight:200}
+.bottom{position:fixed;bottom:0;left:0;right:0;max-width:760px;margin:auto;background:#292a2f;padding:15px 34px calc(15px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center}
+.bottom button{background:none;border:0;color:#bbb;font-size:29px}
+.palette{font-size:31px!important}
+@media(max-width:500px){
+ .app{padding-left:30px;padding-right:30px}
+ .row{grid-template-columns:27px 27px 37px 1fr 20px;column-gap:5px}
+ .note{font-size:21px}
+ .add{margin-left:94px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="back">‹</div>
+    <input id="title" class="title" value="Diary Notes">
+    <div class="menu">⋮</div>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="add" onclick="addItem()"><span class="plus">＋</span><span>List item</span></div>
+</div>
+
+<div class="bottom">
+  <button onclick="addItem()" title="Add">⊞</button>
+  <button class="palette" onclick="toggleTheme()" title="Theme">◉</button>
+  <button onclick="clearCompleted()" title="Clear completed">⋮</button>
+</div>
+
+<script>
+const KEY="diary-notes-v2";
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{
+ title:"Diary Notes",
+ items:[
+  {text:"L-citrulline",done:false},
+  {text:"POMEGRANATE",done:false},
+  {text:"Rose hip oil",done:false},
+  {text:"Castor oil",done:false},
+  {text:"Pumpkin seeds",done:false}
+ ]
+};
+document.getElementById("title").value=data.title;
+document.getElementById("title").oninput=e=>{data.title=e.target.value;save()};
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function render(){
+ const list=document.getElementById("list"); list.innerHTML="";
+ data.items.forEach((item,i)=>{
+  const row=document.createElement("div");
+  row.className="row"+(item.done?" done":"");
+  row.innerHTML=`
+   <div class="drag">⠿</div>
+   <div class="num">${i+1}</div>
+   <input class="check" type="checkbox" ${item.done?"checked":""}>
+   <input class="note" value="">
+   <button class="delete" title="Delete">×</button>`;
+  const note=row.querySelector(".note");
+  note.value=item.text;
+  note.oninput=e=>{item.text=e.target.value;save()};
+  row.querySelector(".check").onchange=e=>{item.done=e.target.checked;save();render()};
+  row.querySelector(".delete").onclick=()=>{data.items.splice(i,1);save();render()};
+  list.appendChild(row);
+ });
+}
+function addItem(){
+ data.items.push({text:"",done:false});save();render();
+ setTimeout(()=>{let x=document.querySelectorAll(".note");x[x.length-1]?.focus()},30)
+}
+function clearCompleted(){data.items=data.items.filter(x=>!x.done);save();render()}
+function toggleTheme(){
+ const dark=document.body.dataset.light==="1";
+ if(dark){
+  document.body.dataset.light="0";
+  document.body.style.background="#292a2f";
+  document.querySelector(".app").style.background="#292a2f";
+ }else{
+  document.body.dataset.light="1";
+  document.body.style.background="#f5f5f5";
+  document.querySelector(".app").style.background="#f5f5f5";
+  document.body.style.color="#222";
+ }
+}
+render();
+</script>
+</body>
+</html>
