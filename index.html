@@ -125,6 +125,11 @@ th{background:#f5f7fa}
 }
 </style>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </head>
 
 <body>
@@ -987,112 +992,173 @@ function pdfTableRows(rows){
   ]);
 }
 
-function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']){
-  /*
-    PDF export uses pdfMake instead of window.print().
-    This prevents the browser from adding its web address / URL footer.
-    pdfMake's bundled Roboto font supports the ₹ symbol.
-  */
-  if(typeof pdfMake==='undefined'){
-    alert('PDF library is not loaded. Please check your internet connection and reload the app.');
-    return;
-  }
 
-  const dataRows=Array.isArray(rows)?rows:[];
-  const amountIndex=columns.indexOf('Amount');
-  const statusIndex=columns.indexOf('Status');
-  const personIndex=columns.indexOf('Person');
+function makePDF(title, subtitle, rows, filename,
+                 columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']) {
 
-  const numericAmount=v=>{
-    if(typeof v==='number') return v;
-    const n=Number(String(v??'').replace(/[^0-9.-]/g,''));
-    return Number.isFinite(n)?n:0;
-  };
+  const dataRows = Array.isArray(rows) ? rows : [];
 
-  const total=dataRows.reduce((sum,r)=>sum+numericAmount(r?.[amountIndex]),0);
-  const statusTotal=status=>dataRows.reduce((sum,r)=>{
-    return String(r?.[statusIndex]??'')===status ? sum+numericAmount(r?.[amountIndex]) : sum;
-  },0);
-  const paid=statusTotal('Paid');
-  const pending=statusTotal('Pending');
-  const overdue=statusTotal('Overdue');
-  const people=[...new Set(dataRows.map(r=>String(r?.[personIndex]??'').trim()).filter(Boolean))];
-
-  const body=[
-    columns.map(c=>({text:String(c),bold:true,color:'#ffffff',fillColor:'#2563eb',fontSize:9,margin:[4,5,4,5]}))
-  ];
-
-  if(dataRows.length){
-    dataRows.forEach((r,i)=>{
-      body.push(columns.map((_,j)=>({
-        text:String(r?.[j]??''),
-        fontSize:8.5,
-        margin:[4,4,4,4],
-        fillColor:i%2===0?'#ffffff':'#f8fafc'
-      })));
-    });
-  }else{
-    body.push([{text:'No expenses found.',colSpan:columns.length,alignment:'center',fontSize:9,margin:[4,7,4,7]}]);
-  }
-
-  const summaryTable={
-    table:{
-      widths:['*','*','*','*'],
-      body:[
-        [
-          {text:'Total\n'+money(total),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
-          {text:'Paid\n'+money(paid),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
-          {text:'Pending\n'+money(pending),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
-          {text:'Overdue\n'+money(overdue),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6}
-        ]
-      ]
-    },
-    layout:{hLineColor:'#d1d5db',vLineColor:'#d1d5db',hLineWidth:0.6,vLineWidth:0.6},
-    margin:[0,8,0,8]
-  };
-
-  const content=[
-    {text:title||'EVR Report',fontSize:18,bold:true,margin:[0,0,0,4]},
-    ...(subtitle?[{text:subtitle,fontSize:9.5,color:'#374151',margin:[0,0,0,4]}]:[]),
-    summaryTable
-  ];
-
-  if(people.length){
-    content.push({
-      text:[
-        {text:'People: ',bold:true},
-        ...people.flatMap((name,i)=>[
-          {text:name,bold:true},
-          ...(i<people.length-1?[{text:'  •  '}]:[])
-        ])
-      ],
-      fontSize:9.5,
-      margin:[0,0,0,8]
-    });
-  }
-
-  content.push({
-    table:{headerRows:1,widths:Array(columns.length).fill('*'),body},
-    layout:{
-      fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f8fafc':null),
-      hLineColor:'#d1d5db',vLineColor:'#d1d5db',hLineWidth:0.5,vLineWidth:0.5,
-      paddingLeft:3,paddingRight:3,paddingTop:3,paddingBottom:3
-    }
+  // Always sort expense PDFs newest date first.
+  const dateIndex = columns.indexOf('Date');
+  const sortedRows = dataRows.slice().sort((a,b) => {
+    const da = String(a?.[dateIndex] ?? '');
+    const db = String(b?.[dateIndex] ?? '');
+    return db.localeCompare(da);
   });
 
-  const docDefinition={
-    pageSize:'A4',
-    pageOrientation:'landscape',
-    pageMargins:[24,24,24,24],
-    defaultStyle:{font:'Roboto',fontSize:9,color:'#111827'},
-    content,
-    footer:function(currentPage,pageCount){
-      return {text:`Page ${currentPage} of ${pageCount}`,alignment:'right',fontSize:8,color:'#6b7280',margin:[0,0,24,12]};
-    }
-  };
+  const amountIndex = columns.indexOf('Amount');
+  const statusIndex = columns.indexOf('Status');
+  const amountOf = r => Number(String(r?.[amountIndex] ?? 0).replace(/[^0-9.-]/g,'')) || 0;
+  const total = sortedRows.reduce((s,r)=>s+amountOf(r),0);
+  const statusTotal = s => sortedRows.reduce(
+    (sum,r)=>String(r?.[statusIndex] ?? '')===s ? sum+amountOf(r) : sum, 0
+  );
+  const paid = statusTotal('Paid');
+  const pending = statusTotal('Pending');
+  const overdue = statusTotal('Overdue');
+  const personIndex = columns.indexOf('Person');
+  const people = [...new Set(
+    sortedRows.map(r=>String(r?.[personIndex] ?? '').trim()).filter(Boolean)
+  )];
 
-  pdfMake.createPdf(docDefinition).download(filename||'EVR-Report.pdf');
+  const moneyPDF = n => '₹' + Number(n||0).toLocaleString('en-IN',{
+    minimumFractionDigits:2, maximumFractionDigits:2
+  });
+
+  // Preferred method: jsPDF direct generation.
+  // This works on mobile because it does NOT use.
+  try {
+    if (window.jspdf && window.jspdf.jsPDF) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
+
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(18);
+      doc.text(String(title || 'EVR Expenses'), 14, 15);
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      if (subtitle) doc.text(String(subtitle), 14, 21);
+
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.text(
+        `Total: ${moneyPDF(total)}   Paid: ${moneyPDF(paid)}   Pending: ${moneyPDF(pending)}   Overdue: ${moneyPDF(overdue)}`,
+        14, 28
+      );
+
+      if (people.length) {
+        doc.setFontSize(9);
+        doc.text('People: ' + people.join(' • '), 14, 34);
+      }
+
+      const body = sortedRows.map(r => columns.map((c,i) => {
+        if (c === 'Amount') return moneyPDF(amountOf(r));
+        return String(r?.[i] ?? '');
+      }));
+
+      if (typeof doc.autoTable === 'function') {
+        doc.autoTable({
+          head: [columns],
+          body: body,
+          startY: people.length ? 39 : 35,
+          styles: {fontSize: 7, cellPadding: 2},
+          headStyles: {fontStyle:'bold'},
+          margin: {left:14,right:14}
+        });
+      } else {
+        let y = people.length ? 41 : 37;
+        doc.setFontSize(7);
+        body.forEach(row => {
+          doc.text(row.join(' | ').slice(0, 180), 14, y);
+          y += 4;
+          if (y > 195) { doc.addPage(); y = 15; }
+        });
+      }
+
+      // Direct file download: no browser print URL.
+      doc.save(filename || 'EVR-Report.pdf');
+      return;
+    }
+  } catch (err) {
+    console.error('jsPDF export failed:', err);
+  }
+
+  // Fallback: html2pdf direct download, also without.
+  try {
+    if (typeof html2pdf === 'function') {
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText =
+        'background:#fff;color:#111;padding:18px;font-family:Arial,sans-serif;width:100%;';
+
+      const h = document.createElement('h2');
+      h.textContent = title || 'EVR Expenses';
+      h.style.margin = '0 0 5px';
+      wrapper.appendChild(h);
+
+      const s = document.createElement('div');
+      s.textContent = subtitle || '';
+      s.style.marginBottom = '8px';
+      wrapper.appendChild(s);
+
+      const summary = document.createElement('div');
+      summary.textContent =
+        `Total: ${moneyPDF(total)}   Paid: ${moneyPDF(paid)}   Pending: ${moneyPDF(pending)}   Overdue: ${moneyPDF(overdue)}`;
+      summary.style.cssText = 'font-weight:bold;margin-bottom:5px;';
+      wrapper.appendChild(summary);
+
+      if (people.length) {
+        const p = document.createElement('div');
+        p.innerHTML = '<b>People:</b> ' + people.map(x=>x.replace(/[<>&"]/g,'')).join(' • ');
+        p.style.marginBottom = '10px';
+        wrapper.appendChild(p);
+      }
+
+      const table = document.createElement('table');
+      table.style.cssText='width:100%;border-collapse:collapse;font-size:9px;';
+      const trh = document.createElement('tr');
+      columns.forEach(c=>{
+        const th=document.createElement('th');
+        th.textContent=c;
+        th.style.cssText='border:1px solid #ccc;padding:5px;font-weight:bold;text-align:left;';
+        trh.appendChild(th);
+      });
+      const thead=document.createElement('thead');
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody=document.createElement('tbody');
+      bodyRows:
+      sortedRows.forEach(r=>{
+        const tr=document.createElement('tr');
+        columns.forEach((c,i)=>{
+          const td=document.createElement('td');
+          td.textContent = c==='Amount' ? moneyPDF(amountOf(r)) : String(r?.[i] ?? '');
+          td.style.cssText='border:1px solid #ddd;padding:4px;';
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+
+      document.body.appendChild(wrapper);
+      html2pdf().set({
+        margin:8,
+        filename:filename || 'EVR-Report.pdf',
+        image:{type:'jpeg',quality:.98},
+        html2canvas:{scale:2,useCORS:true,backgroundColor:'#fff'},
+        jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+      }).from(wrapper).save().then(()=>wrapper.remove()).catch(()=>wrapper.remove());
+      return;
+    }
+  } catch (err) {
+    console.error('Fallback PDF export failed:', err);
+  }
+
+  alert('PDF could not be created. Please check your internet connection and try again.');
 }
+
 
 function saveDashboardPDF(){
   const month=document.getElementById('dashboardMonth').selectedOptions[0].text;
