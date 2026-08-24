@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EVR Personal Expense Manager</title>
 
-<script src=""></script>
-<script src=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -583,7 +583,7 @@ function updateDashboardPeriod(){
   const month=Number(document.getElementById('dashboardMonth').value);
   const year=Number(document.getElementById('dashboardYear').value);
   const selected=db.expenses.filter(e=>{
-    const d=new Date(e.date);
+    const d=new Date(String(e.date||'')+'T00:00:00');
     return d.getMonth()+1===month && d.getFullYear()===year;
   });
 
@@ -685,9 +685,9 @@ function renderExpenses(){
 
 function renderUpcoming(){
   const up=db.expenses.filter(e=>statusOf(e)==='Pending' && e.dueDate && e.dueDate>=today())
-    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
   const ov=db.expenses.filter(e=>statusOf(e)==='Overdue')
-    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
 
   const upTotal=up.reduce((s,e)=>s+Number(e.amount||0),0);
   const ovTotal=ov.reduce((s,e)=>s+Number(e.amount||0),0);
@@ -963,7 +963,7 @@ function renderCategoryReport(){
 
 function renderUpcomingReport(){
   const rows=db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
-    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
   document.getElementById('upcomingReport').innerHTML=rows.length?expenseActionTable(rows):'<div class="empty">No upcoming expenses.</div>';
 }
 
@@ -988,88 +988,110 @@ function pdfTableRows(rows){
 }
 
 function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']){
-const pdfNoWebAddressStyle='<style id="pdf-no-web-address">body{padding-bottom:0!important}.site-url,.website-url,.web-address,.print-url,.pdf-url,.url{display:none!important}</style>';
-
   /*
-     Reliable PDF export: open a clean print window and let the browser's
-     built-in Print -> Save as PDF handle the document.
-     Every PDF gets a clear Total/Paid/Pending/Overdue summary.
+    PDF export uses pdfMake instead of window.print().
+    This prevents the browser from adding its web address / URL footer.
+    pdfMake's bundled Roboto font supports the ₹ symbol.
   */
-  const safe=v=>String(v??'')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-
-  // Calculate totals for EVERY PDF, including person/category/period reports.
-  const dataRows = Array.isArray(rows) ? rows : [];
-  const amountIndex = columns.indexOf('Amount');
-  const total = dataRows.reduce((sum,r)=>sum + Number(String(r?.[amountIndex] ?? 0).replace(/[^0-9.-]/g,'')),0);
-  const statusIndex = columns.indexOf('Status');
-  const statusTotal = status => dataRows.reduce((sum,r)=>{
-    if(statusIndex < 0 || String(r?.[statusIndex] ?? '') !== status) return sum;
-    return sum + Number(String(r?.[amountIndex] ?? 0).replace(/[^0-9.-]/g,''));
-  },0);
-  const paid = statusTotal('Paid');
-  const pending = statusTotal('Pending');
-  const overdue = statusTotal('Overdue');
-  const people = [...new Set(dataRows.map(r=>String(r?.[columns.indexOf('Person')] ?? '').trim()).filter(Boolean))];
-
-  const tableRows=dataRows.length ? dataRows.map((r,i)=>`
-    <tr>${r.map(v=>`<td>${safe(v)}</td>`).join('')}</tr>`).join('') :
-    `<tr><td colspan="${columns.length}" class="empty">No expenses found.</td></tr>`;
-
-  const summary = `
-    <div class="summary">
-      <div><span>Total</span><b>${safe(money(total))}</b></div>
-      <div><span>Paid</span><b>${safe(money(paid))}</b></div>
-      <div><span>Pending</span><b>${safe(money(pending))}</b></div>
-      <div><span>Overdue</span><b>${safe(money(overdue))}</b></div>
-    </div>
-    ${people.length ? `<div class="people"><span class="people-label">People:</span> <span class="people-names">${people.map(n=>`<strong>${safe(n)}</strong>`).join(' <span class="people-sep">•</span> ')}</span></div>` : ''}`;
-
-  const html=`<!doctype html><html><head><meta charset="utf-8">
-    <title>${safe(filename||title)}</title>
-    <style>
-      @page{size:A4 landscape;margin:10mm}
-      *{box-sizing:border-box}
-      body{font-family:Arial,"Noto Sans",sans-serif;color:#111;margin:0;font-size:11px}
-      h1{font-size:22px;margin:0 0 6px}
-      .subtitle{font-size:12px;margin:0 0 10px}
-      .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 8px}
-      .summary div{border:1px solid #d1d5db;border-radius:6px;padding:7px;background:#f8fafc}
-      .summary span{display:block;font-size:10px;color:#555;margin-bottom:3px}
-      .summary b{font-size:14px}
-      .people{border:1px solid #dbe3ee;border-radius:6px;padding:5px 8px;margin:0 0 8px;background:#f7faff;display:flex;align-items:center;gap:5px;flex-wrap:wrap}.people-label{font-size:12px;font-weight:700;color:#111827}.people-names{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}.people-names strong{display:inline-block;font-size:12px;font-weight:700;color:#111827;background:#eef4ff;border:0;border-radius:3px;padding:2px 4px}.people-sep{font-weight:700;color:#6b7280}
-      table{width:100%;border-collapse:collapse}
-      th{background:#2563eb;color:white;border:1px solid #d1d5db;padding:7px;text-align:left}
-      td{border:1px solid #d1d5db;padding:6px;vertical-align:top}
-      tr:nth-child(even) td{background:#f8fafc}
-      .empty{text-align:center;padding:14px}
-      .print-note{margin-top:14px;color:#555;font-size:10px}
-      @media print{.print-note{display:none}}
-    </style></head><body>
-      <h1>${safe(title)}</h1>
-      ${subtitle?`<div class="subtitle">${safe(subtitle)}</div>`:''}
-      ${summary}
-      <table><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join('')}</tr></thead>
-      <tbody>${tableRows}</tbody></table>
-      <div class="print-note">Use the printer dialog and choose <b>Save as PDF</b>.</div>
-      <script>
-        window.onload=function(){setTimeout(function(){window.focus();window.print();},350);};
-      <\/script>
-    
-</body></html>`;
-
-  const w=window.open('','_blank','width=1200,height=800');
-  if(!w){
-    alert('Please allow pop-ups for this site, then click Save as PDF again.');
+  if(typeof pdfMake==='undefined'){
+    alert('PDF library is not loaded. Please check your internet connection and reload the app.');
     return;
   }
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
+
+  const dataRows=Array.isArray(rows)?rows:[];
+  const amountIndex=columns.indexOf('Amount');
+  const statusIndex=columns.indexOf('Status');
+  const personIndex=columns.indexOf('Person');
+
+  const numericAmount=v=>{
+    if(typeof v==='number') return v;
+    const n=Number(String(v??'').replace(/[^0-9.-]/g,''));
+    return Number.isFinite(n)?n:0;
+  };
+
+  const total=dataRows.reduce((sum,r)=>sum+numericAmount(r?.[amountIndex]),0);
+  const statusTotal=status=>dataRows.reduce((sum,r)=>{
+    return String(r?.[statusIndex]??'')===status ? sum+numericAmount(r?.[amountIndex]) : sum;
+  },0);
+  const paid=statusTotal('Paid');
+  const pending=statusTotal('Pending');
+  const overdue=statusTotal('Overdue');
+  const people=[...new Set(dataRows.map(r=>String(r?.[personIndex]??'').trim()).filter(Boolean))];
+
+  const body=[
+    columns.map(c=>({text:String(c),bold:true,color:'#ffffff',fillColor:'#2563eb',fontSize:9,margin:[4,5,4,5]}))
+  ];
+
+  if(dataRows.length){
+    dataRows.forEach((r,i)=>{
+      body.push(columns.map((_,j)=>({
+        text:String(r?.[j]??''),
+        fontSize:8.5,
+        margin:[4,4,4,4],
+        fillColor:i%2===0?'#ffffff':'#f8fafc'
+      })));
+    });
+  }else{
+    body.push([{text:'No expenses found.',colSpan:columns.length,alignment:'center',fontSize:9,margin:[4,7,4,7]}]);
+  }
+
+  const summaryTable={
+    table:{
+      widths:['*','*','*','*'],
+      body:[
+        [
+          {text:'Total\n'+money(total),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
+          {text:'Paid\n'+money(paid),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
+          {text:'Pending\n'+money(pending),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6},
+          {text:'Overdue\n'+money(overdue),bold:true,fontSize:10,fillColor:'#f8fafc',margin:6}
+        ]
+      ]
+    },
+    layout:{hLineColor:'#d1d5db',vLineColor:'#d1d5db',hLineWidth:0.6,vLineWidth:0.6},
+    margin:[0,8,0,8]
+  };
+
+  const content=[
+    {text:title||'EVR Report',fontSize:18,bold:true,margin:[0,0,0,4]},
+    ...(subtitle?[{text:subtitle,fontSize:9.5,color:'#374151',margin:[0,0,0,4]}]:[]),
+    summaryTable
+  ];
+
+  if(people.length){
+    content.push({
+      text:[
+        {text:'People: ',bold:true},
+        ...people.flatMap((name,i)=>[
+          {text:name,bold:true},
+          ...(i<people.length-1?[{text:'  •  '}]:[])
+        ])
+      ],
+      fontSize:9.5,
+      margin:[0,0,0,8]
+    });
+  }
+
+  content.push({
+    table:{headerRows:1,widths:Array(columns.length).fill('*'),body},
+    layout:{
+      fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f8fafc':null),
+      hLineColor:'#d1d5db',vLineColor:'#d1d5db',hLineWidth:0.5,vLineWidth:0.5,
+      paddingLeft:3,paddingRight:3,paddingTop:3,paddingBottom:3
+    }
+  });
+
+  const docDefinition={
+    pageSize:'A4',
+    pageOrientation:'landscape',
+    pageMargins:[24,24,24,24],
+    defaultStyle:{font:'Roboto',fontSize:9,color:'#111827'},
+    content,
+    footer:function(currentPage,pageCount){
+      return {text:`Page ${currentPage} of ${pageCount}`,alignment:'right',fontSize:8,color:'#6b7280',margin:[0,0,24,12]};
+    }
+  };
+
+  pdfMake.createPdf(docDefinition).download(filename||'EVR-Report.pdf');
 }
 
 function saveDashboardPDF(){
@@ -1078,7 +1100,7 @@ function saveDashboardPDF(){
   const m=Number(document.getElementById('dashboardMonth').value);
   const y=Number(year);
   const rows=db.expenses.filter(e=>{
-    const d=new Date(e.date);
+    const d=new Date(String(e.date||'')+'T00:00:00');
     return d.getMonth()+1===m&&d.getFullYear()===y;
   });
   makePDF('EVR Dashboard',`${month} ${year} · Total ${money(rows.reduce((s,e)=>s+Number(e.amount||0),0))}`,
@@ -1106,7 +1128,7 @@ function saveExpensesPDF(){
 function saveUpcomingPDF(){
   const rows=db.expenses.filter(e=>
     (statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())||statusOf(e)==='Overdue'
-  ).sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+  ).sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
   makePDF('EVR Upcoming & Overdue Expenses','Upcoming and overdue expenses',pdfTableRows(rows),'EVR-Upcoming-Overdue.pdf');
 }
 
@@ -1126,7 +1148,7 @@ function categoryPDF(){
 
 function upcomingReportPDF(){
   const rows=db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
-    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
+    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
   makePDF('EVR Upcoming Expenses Report','Pending expenses with future due dates',pdfTableRows(rows),'EVR-Upcoming-Report.pdf');
 }
 
