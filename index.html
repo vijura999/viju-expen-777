@@ -954,8 +954,8 @@ function pdfTableRows(rows){
 function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']){
   /*
      Reliable PDF export: open a clean print window and let the browser's
-     built-in Print -> Save as PDF handle the document. This avoids the
-     html2canvas/jsPDF dependency problem and preserves the real ₹ symbol.
+     built-in Print -> Save as PDF handle the document.
+     Every PDF gets a clear Total/Paid/Pending/Overdue summary.
   */
   const safe=v=>String(v??'')
     .replace(/&/g,'&amp;')
@@ -964,9 +964,32 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
 
-  const tableRows=rows.length ? rows.map((r,i)=>`
+  // Calculate totals for EVERY PDF, including person/category/period reports.
+  const dataRows = Array.isArray(rows) ? rows : [];
+  const amountIndex = columns.indexOf('Amount');
+  const total = dataRows.reduce((sum,r)=>sum + Number(String(r?.[amountIndex] ?? 0).replace(/[^0-9.-]/g,'')),0);
+  const statusIndex = columns.indexOf('Status');
+  const statusTotal = status => dataRows.reduce((sum,r)=>{
+    if(statusIndex < 0 || String(r?.[statusIndex] ?? '') !== status) return sum;
+    return sum + Number(String(r?.[amountIndex] ?? 0).replace(/[^0-9.-]/g,''));
+  },0);
+  const paid = statusTotal('Paid');
+  const pending = statusTotal('Pending');
+  const overdue = statusTotal('Overdue');
+  const people = [...new Set(dataRows.map(r=>String(r?.[columns.indexOf('Person')] ?? '').trim()).filter(Boolean))];
+
+  const tableRows=dataRows.length ? dataRows.map((r,i)=>`
     <tr>${r.map(v=>`<td>${safe(v)}</td>`).join('')}</tr>`).join('') :
     `<tr><td colspan="${columns.length}" class="empty">No expenses found.</td></tr>`;
+
+  const summary = `
+    <div class="summary">
+      <div><span>Total</span><b>${safe(money(total))}</b></div>
+      <div><span>Paid</span><b>${safe(money(paid))}</b></div>
+      <div><span>Pending</span><b>${safe(money(pending))}</b></div>
+      <div><span>Overdue</span><b>${safe(money(overdue))}</b></div>
+    </div>
+    ${people.length ? `<div class="people"><b>People:</b> ${safe(people.join(', '))}</div>` : ''}`;
 
   const html=`<!doctype html><html><head><meta charset="utf-8">
     <title>${safe(filename||title)}</title>
@@ -975,7 +998,12 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
       *{box-sizing:border-box}
       body{font-family:Arial,"Noto Sans",sans-serif;color:#111;margin:0;font-size:11px}
       h1{font-size:22px;margin:0 0 6px}
-      .subtitle{font-size:12px;margin:0 0 14px}
+      .subtitle{font-size:12px;margin:0 0 10px}
+      .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 8px}
+      .summary div{border:1px solid #d1d5db;border-radius:6px;padding:7px;background:#f8fafc}
+      .summary span{display:block;font-size:10px;color:#555;margin-bottom:3px}
+      .summary b{font-size:14px}
+      .people{border:1px solid #d1d5db;border-radius:6px;padding:7px;margin:0 0 12px;background:#fff}
       table{width:100%;border-collapse:collapse}
       th{background:#2563eb;color:white;border:1px solid #d1d5db;padding:7px;text-align:left}
       td{border:1px solid #d1d5db;padding:6px;vertical-align:top}
@@ -986,6 +1014,7 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
     </style></head><body>
       <h1>${safe(title)}</h1>
       ${subtitle?`<div class="subtitle">${safe(subtitle)}</div>`:''}
+      ${summary}
       <table><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join('')}</tr></thead>
       <tbody>${tableRows}</tbody></table>
       <div class="print-note">Use the printer dialog and choose <b>Save as PDF</b>.</div>
