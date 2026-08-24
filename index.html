@@ -378,6 +378,56 @@ th{background:#f5f7fa}
 <button class="btn primary" onclick="exportAllCSV()">Download Expenses CSV</button>
 </div>
 
+
+<div class="card" id="importRestoreCard">
+  <h2>Import / Restore Backup</h2>
+  <p>Import a previously saved EVR Expenses JSON backup and restore your data.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <input id="backupFileInput" type="file" accept=".json,application/json"
+           style="padding:10px;border:1px solid #d1d5db;border-radius:8px;max-width:100%">
+    <button type="button" class="btn primary" onclick="handleBackupImport()">📥 Import / Restore JSON</button>
+  </div>
+  <p style="margin-top:10px;font-size:14px;color:#64748b">
+    Choose your previous JSON backup. Restoring replaces the current browser data with the backup.
+  </p>
+</div>
+<script>
+function handleBackupImport(){
+  const input = document.getElementById('backupFileInput');
+  if (!input || !input.files || !input.files[0]) {
+    alert('Please choose a JSON backup file first.');
+    return;
+  }
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== 'object') throw new Error('Invalid backup');
+
+      // Support common EVR backup shapes.
+      const payload = data.data && typeof data.data === 'object' ? data.data : data;
+
+      if (typeof db !== 'undefined') {
+        if (Array.isArray(payload.expenses)) db.expenses = payload.expenses;
+        if (Array.isArray(payload.people)) db.people = payload.people;
+        if (Array.isArray(payload.categories)) db.categories = payload.categories;
+        if (typeof saveDB === 'function') saveDB();
+      } else {
+        localStorage.setItem('evr_personal_expenses_v3', JSON.stringify(payload));
+      }
+
+      alert('Backup restored successfully. The page will now reload.');
+      location.reload();
+    }catch(err){
+      console.error(err);
+      alert('This JSON file is not a valid EVR Expenses backup.');
+    }
+  };
+  reader.readAsText(file);
+}
+</script>
+
 <div class="card">
 <h2>Clear Everything</h2>
 <p>This permanently removes local expenses, people and categories from this browser.</p>
@@ -1179,5 +1229,20 @@ document.addEventListener('DOMContentLoaded',function(){
   renderAll();
 });
 </script>
+
+<script>
+function updateDashboardPendingAmount(){
+  const el = document.getElementById('dashboardPending');
+  if (!el || typeof db === 'undefined') return;
+  const pendingTotal = (db.expenses || [])
+    .filter(e => String(e.status || '').toLowerCase() === 'pending')
+    .reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  el.textContent = typeof money === 'function'
+    ? money(pendingTotal)
+    : '₹' + pendingTotal.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+document.addEventListener('DOMContentLoaded', updateDashboardPendingAmount);
+</script>
+
 </body>
 </html>
