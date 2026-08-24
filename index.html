@@ -114,6 +114,17 @@ th{background:#f5f7fa}
 }
 </style>
 
+
+<style id="evr-hide-web-address-pdf">
+@media print {
+  .site-url,.website-url,.web-address,.print-url,.pdf-url,
+  .url,.footer-url,[data-url],[data-website] {
+    display:none !important;
+    visibility:hidden !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -977,6 +988,8 @@ function pdfTableRows(rows){
 }
 
 function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']){
+const pdfNoWebAddressStyle='<style id="pdf-no-web-address">body{padding-bottom:0!important}.site-url,.website-url,.web-address,.print-url,.pdf-url,.url{display:none!important}</style>';
+
   /*
      Reliable PDF export: open a clean print window and let the browser's
      built-in Print -> Save as PDF handle the document.
