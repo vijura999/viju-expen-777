@@ -952,31 +952,11 @@ function pdfTableRows(rows){
 }
 
 function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount','Category','Person','Payment','Due','Status']){
-  if(!window.jspdf){
-    alert('PDF library could not load. Check your internet connection and try again.');
-    return;
-  }
-
   /*
-     IMPORTANT:
-     The PDF is rendered from real HTML instead of sending "&#8377;"
-     to jsPDF's built-in Helvetica font. This keeps the Indian Rupee
-     symbol (₹) visible in the generated PDF.
+     Reliable PDF export: open a clean print window and let the browser's
+     built-in Print -> Save as PDF handle the document. This avoids the
+     html2canvas/jsPDF dependency problem and preserves the real ₹ symbol.
   */
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF('l','mm','a4');
-
-  const wrap=document.createElement('div');
-  wrap.style.position='fixed';
-  wrap.style.left='-100000px';
-  wrap.style.top='0';
-  wrap.style.width='1050px';
-  wrap.style.background='#fff';
-  wrap.style.color='#111';
-  wrap.style.padding='30px';
-  wrap.style.fontFamily='Arial, "Noto Sans", sans-serif';
-  wrap.style.fontSize='12px';
-
   const safe=v=>String(v??'')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
@@ -984,52 +964,44 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
 
-  const header=`
-    <div style="font-size:26px;font-weight:700;margin-bottom:8px">${safe(title)}</div>
-    ${subtitle?`<div style="font-size:14px;margin-bottom:18px">${safe(subtitle)}</div>`:''}
-  `;
+  const tableRows=rows.length ? rows.map((r,i)=>`
+    <tr>${r.map(v=>`<td>${safe(v)}</td>`).join('')}</tr>`).join('') :
+    `<tr><td colspan="${columns.length}" class="empty">No expenses found.</td></tr>`;
 
-  const table=`
-    <table style="width:100%;border-collapse:collapse;table-layout:auto">
-      <thead>
-        <tr>${columns.map(c=>`<th style="background:#2563eb;color:#fff;border:1px solid #d1d5db;padding:8px;text-align:left;font-weight:700">${safe(c)}</th>`).join('')}</tr>
-      </thead>
-      <tbody>
-        ${rows.length ? rows.map((r,i)=>`
-          <tr>
-            ${r.map(v=>`<td style="border:1px solid #e5e7eb;padding:7px;vertical-align:top;${i%2?'background:#f8fafc':''}">${safe(v)}</td>`).join('')}
-          </tr>`).join('') : `
-          <tr><td colspan="${columns.length}" style="padding:14px;text-align:center;border:1px solid #e5e7eb">No expenses found.</td></tr>`}
-      </tbody>
-    </table>
-  `;
+  const html=`<!doctype html><html><head><meta charset="utf-8">
+    <title>${safe(filename||title)}</title>
+    <style>
+      @page{size:A4 landscape;margin:10mm}
+      *{box-sizing:border-box}
+      body{font-family:Arial,"Noto Sans",sans-serif;color:#111;margin:0;font-size:11px}
+      h1{font-size:22px;margin:0 0 6px}
+      .subtitle{font-size:12px;margin:0 0 14px}
+      table{width:100%;border-collapse:collapse}
+      th{background:#2563eb;color:white;border:1px solid #d1d5db;padding:7px;text-align:left}
+      td{border:1px solid #d1d5db;padding:6px;vertical-align:top}
+      tr:nth-child(even) td{background:#f8fafc}
+      .empty{text-align:center;padding:14px}
+      .print-note{margin-top:14px;color:#555;font-size:10px}
+      @media print{.print-note{display:none}}
+    </style></head><body>
+      <h1>${safe(title)}</h1>
+      ${subtitle?`<div class="subtitle">${safe(subtitle)}</div>`:''}
+      <table><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join('')}</tr></thead>
+      <tbody>${tableRows}</tbody></table>
+      <div class="print-note">Use the printer dialog and choose <b>Save as PDF</b>.</div>
+      <script>
+        window.onload=function(){setTimeout(function(){window.focus();window.print();},350);};
+      <\/script>
+    </body></html>`;
 
-  wrap.innerHTML=header+table;
-  document.body.appendChild(wrap);
-
-  const cleanup=()=>{
-    if(wrap.parentNode)wrap.parentNode.removeChild(wrap);
-  };
-
-  try{
-    doc.html(wrap,{
-      x:10,
-      y:10,
-      width:277,
-      windowWidth:1050,
-      autoPaging:'text',
-      margin:[10,10,10,10],
-      html2canvas:{scale:1.25,useCORS:true,backgroundColor:'#ffffff'},
-      callback:function(pdf){
-        pdf.save(filename);
-        cleanup();
-      }
-    });
-  }catch(err){
-    cleanup();
-    console.error(err);
-    alert('Could not create the PDF. Please try again.');
+  const w=window.open('','_blank','width=1200,height=800');
+  if(!w){
+    alert('Please allow pop-ups for this site, then click Save as PDF again.');
+    return;
   }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
 }
 
 function saveDashboardPDF(){
