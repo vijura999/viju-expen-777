@@ -595,7 +595,7 @@ function updateDashboardPeriod(){
   if(!upcoming.length){
     box.innerHTML='<div class="empty">No upcoming expenses.</div>';
   }else{
-    box.innerHTML=upcoming.sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||'')).slice(0,8)
+    box.innerHTML=upcoming.sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||'')).slice(0,8)
       .map(e=>`<div class="manage-row"><div><b>${esc(e.name)}</b><br><small>${fmtDate(e.dueDate)} · ${esc(e.person)}</small></div><b>${money(e.amount)}</b></div>`).join('');
   }
 }
@@ -674,9 +674,9 @@ function renderExpenses(){
 
 function renderUpcoming(){
   const up=db.expenses.filter(e=>statusOf(e)==='Pending' && e.dueDate && e.dueDate>=today())
-    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
   const ov=db.expenses.filter(e=>statusOf(e)==='Overdue')
-    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
 
   const upTotal=up.reduce((s,e)=>s+Number(e.amount||0),0);
   const ovTotal=ov.reduce((s,e)=>s+Number(e.amount||0),0);
@@ -952,7 +952,7 @@ function renderCategoryReport(){
 
 function renderUpcomingReport(){
   const rows=db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
-    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
   document.getElementById('upcomingReport').innerHTML=rows.length?expenseActionTable(rows):'<div class="empty">No upcoming expenses.</div>';
 }
 
@@ -966,7 +966,12 @@ function renderReports(){
 }
 
 function pdfTableRows(rows){
-  return rows.map(e=>[
+  const sorted=[...(Array.isArray(rows)?rows:[])].sort((a,b)=>{
+    const da=String(a?.date||'');
+    const dbb=String(b?.date||'');
+    return dbb.localeCompare(da);
+  });
+  return sorted.map(e=>[
     fmtDate(e.date),e.name,money(e.amount),e.category,e.person,e.payment||'',fmtDate(e.dueDate),statusOf(e)
   ]);
 }
@@ -1042,57 +1047,6 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
         window.onload=function(){setTimeout(function(){window.focus();window.print();},350);};
       <\/script>
     
-<script id="evr-final-date-sort">
-function evrDateValue(item) {
-  const raw = item?.date || item?.expenseDate || item?.dueDate || item?.createdAt || "";
-  if (!raw) return 0;
-  const s = String(raw).trim();
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m) return new Date(+m[1], +m[2]-1, +m[3]).getTime();
-  m = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
-  if (m) return new Date(+m[3], +m[2]-1, +m[1]).getTime();
-  const t = Date.parse(s);
-  return Number.isNaN(t) ? 0 : t;
-}
-function evrNewestFirst(arr) {
-  return Array.isArray(arr) ? arr.slice().sort((a,b) => evrDateValue(b) - evrDateValue(a)) : [];
-}
-</script>
-
-
-<script id="evr-final-render-sort">
-function evrSortVisibleExpenseTables() {
-  document.querySelectorAll("table").forEach(table => {
-    const body = table.querySelector("tbody");
-    if (!body) return;
-    const heads = Array.from(table.querySelectorAll("thead th"));
-    const dateIndex = heads.findIndex(th => /date/i.test(th.textContent || ""));
-    if (dateIndex < 0) return;
-    const rows = Array.from(body.querySelectorAll("tr"));
-    rows.sort((a,b) => evrDateValue({date: b.children[dateIndex]?.textContent || ""}) -
-                       evrDateValue({date: a.children[dateIndex]?.textContent || ""}));
-    rows.forEach(r => body.appendChild(r));
-  });
-}
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(evrSortVisibleExpenseTables, 150);
-  setTimeout(evrSortVisibleExpenseTables, 700);
-});
-</script>
-
-
-<script id="evr-final-pdf-helper">
-function evrPdfMoney(amount) {
-  return "₹" + Number(amount || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-function evrPdfSorted(items) {
-  return evrNewestFirst(items || []);
-}
-</script>
-
 </body></html>`;
 
   const w=window.open('','_blank','width=1200,height=800');
@@ -1139,7 +1093,7 @@ function saveExpensesPDF(){
 function saveUpcomingPDF(){
   const rows=db.expenses.filter(e=>
     (statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())||statusOf(e)==='Overdue'
-  ).sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+  ).sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
   makePDF('EVR Upcoming & Overdue Expenses','Upcoming and overdue expenses',pdfTableRows(rows),'EVR-Upcoming-Overdue.pdf');
 }
 
@@ -1159,7 +1113,7 @@ function categoryPDF(){
 
 function upcomingReportPDF(){
   const rows=db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
-    .sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
+    .sort((a,b)=>(b.dueDate||'').localeCompare(a.dueDate||''));
   makePDF('EVR Upcoming Expenses Report','Pending expenses with future due dates',pdfTableRows(rows),'EVR-Upcoming-Report.pdf');
 }
 
