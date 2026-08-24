@@ -138,13 +138,13 @@ th{background:#f5f7fa}
   </div>
 </div>
 
-<div class="notice">All expenses are recorded in <b>₹ INR</b>. Data is automatically saved in this browser.</div>
+<div class="notice">All expenses are recorded in <b>&#8377; INR</b>. Data is automatically saved in this browser.</div>
 
 <div class="stats">
-  <div class="stat"><small>Total Expenses</small><strong id="totalAmount">₹0.00</strong></div>
-  <div class="stat green"><small>Paid</small><strong id="paidAmount">₹0.00</strong></div>
-  <div class="stat orange"><small>Pending</small><strong id="pendingAmount">₹0.00</strong></div>
-  <div class="stat red"><small>Overdue</small><strong id="overdueAmount">₹0.00</strong></div>
+  <div class="stat"><small>Total Expenses</small><strong id="totalAmount">&#8377;0.00</strong></div>
+  <div class="stat green"><small>Paid</small><strong id="paidAmount">&#8377;0.00</strong></div>
+  <div class="stat orange"><small>Pending</small><strong id="pendingAmount">&#8377;0.00</strong></div>
+  <div class="stat red"><small>Overdue</small><strong id="overdueAmount">&#8377;0.00</strong></div>
   <div class="stat purple"><small>People</small><strong id="peopleCount">0</strong></div>
 </div>
 
@@ -159,7 +159,7 @@ th{background:#f5f7fa}
 
   <div class="card">
     <h2>Upcoming Expenses</h2>
-    <div id="upcomingTotal" class="notice">0 expenses · ₹0.00</div>
+    <div id="upcomingTotal" class="notice">0 expenses · &#8377;0.00</div>
     <div id="dashboardUpcoming"></div>
   </div>
 </div>
@@ -216,13 +216,13 @@ th{background:#f5f7fa}
 <div class="grid2">
   <div class="card">
     <h2>Upcoming</h2>
-    <div id="upcomingSummary" class="notice">0 expenses · ₹0.00</div>
+    <div id="upcomingSummary" class="notice">0 expenses · &#8377;0.00</div>
     <div id="upcomingList"></div>
   </div>
 
   <div class="card">
     <h2>Overdue</h2>
-    <div id="overdueSummary" class="notice">0 expenses · ₹0.00</div>
+    <div id="overdueSummary" class="notice">0 expenses · &#8377;0.00</div>
     <div id="overdueList"></div>
   </div>
 </div>
@@ -446,7 +446,7 @@ function handleBackupImport(){
 
   <div class="form-grid">
     <div class="group"><label>Expense Name</label><input id="eName" placeholder="Example: Rent"></div>
-    <div class="group"><label>Amount (₹ INR)</label><input id="eAmount" type="number" min="0" step="0.01"></div>
+    <div class="group"><label>Amount (&#8377; INR)</label><input id="eAmount" type="number" min="0" step="0.01"></div>
     <div class="group"><label>Category</label><select id="eCategory"></select></div>
     <div class="group"><label>Person</label><select id="ePerson"></select></div>
     <div class="group"><label>Expense Date</label><input id="eDate" type="date"></div>
@@ -513,7 +513,7 @@ function esc(s){
 }
 
 function money(n){
-  return '₹'+Number(n||0).toLocaleString('en-IN',{
+  return '&#8377;'+Number(n||0).toLocaleString('en-IN',{
     minimumFractionDigits:2,maximumFractionDigits:2
   });
 }
@@ -1239,7 +1239,7 @@ function updateDashboardPendingAmount(){
     .reduce((sum, e) => sum + Number(e.amount || 0), 0);
   el.textContent = typeof money === 'function'
     ? money(pendingTotal)
-    : '₹' + pendingTotal.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+    : '&#8377;' + pendingTotal.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 document.addEventListener('DOMContentLoaded', updateDashboardPendingAmount);
 </script>
