@@ -1026,7 +1026,13 @@ function saveExpensesPDF(){
     const hay=[e.name,e.person,e.category,e.payment,e.notes].join(' ').toLowerCase();
     return (!search||hay.includes(search))&&(!person||e.person===person)&&(!cat||e.category===cat)&&(!stat||statusOf(e)===stat);
   });
-  makePDF('EVR Expenses','All filtered expenses',pdfTableRows(rows),'EVR-Expenses.pdf');
+  const total=rows.reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const paid=rows.filter(e=>statusOf(e)==='Paid').reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const pending=rows.filter(e=>statusOf(e)==='Pending').reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const overdue=rows.filter(e=>statusOf(e)==='Overdue').reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const people=[...new Set(rows.map(e=>String(e.person||'').trim()).filter(Boolean))].join(', ');
+  const subtitle=`Total ${money(total)} · Paid ${money(paid)} · Pending ${money(pending)} · Overdue ${money(overdue)}${people ? ` · People: ${people}` : ''}`;
+  makePDF('EVR Expenses',subtitle,pdfTableRows(rows),'EVR-Expenses.pdf');
 }
 
 function saveUpcomingPDF(){
