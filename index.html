@@ -989,7 +989,7 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
       <div><span>Pending</span><b>${safe(money(pending))}</b></div>
       <div><span>Overdue</span><b>${safe(money(overdue))}</b></div>
     </div>
-    ${people.length ? `<div class="people"><b>People:</b> ${safe(people.join(', '))}</div>` : ''}`;
+    ${people.length ? `<div class="people"><span class="people-label">People:</span> <span class="people-names">${people.map(n=>`<strong>${safe(n)}</strong>`).join(' <span class="people-sep">•</span> ')}</span></div>` : ''}`;
 
   const html=`<!doctype html><html><head><meta charset="utf-8">
     <title>${safe(filename||title)}</title>
@@ -1003,7 +1003,7 @@ function makePDF(title,subtitle,rows,filename,columns=['Date','Expense','Amount'
       .summary div{border:1px solid #d1d5db;border-radius:6px;padding:7px;background:#f8fafc}
       .summary span{display:block;font-size:10px;color:#555;margin-bottom:3px}
       .summary b{font-size:14px}
-      .people{border:1px solid #d1d5db;border-radius:6px;padding:7px;margin:0 0 12px;background:#fff}
+      .people{border:2px solid #2563eb;border-radius:8px;padding:10px 12px;margin:0 0 12px;background:#eff6ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.people-label{font-size:13px;font-weight:800;color:#111827}.people-names{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap}.people-names strong{display:inline-block;font-size:14px;font-weight:900;color:#111827;background:#fde68a;border:1px solid #f59e0b;border-radius:6px;padding:4px 9px;box-shadow:0 1px 2px rgba(0,0,0,.08)}.people-sep{font-weight:800;color:#6b7280}
       table{width:100%;border-collapse:collapse}
       th{background:#2563eb;color:white;border:1px solid #d1d5db;padding:7px;text-align:left}
       td{border:1px solid #d1d5db;padding:6px;vertical-align:top}
