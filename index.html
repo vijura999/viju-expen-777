@@ -40,10 +40,43 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 .stats-grid .stat b{display:block;font-size:12px;opacity:.7}
 .stats-grid .stat strong{display:block;font-size:20px;margin-top:4px}
 </style>
+
+<style id="evr-visual-match">
+:root{--navy:#071b3b;--blue:#155eef;--muted:#eef2f7;--line:#d9dee7}
+body{background:#f6f8fb;color:#172033;font-family:Arial,Helvetica,sans-serif;padding-bottom:74px}
+.top{height:58px;background:var(--navy);padding:10px 14px;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.logo{font-size:17px;letter-spacing:.2px;display:flex;align-items:center;gap:8px}.logo:before{content:'EVR';font-weight:900;color:#e11d48;font-size:16px}.top>div:last-child{font-size:13px;font-weight:bold}
+.nav{display:none}
+.container{max-width:1180px;margin:0 auto;padding:14px 12px 90px}
+.page.active{display:block}.page>h1{font-size:18px;margin:2px 2px 12px;font-weight:800}
+.card{border:1px solid #e5e9f0;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 9px rgba(15,23,42,.05)}
+h2{font-size:15px;margin:0 0 10px}.notice{font-size:12px;padding:10px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.stat{padding:11px 10px;border-radius:10px;border-left-width:3px;min-height:72px}.stat small{font-size:9px}.stat strong{font-size:16px;margin-top:5px}
+.grid2{grid-template-columns:1fr 1fr;gap:12px}.manage-row{padding:9px 8px;font-size:11px;margin-bottom:6px}.manage-row small{font-size:9px;color:#667085}
+.form-grid{gap:10px}.filters{grid-template-columns:repeat(4,1fr);gap:8px}.group{gap:4px}label{font-size:10px}input,select,textarea{padding:9px;font-size:11px;border-radius:7px}.btn{padding:8px 10px;font-size:10px;border-radius:7px}
+table{font-size:10px}th,td{padding:7px}.status{font-size:9px;padding:4px 7px}
+.report-stats{gap:8px;margin:10px 0}.report-stat{padding:10px;font-size:10px}.report-stat strong{font-size:16px}
+.currency-grid{grid-template-columns:repeat(2,1fr);gap:8px}.currency-card{padding:12px}.currency-value{font-size:18px}
+#dashboard{display:flex;flex-direction:column}.dashboardPeriodCard{order:99}
+#dashboardPeriodCard{order:99}.dashboard-period-hint{font-size:10px;color:#667085}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;height:64px;background:var(--navy);z-index:100;display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid #22365a;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav button{border:0;background:transparent;color:#dce5f5;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:600}.bottom-nav button span{font-size:17px;line-height:16px}.bottom-nav button.active{color:#fff;background:#12346a}.bottom-nav button.active span{color:#4f8cff}
+.quick-nav{display:flex;gap:6px;overflow:auto;margin:0 -2px 10px}.quick-nav button{border:0;background:#edf1f6;border-radius:9px;padding:8px 12px;font-size:10px;white-space:nowrap}
+@media(max-width:700px){.container{padding:12px 9px 86px}.grid2{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.form-grid,.filters{grid-template-columns:1fr}.full{grid-column:auto}.table-wrap{overflow-x:auto}.page>h1{font-size:17px}.card{padding:11px}.stats .stat:nth-child(4),.stats .stat:nth-child(5){grid-column:span 1}.bottom-nav button{font-size:8px}}
+@media(min-width:701px){.bottom-nav{display:none}body{padding-bottom:0}.nav{display:flex;position:sticky;top:58px;z-index:30}.quick-nav{display:none}}
+</style>
 </head>
 <body>
 
-<div id="application">
+<div id="application"><nav class="bottom-nav" id="bottomNav">
+<button data-page="dashboard" onclick="page('dashboard',this)"><span>⌂</span>Home</button>
+<button data-page="expenses" onclick="page('expenses',this)"><span>▣</span>Expenses</button>
+<button data-page="upcoming" onclick="page('upcoming',this)"><span>◷</span>Upcoming</button>
+<button data-page="people" onclick="page('people',this)"><span>♙</span>People</button>
+<button data-page="banks" onclick="page('banks',this)"><span>🏦</span>Cash &amp; Banks</button>
+<button data-page="reports" onclick="page('reports',this)"><span>▤</span>Reports</button>
+</nav>
+
 <header class="top"><div class="logo">EVR Expenses</div><div>Personal</div></header>
 <nav class="nav">
 <button onclick="page('dashboard',this)" class="active">Dashboard</button>
@@ -57,7 +90,7 @@ th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:n
 <main class="container">
 
 <section id="dashboard" class="page active">
-<h1>Dashboard</h1>
+<h1>Dashboard <small style="font-size:10px;color:#667085;font-weight:normal">(Latest Month)</small></h1>
 <div class="card" id="dashboardPeriodCard">
   <h2>Dashboard Period</h2>
   <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -277,31 +310,17 @@ function getExpenses(){return [...db.expenses].sort((a,b)=>(b.date||'').localeCo
 function statusOf(e){if(e.status==='Paid')return 'Paid';if(e.dueDate&&e.dueDate<today())return 'Overdue';return 'Pending'}
 function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200)}
 
-function page(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const t=document.getElementById(id);if(!t)return;t.classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='reports')renderReports();if(id==='banks')renderBanks();if(id==='overdue')renderUpcoming();window.scrollTo(0,0)}
-function fillSelect(id,items,allLabel){let s=document.getElementById(id);if(!s)return;let old=s.value;s.innerHTML=(allLabel?`<option value="">${esc(allLabel)}</option>`:'')+items.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if([...s.options].some(o=>o.value===old))s.value=old}
-function initReportYears(){
-  const current=new Date().getFullYear();
-  const years=[];
-  for(let y=2000;y<=2100;y++){
-    years.push(y);
-  }
-
-  ['reportYear','personReportYear','categoryReportYear'].forEach(id=>{
-    const s=document.getElementById(id);
-    if(!s)return;
-
-    const old=s.value;
-
-    s.innerHTML=years.map(y=>
-      `<option value="${y}">${y}</option>`
-    ).join('');
-
-    if(old && years.includes(Number(old))){
-      s.value=old;
-    }else{
-      s.value=String(current);
-    }
-  });
+function page(id,btn){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  const t=document.getElementById(id); if(!t)return;
+  t.classList.add('active');
+  document.querySelectorAll('.nav button,.bottom-nav button').forEach(x=>x.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('[data-page="'+id+'"]').forEach(x=>x.classList.add('active'));
+  if(id==='reports')renderReports();
+  if(id==='banks')renderBanks();
+  if(id==='overdue')renderUpcoming();
+  window.scrollTo(0,0);
 }
 
 function initMonths(){let names=['January','February','March','April','May','June','July','August','September','October','November','December'];['reportMonth','personReportMonth','categoryReportMonth'].forEach(id=>{let s=document.getElementById(id),old=s.value;s.innerHTML=names.map((n,i)=>`<option value="${i+1}">${n}</option>`).join('');s.value=old||new Date().getMonth()+1})}
@@ -1147,5 +1166,7 @@ document.addEventListener("DOMContentLoaded",function(){
 
 document.addEventListener("DOMContentLoaded",function(){initDashboardPeriod();ensureBanks();var s=document.getElementById('eStatus');if(s)s.addEventListener('change',toggleExpenseAccount);});
 </script>
+
+<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".bottom-nav [data-page='dashboard']").forEach(function(b){b.classList.add("active")});});</script>
 </body>
 </html>
