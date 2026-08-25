@@ -123,6 +123,13 @@ th{background:#f5f7fa}
 }
 
 </style>
+
+<style id="navigation-final-fix">
+.page{display:none;}
+.page.active{display:block;}
+.nav,.bottom-nav{visibility:visible!important;opacity:1!important;}
+.nav button,.bottom-nav button{pointer-events:auto!important;cursor:pointer!important;}
+</style>
 </head>
 
 <body>
@@ -1144,6 +1151,39 @@ function restoreData(){
   }
   universalRestore(input.files[0]);
 }
+
+
+/* FINAL NAVIGATION FIX */
+(function(){
+  function go(id){
+    var pages=document.querySelectorAll('.page');
+    for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+    var p=document.getElementById(id);
+    if(p) p.classList.add('active');
+
+    var bs=document.querySelectorAll('.nav button,.bottom-nav button');
+    for(var j=0;j<bs.length;j++) bs[j].classList.remove('active');
+
+    try { if(typeof renderAll==='function') renderAll(); } catch(e) {}
+    window.scrollTo(0,0);
+  }
+
+  document.addEventListener('click',function(e){
+    var el=e.target;
+    while(el && el.tagName!=='BUTTON') el=el.parentElement;
+    if(!el) return;
+
+    var oc=el.getAttribute('onclick') || '';
+    var m=oc.match(/showPage\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+    if(m){
+      e.preventDefault();
+      e.stopPropagation();
+      go(m[1]);
+    }
+  },true);
+
+  window.showPage=go;
+})();
 
 </script>
 </body>
