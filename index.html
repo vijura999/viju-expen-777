@@ -70,7 +70,7 @@
 </div>
 <div class="grid2">
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Latest Transactions <span class="subtle">(Current Month)</span></h2><button class="btn primary" onclick="openExpense()">+ Add Expense</button></div><div id="recent"></div></div>
-<div class="card"><h2>Upcoming Expenses</h2><div id="upcomingTotal" class="notice">0 expenses • ₹0</div><div id="dashboardUpcoming"></div></div>
+<div class="card"><h2>Upcoming Expenses</h2><div id="upcomingTotal" class="notice">0 expenses · ₹0</div><div id="dashboardUpcoming"></div></div>
 </div><div class="card" id="dashboardPeriodCard">
   <h2>Dashboard Period</h2>
   <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -480,11 +480,11 @@ function renderDashboard(){
   const now=today().slice(0,7);const a=getExpenses().filter(e=>(e.date||'').startsWith(now));
   const sum=a.reduce((s,e)=>s+Number(e.amount||0),0),paid=a.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0),pending=a.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0),over=a.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);
   document.getElementById('totalAmount').textContent=money(sum);document.getElementById('paidAmount').textContent=money(paid);document.getElementById('pendingAmount').textContent=money(pending);document.getElementById('overdueAmount').textContent=money(over);document.getElementById('peopleCount').textContent=db.people.length;
-  document.getElementById('recent').innerHTML=a.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||'')).slice(0,8).map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>${fmtDate(e.date)} • ${esc(e.person)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No transactions this month.</div>';
+  document.getElementById('recent').innerHTML=a.slice().sort((x,y)=>(y.date||'').localeCompare(x.date||'')).slice(0,8).map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>${fmtDate(e.date)} · ${esc(e.person)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No transactions this month.</div>';
   const d=new Date();d.setHours(0,0,0,0);const end=new Date(d);end.setDate(end.getDate()+7);const endS=end.toISOString().slice(0,10);
   let up=getExpenses().filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()&&e.dueDate<endS).sort((x,y)=>(x.dueDate||'').localeCompare(y.dueDate||''));
   document.getElementById('dashboardUpcoming').innerHTML=up.map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>Due ${fmtDate(e.dueDate)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No expenses due in the next 7 days.</div>';
-  const ut=document.getElementById('upcomingTotal');if(ut)ut.textContent=up.length+' expenses • '+money(up.reduce((s,e)=>s+Number(e.amount||0),0));
+  const ut=document.getElementById('upcomingTotal');if(ut)ut.textContent=up.length+' expenses · '+money(up.reduce((s,e)=>s+Number(e.amount||0),0));
 }
 
 function upcomingExpenseCard(e){
@@ -492,7 +492,7 @@ function upcomingExpenseCard(e){
     <div class="manage-row" style="align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:220px">
         <b>${esc(e.name)}</b><br>
-        <small>${esc(e.person)} • ${esc(e.category)} • Due ${fmtDate(e.dueDate)} • ${esc(e.payment)}</small><br>
+        <small>${esc(e.person)} · ${esc(e.category)} · Due ${fmtDate(e.dueDate)} · ${esc(e.payment)}</small><br>
         <span class="status ${statusOf(e).toLowerCase()}">${statusOf(e)}</span>
         ${e.notes ? `<br><small>${esc(e.notes)}</small>` : ''}
       </div>
@@ -515,10 +515,10 @@ function renderUpcoming(){
   const ovTotal=overdue.reduce((s,e)=>s+Number(e.amount||0),0);
 
   const upCount=document.getElementById('upcomingTotal');
-  if(upCount) upCount.textContent=upcoming.length+" expenses • "+money(upTotal);
+  if(upCount) upCount.textContent=upcoming.length+" expenses · "+money(upTotal);
 
   const ovCount=document.getElementById('overdueTotal');
-  if(ovCount) ovCount.textContent=overdue.length+" expenses • "+money(ovTotal);
+  if(ovCount) ovCount.textContent=overdue.length+" expenses · "+money(ovTotal);
 
   document.getElementById('upcomingList').innerHTML =
     upcoming.map(upcomingExpenseCard).join('') ||
@@ -685,82 +685,99 @@ function periodCSV(){downloadCSV(reportData(),'EVR-'+document.getElementById('re
 function personCSV(){let p=document.getElementById('personReportPerson').value;downloadCSV(getExpenses().filter(e=>e.person===p),'EVR-'+p.replace(/\s+/g,'-')+'-report.csv')}
 
 
-function pdfEscapeText(text){
-  return String(text??"").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)").replace(/\r/g," ").replace(/\n/g," ");
-}
-
-function wrapPdfText(text,maxChars){
-  const words=String(text??"").split(/\s+/),lines=[];
-  let current="";
-  for(const word of words){
-    const test=current?current+" "+word:word;
-    if(test.length>maxChars && current){lines.push(current);current=word;}
-    else current=test;
-  }
-  if(current)lines.push(current);
-  return lines.length?lines:[""];
-}
-
-function createPdf(title,rows){
-  const pageW=595,pageH=842,margin=36,lineH=12;
-  const src=[title,"EVR Personal Expense Manager","Generated: "+new Date().toLocaleString(),""];
+function pdfEscapeText(text){return String(text??"").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)").replace(/\r/g," ").replace(/\n/g," ");}
+function pdfText(s,x,y,size,font="F1"){return `BT\n/${font} ${size} Tf\n1 0 0 1 ${x} ${y} Tm (${pdfEscapeText(s)}) Tj\nET\n`;}
+function pdfRect(x,y,w,h,fill){return `${fill} rg\n${x} ${y} ${w} ${h} re\nf\n`;}
+function pdfFit(text,maxChars){const t=String(text??"");return t.length>maxChars?t.slice(0,Math.max(0,maxChars-1))+"…":t;}
+function createStyledPdf(title,rows,opts={}){
+  const W=595,H=842,margin=48,contentW=499,people=opts.people||"";
   const total=rows.reduce((s,e)=>s+Number(e.amount||0),0);
-  src.push("Total: INR "+total.toFixed(2)+"    Expenses: "+rows.length,"");
-  src.push("Date | Expense | Amount | Category | Person | Payment | Status");
-  src.push("----------------------------------------------------------------");
-  if(!rows.length)src.push("No expenses found.");
-  rows.forEach(e=>{
-    src.push(`${e.date||""} | ${e.name||""} | INR ${Number(e.amount||0).toFixed(2)} | ${e.category||""} | ${e.person||""} | ${e.payment||""} | ${statusOf(e)}`);
-    if(e.dueDate)src.push("Due Date: "+e.dueDate);
-    if(e.notes)src.push("Notes: "+e.notes);
-    src.push("");
-  });
+  const paid=rows.filter(e=>statusOf(e)==="Paid").reduce((s,e)=>s+Number(e.amount||0),0);
+  const pending=rows.filter(e=>statusOf(e)==="Pending").reduce((s,e)=>s+Number(e.amount||0),0);
+  const overdue=rows.filter(e=>statusOf(e)==="Overdue").reduce((s,e)=>s+Number(e.amount||0),0);
 
-  const lines=[];
-  src.forEach(s=>wrapPdfText(s,92).forEach(x=>lines.push(x)));
-  const perPage=58,pages=[];
-  for(let i=0;i<lines.length;i+=perPage)pages.push(lines.slice(i,i+perPage));
-  if(!pages.length)pages.push([""]);
-
-  const objects=[];
-  const catalog=1,pagesObj=2,font=3;
+  const objects=[]; const catalog=1,pagesObj=2,font=3,bold=4;
   objects[font-1]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+  objects[bold-1]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
   const pageIds=[];
+  const rowH=20;
+  // Widths total exactly 499 points, matching the printable content area.
+  const cols=[['Date',66],['Expense',92],['Amount',75],['Category',76],['Person',62],['Payment',65],['Due',63]];
+  const moneyPdf=n=>'INR '+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-  function addObject(obj){objects.push(obj);return objects.length;}
+  function makePage(pageRows,pageNo,pageCount){
+    let s='';
+    // Report heading, matching the clean person-report layout.
+    s+=pdfText(people?"EVR Person Report":title,margin,H-margin-20,18,'F2');
+    if(people)s+=pdfText(people,margin,H-margin-42,10,'F1');
 
-  pages.forEach(page=>{
-    let stream="BT\n",y=pageH-margin;
-    page.forEach((line,i)=>{
-      stream+=`/F1 ${i===0?16:9} Tf\n1 0 0 1 ${margin} ${y} Tm (${pdfEscapeText(line)}) Tj\n`;
-      y-=lineH;
+    // Four summary boxes: Total / Paid / Pending / Overdue.
+    const gap=8,boxW=(contentW-gap*3)/4,boxH=42,boxY=H-margin-92;
+    [['Total',total],['Paid',paid],['Pending',pending],['Overdue',overdue]].forEach((v,i)=>{
+      const x=margin+i*(boxW+gap);
+      s+=`0.82 0.84 0.88 RG\n${x} ${boxY} ${boxW} ${boxH} re\nS\n`;
+      s+=pdfText(v[0],x+8,boxY+26,8);
+      s+=pdfText(moneyPdf(v[1]),x+8,boxY+10,10,'F2');
     });
-    stream+="ET";
-    const contentId=addObject(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-    const pageId=addObject(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents ${contentId} 0 R >>`);
+
+    // People strip below the summary boxes.
+    let y0=boxY-50;
+    if(people){
+      const py=boxY-32;
+      s+=pdfRect(margin,py,contentW,24,'0.94 0.96 0.99');
+      s+=pdfText('People: '+people,margin+8,py+8,9,'F2');
+      y0=boxY-68;
+    }
+
+    // Blue table header and clean bordered rows.
+    s+=pdfRect(margin,y0,contentW,rowH,'0.18 0.36 0.86');
+    let x=margin;
+    cols.forEach(c=>{s+=pdfText(c[0],x+5,y0+6,8,'F2');x+=c[1];});
+
+    let y=y0-rowH;
+    pageRows.forEach((e,ri)=>{
+      if(ri%2===0)s+=pdfRect(margin,y,contentW,rowH,'0.97 0.98 0.99');
+      s+=`0.82 0.84 0.88 RG\n${margin} ${y} ${contentW} ${rowH} re\nS\n`;
+      let xx=margin;
+      [
+        fmtDate(e.date||''),
+        pdfFit(e.name||'',17),
+        moneyPdf(e.amount),
+        pdfFit(e.category||'',15),
+        pdfFit(e.person||'',12),
+        pdfFit(e.payment||'',13),
+        fmtDate(e.dueDate||'')||'-'
+      ].forEach((v,j)=>{s+=pdfText(String(v),xx+5,y+6,7.4);xx+=cols[j][1];});
+      y-=rowH;
+    });
+    if(!pageRows.length)s+=pdfText('No expenses found.',margin,y-4,9);
+
+    // Simple page number only — no browser URL, date, header or footer.
+    s+=pdfText(`${pageNo} / ${pageCount}`,W-margin-35,20,7);
+    return s;
+  }
+
+  const chunks=[];let i=0;
+  while(i<rows.length){const cap=chunks.length?32:30;chunks.push(rows.slice(i,i+cap));i+=cap;}
+  if(!chunks.length)chunks.push([]);
+  chunks.forEach((chunk,idx)=>{
+    const stream=makePage(chunk,idx+1,chunks.length);
+    const contentId=objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);
+    const pageId=objects.push(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${font} 0 R /F2 ${bold} 0 R >> >> /Contents ${contentId} 0 R >>`);
     pageIds.push(pageId);
   });
-
   objects[catalog-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
-  objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageIds.map(x=>x+" 0 R").join(" ")}] /Count ${pageIds.length} >>`;
-
-  let pdf="%PDF-1.4\n",offsets=[0];
-  objects.forEach((obj,i)=>{offsets[i+1]=pdf.length;pdf+=(i+1)+" 0 obj\n"+obj+"\nendobj\n";});
+  objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageIds.map(x=>x+' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
+  let pdf='%PDF-1.4\n',offsets=[0];
+  objects.forEach((obj,i)=>{offsets[i+1]=pdf.length;pdf+=(i+1)+' 0 obj\n'+obj+'\nendobj\n';});
   const xref=pdf.length;
   pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
-  for(let i=1;i<=objects.length;i++)pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
+  for(let j=1;j<=objects.length;j++)pdf+=String(offsets[j]).padStart(10,'0')+' 00000 n \n';
   pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
   return pdf;
 }
-
-function saveArrayPDF(title,rows,filename){
-  const pdf=createPdf(title,rows);
-  const blob=new Blob([pdf],{type:"application/pdf"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-
+function createPdf(title,rows){return createStyledPdf(title,rows,{});}
+function saveArrayPDF(title,rows,filename,opts={}){const pdf=createStyledPdf(title,rows,opts);const blob=new Blob([pdf],{type:'application/pdf'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function reportData(){
   const type=document.getElementById("reportType").value;
   if(type==="daily"){
@@ -810,7 +827,8 @@ function personPDF(){
   saveArrayPDF(
     "Person Report - "+person,
     rows,
-    "EVR-Person-"+person.replace(/[^a-z0-9_-]+/gi,"-")+".pdf"
+    "EVR-Person-"+person.replace(/[^a-z0-9_-]+/gi,"-")+".pdf",
+    {people:person}
   );
 }
 
@@ -1024,7 +1042,7 @@ function updateBackupReminderUI(){
     status.textContent=
       "Last backup: "+
       last.toLocaleString()+
-      " • Next reminder: "+
+      " · Next reminder: "+
       next.toLocaleString();
     status.style.color="#166534";
   }
@@ -1194,12 +1212,12 @@ function updateDashboardPeriod(){
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('totalAmount',money(total));set('paidAmount',money(paid));set('pendingAmount',money(pending));set('overdueAmount',money(overdue));set('peopleCount',db.people.length);
   const recent=document.getElementById('recent');
-  if(recent)recent.innerHTML=rows.slice(0,8).map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>${fmtDate(e.date)} • ${esc(e.person)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No transactions for this month.</div>';
+  if(recent)recent.innerHTML=rows.slice(0,8).map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>${fmtDate(e.date)} · ${esc(e.person)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No transactions for this month.</div>';
   ensureBanks();set('dashboardBankBalance',money(db.banks.reduce((s,b)=>s+Number(b.balance||0),0)));
   const d=new Date();d.setHours(0,0,0,0);const end=new Date(d);end.setDate(end.getDate()+7);const endS=end.toISOString().slice(0,10);
   const up=getExpenses().filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()&&e.dueDate<endS).sort((a,b)=>(a.dueDate||'').localeCompare(b.dueDate||''));
   const dashUp=document.getElementById('dashboardUpcoming');if(dashUp)dashUp.innerHTML=up.map(e=>`<div class="manage-row"><span><b>${esc(e.name)}</b><br><small>Due ${fmtDate(e.dueDate)}</small></span><b>${money(e.amount)}</b></div>`).join('')||'<div class="empty">No expenses due in the next 7 days.</div>';
-  const ut=document.getElementById('upcomingTotal');if(ut)ut.textContent=up.length+' expenses • '+money(up.reduce((s,e)=>s+Number(e.amount||0),0));
+  const ut=document.getElementById('upcomingTotal');if(ut)ut.textContent=up.length+' expenses · '+money(up.reduce((s,e)=>s+Number(e.amount||0),0));
 }
 function initDashboardPeriod(){
   const y=document.getElementById('dashboardYear'),m=document.getElementById('dashboardMonth');if(!y||!m)return;
