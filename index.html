@@ -72,87 +72,33 @@ th{background:#f5f7fa}
   .page-pdf-bottom{padding:20px 14px 28px}
   .page-pdf-bottom .btn{width:100%;min-width:0}
 }
-
-/* Navigation fix */
-.nav{
-  display:flex !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  position:sticky;
-  top:0;
-  z-index:1000;
-}
-.bottom-nav{
-  display:flex !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:2000;
-  background:#ffffff;
-  border-top:1px solid #d8dee8;
-  padding:8px;
-  gap:7px;
-  box-shadow:0 -3px 15px rgba(0,0,0,.08);
-}
-.bottom-nav button{
-  display:block !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  flex:1;
-  min-width:78px;
-  border:0;
-  background:#eef1f6;
-  color:#2563eb;
-  border-radius:10px;
-  padding:10px 7px;
-  font-weight:700;
-}
-.bottom-nav button.active{background:#2563eb;color:#fff}
-@media(max-width:800px){
-  .nav{display:flex !important;overflow-x:auto;}
-  .mobile-nav{display:flex !important;}
-  .bottom-nav{display:flex !important;overflow-x:auto;}
-  .bottom-nav button{flex:0 0 auto;min-width:82px;}
-}
-@media(min-width:801px){
-  .mobile-nav{display:none !important;}
-  .bottom-nav{display:none !important;}
-}
-
 </style>
 
-<style id="navigation-final-fix">
-.page{display:none;}
-.page.active{display:block;}
-.nav,.bottom-nav{visibility:visible!important;opacity:1!important;}
-.nav button,.bottom-nav button{pointer-events:auto!important;cursor:pointer!important;}
+<style id="clean-navigation">
+#mainNav{display:flex!important;visibility:visible!important;opacity:1!important;overflow-x:auto;white-space:nowrap;gap:8px}
+#mainNav button{pointer-events:auto!important;cursor:pointer!important;flex:0 0 auto}
+.page{display:none}
+.page.active{display:block}
+@media(max-width:800px){
+  #mainNav{position:sticky;top:0;z-index:1000;background:#fff;padding:10px 12px}
+  #mainNav button{min-width:120px}
+}
 </style>
 </head>
 
 <body>
 <header class="top"><div class="logo">EVR Expenses</div><div>Personal</div></header>
-<nav id="mobileNav" class="nav mobile-nav no-print">
-  <button onclick="showPage('dashboard')">Home</button>
-  <button onclick="showPage('expenses')">Expenses</button>
-  <button onclick="showPage('upcoming')">Upcoming</button>
-  <button onclick="showPage('overdue')">Overdue</button>
-  <button onclick="showPage('people')">People</button>
-  <button onclick="showPage('banks')">Cash & Banks</button>
-  <button onclick="showPage('transactions')">Transactions</button>
-  <button onclick="showPage('backup')">Backup</button>
-</nav>
 
-<nav class="nav">
+<nav class="nav" id="mainNav">
   <button onclick="page('dashboard',this)" class="active">Dashboard</button>
   <button onclick="page('expenses',this)">Expenses</button>
   <button onclick="page('upcoming',this)">Upcoming</button>
+  <button onclick="page('overdue',this)">Overdue</button>
   <button onclick="page('people',this)">People</button>
   <button onclick="page('categories',this)">Categories</button>
-  <button onclick="page('reports',this)">Reports</button><button onclick="page('banks',this)">Cash &amp; Banks</button>
-  <button onclick="page('backup',this)">Backup / Export</button>
+  <button onclick="page('reports',this)">Reports</button>
+  <button onclick="page('banks',this)">Cash &amp; Banks</button>
+  <button onclick="page('backup',this)">Backup</button>
 </nav>
 
 <main class="container">
@@ -353,6 +299,15 @@ shboardUpcoming"></div>
 <div class="buttons"><button class="btn primary" onclick="saveBankAction()">Save</button><button class="btn light" onclick="closeBankAction()">Cancel</button></div>
 </div></div>
 
+
+<section id="overdue" class="page">
+<h1>Overdue</h1>
+<div class="card">
+  <div class="section-head"><h2>Overdue Expenses</h2></div>
+  <div id="overdueList" class="table-wrap"></div>
+</div>
+</section>
+
 <section id="backup" class="page">
 <h1>Backup / Export</h1>
 <div class="grid2">
@@ -395,31 +350,28 @@ shboardUpcoming"></div>
 <div id="toast" style="position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:13px 17px;border-radius:9px;display:none;z-index:300"></div>
 
 <script>
-const KEY='evr_personal_expenses_v3';
+const KEY='evr_personal_expenses_v6_clean';
 const DEFAULT_CATS=['Food','Travel','Rent','Utilities','Shopping','Medical','Education','Entertainment','Bills','Other'];
 let db=loadDB(),editId=null;
 
-function defaultDB(){return{banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}],bankTransactions:[],expenses:[],people:['Me'],categories:[...DEFAULT_CATS],version:3,updatedAt:new Date().toISOString()}}
-const PRELOADED_DB={"expenses":[{"id":"1787505534886","name":"miss","amount":1000.0,"category":"Food","person":"saju","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505622853","name":"miss","amount":1200.0,"category":"Food","person":"saju","date":"2026-08-22","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505678736","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-20","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787505721684","name":"miss","amount":700.0,"category":"Food","person":"saju","date":"2026-08-18","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505760710","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787505792941","name":"miss","amount":400.0,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505830050","name":"miss","amount":3700.0,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505866957","name":"miss","amount":17300.0,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505895747","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-16","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505927542","name":"miss","amount":600.0,"category":"Food","person":"saju","date":"2026-08-16","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787505951961","name":"miss","amount":1000.0,"category":"Food","person":"saju","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787505981731","name":"miss","amount":1000.0,"category":"Food","person":"saju","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506050708","name":"miss","amount":1000.0,"category":"Food","person":"saju","date":"2026-08-13","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506077340","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-12","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506124626","name":"miss","amount":900.0,"category":"Food","person":"saju","date":"2026-08-11","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506176727","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506207556","name":"miss","amount":500.0,"category":"Food","person":"saju","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506239415","name":"miss","amount":700.0,"category":"Food","person":"saju","date":"2026-08-03","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506271379","name":"miss","amount":400.0,"category":"Food","person":"saju","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787506304455","name":"miss","amount":700.0,"category":"Food","person":"saju","date":"2026-08-01","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507617455","name":"miss","amount":2000.0,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507668191","name":"miss","amount":1200.0,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507698662","name":"miss","amount":10000.0,"category":"Food","person":"kittu","date":"2026-08-22","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507726549","name":"miss","amount":4000.0,"category":"Food","person":"kittu","date":"2026-08-21","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507753131","name":"miss","amount":2000.0,"category":"Food","person":"kittu","date":"2026-08-20","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507779085","name":"miss","amount":5000.0,"category":"Food","person":"kittu","date":"2026-08-19","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507805996","name":"miss","amount":2000.0,"category":"Food","person":"kittu","date":"2026-08-18","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507833247","name":"miss","amount":5000.0,"category":"Food","person":"kittu","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507872331","name":"lucy","amount":5000.0,"category":"Food","person":"kittu","date":"2026-08-16","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507898409","name":"miss","amount":2000.0,"category":"Food","person":"kittu","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507934054","name":"miss","amount":10001.0,"category":"Food","person":"kittu","date":"2026-08-13","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787507960777","name":"miss","amount":1000.0,"category":"Food","person":"kittu","date":"2026-08-12","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787507990157","name":"miss","amount":5000.0,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508015391","name":"miss","amount":3000.0,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508041444","name":"miss","amount":3000.0,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508065215","name":"miss","amount":5000.0,"category":"Food","person":"kittu","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508091125","name":"miss","amount":50000.0,"category":"Food","person":"kittu","date":"2026-08-04","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787508122929","name":"miss","amount":2000.0,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508147123","name":"miss","amount":4000.0,"category":"Food","person":"kittu","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508168305","name":"miss","amount":1000.0,"category":"Food","person":"kittu","date":"2026-08-01","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787508413535","name":"emi car","amount":13000.0,"category":"Food","person":"Viju","date":"2026-08-10","dueDate":"","payment":"Bank Transfer","status":"Paid","accountId":"","notes":""},{"id":"1787508465170","name":"miss","amount":2000.0,"category":"Food","person":"Anu","date":"2026-08-21","dueDate":"","payment":"Cash","status":"Paid","accountId":"","notes":""},{"id":"1787508489452","name":"miss","amount":1000.0,"category":"Food","person":"Anu","date":"2026-08-21","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508523280","name":"miss","amount":2000.0,"category":"Food","person":"Anu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508547533","name":"miss","amount":2000.0,"category":"Food","person":"Anu","date":"2026-08-06","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787508627952","name":"miss","amount":500.0,"category":"Food","person":"Anu","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""},{"id":"1787510969978","name":"car emi","amount":13000.0,"category":"Food","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"Cash","status":"Pending","accountId":"","notes":""},{"id":"1787513953862","name":"Anu emi","amount":18000.0,"category":"EMI","person":"Anu","date":"2026-08-28","dueDate":"2026-08-28","payment":"UPI","status":"Pending","accountId":"","notes":""},{"id":"1787553008227","name":"Ony card","amount":24500.0,"category":"Bills","person":"Viju","date":"2026-09-03","dueDate":"2026-09-03","payment":"Bank Transfer","status":"Pending","accountId":"","notes":""},{"id":"1787553196799","name":"Novo credit card","amount":14000.0,"category":"Bills","person":"Viju","date":"2026-08-28","dueDate":"2026-08-28","payment":"Credit Card","status":"Pending","accountId":"","notes":""},{"id":"1787553261756","name":"House rent","amount":17500.0,"category":"Rent","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"UPI","status":"Pending","accountId":"","notes":""},{"id":"1787553298020","name":"Chit","amount":15000.0,"category":"Bills","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"UPI","status":"Pending","accountId":"","notes":""},{"id":"1787553345198","name":"Sathu","amount":150000.0,"category":"Bills","person":"Viju","date":"2026-08-27","dueDate":"2026-08-27","payment":"UPI","status":"Pending","accountId":"","notes":""},{"id":"1787553411702","name":"Bick emi sanju","amount":8000.0,"category":"EMI","person":"Viju","date":"2026-08-29","dueDate":"2026-08-28","payment":"UPI","status":"Pending","accountId":"","notes":""},{"id":"1787553655621","name":"Pass","amount":4000.0,"category":"Bills","person":"Viju","date":"2026-08-31","dueDate":"2026-08-31","payment":"Debit Card","status":"Pending","accountId":"","notes":""},{"id":"e_1787595970568_6anbvdixlvd","name":"miss","amount":900.0,"category":"Food","person":"saju","date":"2026-08-24","dueDate":"","payment":"UPI","status":"Paid","accountId":"","notes":""}],"people":["Viju","kittu","saju","Anu","lucy"],"categories":["Food","Travel","Rent","Utilities","Shopping","Medical","Education","Entertainment","Bills","Other","EMI","Hotel","Uber"],"banks":[{"id":"cash","name":"Cash","balance":0,"openingBalance":0}],"bankTransactions":[],"version":5,"updatedAt":"2026-08-24T18:26:10.568Z"};
+const PRELOADED_DB={"banks":[{"id":"cash","name":"Cash","balance":0,"openingBalance":0}],"bankTransactions":[],"expenses":[{"id":"1787505534886","name":"miss","amount":1000,"category":"Food","person":"saju","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:18:54.887Z"},{"id":"1787505622853","name":"miss","amount":1200,"category":"Food","person":"saju","date":"2026-08-22","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:20:22.854Z"},{"id":"1787505678736","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-20","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T17:21:18.736Z"},{"id":"1787505721684","name":"miss","amount":700,"category":"Food","person":"saju","date":"2026-08-18","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:22:01.684Z"},{"id":"1787505760710","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T17:22:40.710Z"},{"id":"1787505792941","name":"miss","amount":400,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:23:12.941Z"},{"id":"1787505830050","name":"miss","amount":3700,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:23:50.050Z"},{"id":"1787505866957","name":"miss","amount":17300,"category":"Food","person":"saju","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:24:26.957Z"},{"id":"1787505895747","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-16","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:24:55.747Z"},{"id":"1787505927542","name":"miss","amount":600,"category":"Food","person":"saju","date":"2026-08-16","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T17:25:27.542Z"},{"id":"1787505951961","name":"miss","amount":1000,"category":"Food","person":"saju","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:25:51.961Z"},{"id":"1787505981731","name":"miss","amount":1000,"category":"Food","person":"saju","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:26:21.731Z"},{"id":"1787506050708","name":"miss","amount":1000,"category":"Food","person":"saju","date":"2026-08-13","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:27:30.708Z"},{"id":"1787506077340","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-12","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:27:57.340Z"},{"id":"1787506124626","name":"miss","amount":900,"category":"Food","person":"saju","date":"2026-08-11","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:28:44.626Z"},{"id":"1787506176727","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:29:36.727Z"},{"id":"1787506207556","name":"miss","amount":500,"category":"Food","person":"saju","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:30:07.556Z"},{"id":"1787506239415","name":"miss","amount":700,"category":"Food","person":"saju","date":"2026-08-03","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:30:39.415Z"},{"id":"1787506271379","name":"miss","amount":400,"category":"Food","person":"saju","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:31:11.379Z"},{"id":"1787506304455","name":"miss","amount":700,"category":"Food","person":"saju","date":"2026-08-01","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:31:44.455Z"},{"id":"1787507617455","name":"miss","amount":2000,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:53:37.455Z"},{"id":"1787507668191","name":"miss","amount":1200,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:54:28.191Z"},{"id":"1787507698662","name":"miss","amount":10000,"category":"Food","person":"kittu","date":"2026-08-22","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:54:58.662Z"},{"id":"1787507726549","name":"miss","amount":4000,"category":"Food","person":"kittu","date":"2026-08-21","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:55:26.549Z"},{"id":"1787507753131","name":"miss","amount":2000,"category":"Food","person":"kittu","date":"2026-08-20","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:55:53.131Z"},{"id":"1787507779085","name":"miss","amount":5000,"category":"Food","person":"kittu","date":"2026-08-19","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:56:19.085Z"},{"id":"1787507805996","name":"miss","amount":2000,"category":"Food","person":"kittu","date":"2026-08-18","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:56:45.996Z"},{"id":"1787507833247","name":"miss","amount":5000,"category":"Food","person":"kittu","date":"2026-08-17","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:57:13.247Z"},{"id":"1787507872331","name":"lucy","amount":5000,"category":"Food","person":"kittu","date":"2026-08-16","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:57:52.331Z"},{"id":"1787507898409","name":"miss","amount":2000,"category":"Food","person":"kittu","date":"2026-08-15","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:58:18.409Z"},{"id":"1787507934054","name":"miss","amount":10001,"category":"Food","person":"kittu","date":"2026-08-13","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T17:58:54.054Z"},{"id":"1787507960777","name":"miss","amount":1000,"category":"Food","person":"kittu","date":"2026-08-12","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:59:20.777Z"},{"id":"1787507990157","name":"miss","amount":5000,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T17:59:50.157Z"},{"id":"1787508015391","name":"miss","amount":3000,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:00:15.391Z"},{"id":"1787508041444","name":"miss","amount":3000,"category":"Food","person":"kittu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:00:41.444Z"},{"id":"1787508065215","name":"miss","amount":5000,"category":"Food","person":"kittu","date":"2026-08-09","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:01:05.215Z"},{"id":"1787508091125","name":"miss","amount":50000,"category":"Food","person":"kittu","date":"2026-08-04","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T18:01:31.125Z"},{"id":"1787508122929","name":"miss","amount":2000,"category":"Food","person":"kittu","date":"2026-08-23","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:02:02.929Z"},{"id":"1787508147123","name":"miss","amount":4000,"category":"Food","person":"kittu","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:02:27.123Z"},{"id":"1787508168305","name":"miss","amount":1000,"category":"Food","person":"kittu","date":"2026-08-01","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T18:02:48.305Z"},{"id":"1787508413535","name":"emi car","amount":13000,"category":"Food","person":"Viju","date":"2026-08-10","dueDate":"","payment":"Bank Transfer","status":"Paid","notes":"","createdAt":"2026-08-23T18:06:53.535Z"},{"id":"1787508465170","name":"miss","amount":2000,"category":"Food","person":"Anu","date":"2026-08-21","dueDate":"","payment":"Cash","status":"Paid","notes":"","createdAt":"2026-08-23T18:07:45.170Z"},{"id":"1787508489452","name":"miss","amount":1000,"category":"Food","person":"Anu","date":"2026-08-21","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:08:09.452Z"},{"id":"1787508523280","name":"miss","amount":2000,"category":"Food","person":"Anu","date":"2026-08-10","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:08:43.280Z"},{"id":"1787508547533","name":"miss","amount":2000,"category":"Food","person":"Anu","date":"2026-08-06","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:09:07.533Z"},{"id":"1787508627952","name":"miss","amount":500,"category":"Food","person":"Anu","date":"2026-08-02","dueDate":"","payment":"UPI","status":"Paid","notes":"","createdAt":"2026-08-23T18:10:27.952Z"},{"id":"1787510969978","name":"car emi","amount":13000,"category":"Food","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"Cash","status":"Pending","notes":"","createdAt":"2026-08-23T18:49:29.978Z"},{"id":"1787513953862","name":"Anu emi","amount":18000,"category":"EMI","person":"Anu","date":"2026-08-28","dueDate":"2026-08-28","payment":"UPI","status":"Pending","notes":"","createdAt":"2026-08-24T07:34:01.142Z"},{"id":"1787553008227","name":"Ony card","amount":24500,"category":"Bills","person":"Viju","date":"2026-09-03","dueDate":"2026-09-03","payment":"Bank Transfer","status":"Pending","notes":"","createdAt":"2026-08-24T06:30:08.228Z"},{"id":"1787553196799","name":"Novo credit card","amount":14000,"category":"Bills","person":"Viju","date":"2026-08-28","dueDate":"2026-08-28","payment":"Credit Card","status":"Pending","notes":"","createdAt":"2026-08-24T06:42:33.706Z"},{"id":"1787553261756","name":"House rent","amount":17500,"category":"Rent","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"UPI","status":"Pending","notes":"","createdAt":"2026-08-24T06:34:21.756Z"},{"id":"1787553298020","name":"Chit","amount":15000,"category":"Bills","person":"Viju","date":"2026-09-05","dueDate":"2026-09-05","payment":"UPI","status":"Pending","notes":"","createdAt":"2026-08-24T06:34:58.020Z"},{"id":"1787553345198","name":"Sathu","amount":150000,"category":"Bills","person":"Viju","date":"2026-08-27","dueDate":"2026-08-27","payment":"UPI","status":"Pending","notes":"","createdAt":"2026-08-24T06:43:00.442Z"},{"id":"1787553411702","name":"Bick emi sanju","amount":8000,"category":"EMI","person":"Viju","date":"2026-08-29","dueDate":"2026-08-28","payment":"UPI","status":"Pending","notes":"","createdAt":"2026-08-24T06:42:49.010Z"},{"id":"1787553655621","name":"Pass","amount":4000,"category":"Bills","person":"Viju","date":"2026-08-31","dueDate":"2026-08-31","payment":"Debit Card","status":"Pending","notes":"","createdAt":"2026-08-24T06:40:55.621Z"},{"id":"e_1787595970568_6anbvdixlvd","name":"miss","amount":900,"category":"Food","person":"saju","date":"2026-08-24","dueDate":"","payment":"UPI","status":"Paid","notes":""}],"people":["Viju","kittu","saju","Anu","lucy"],"categories":["Food","Travel","Rent","Utilities","Shopping","Medical","Education","Entertainment","Bills","Other","EMI","Hotel","Uber"],"version":6,"updatedAt":"2026-08-24T18:26:10.568Z"};
+function defaultDB(){return JSON.parse(JSON.stringify(PRELOADED_DB))}
 function loadDB(){
   try{
     const saved=localStorage.getItem(KEY);
     if(saved){
       const x=JSON.parse(saved);
-      if(x && typeof x==='object') return normalizeDB(x);
+      if(x && Array.isArray(x.expenses)){
+        x.banks=Array.isArray(x.banks)&&x.banks.length?x.banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}];
+        x.bankTransactions=Array.isArray(x.bankTransactions)?x.bankTransactions:[];
+        x.people=Array.isArray(x.people)&&x.people.length?x.people:['Me'];
+        x.categories=Array.isArray(x.categories)&&x.categories.length?x.categories:[...DEFAULT_CATS];
+        return x;
+      }
     }
-  }catch(e){console.warn(e)}
-  return normalizeDB(JSON.parse(JSON.stringify(PRELOADED_DB)));
+  }catch(e){console.warn('EVR load:',e)}
+  return defaultDB();
 }
-function normalizeDB(x){
-  x=x||{};
-  if(Array.isArray(x.expenses)===false) x.expenses=[];
-  if(Array.isArray(x.people)===false) x.people=[];
-  if(Array.isArray(x.categories)===false) x.categories=[];
-  return x;
-}
-}catch(e){}return JSON.parse(JSON.stringify(PRELOADED_DB))}
-try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.expenses)){x.people=Array.isArray(x.people)&&x.people.length?x.people:['Me'];x.categories=Array.isArray(x.categories)&&x.categories.length?x.categories:[...DEFAULT_CATS];return x}}catch(e){}return defaultDB()}
 
 let bankEditId=null, bankActionType=null;
 function bankById(id){return db.banks.find(b=>b.id===id)}
@@ -524,7 +476,19 @@ function today(){return new Date().toISOString().slice(0,10)}
 function fmtDate(s){if(!s)return'-';const p=String(s).split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s}
 function statusOf(e){if(e.status==='Paid')return'Paid';if(e.status==='Overdue')return'Overdue';if(e.dueDate&&e.dueDate<today())return'Overdue';return'Pending'}
 function statusBadge(s){return`<span class="status ${s.toLowerCase()}">${s}</span>`}
-function page(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='reports')renderReports()}
+function page(id,btn){
+  try{
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    const target=document.getElementById(id);
+    if(!target)return;
+    target.classList.add('active');
+    document.querySelectorAll('#mainNav button').forEach(x=>x.classList.remove('active'));
+    if(btn)btn.classList.add('active');
+    if(id==='reports' && typeof renderReports==='function')renderReports();
+    if(id==='overdue' && typeof renderOverdue==='function')renderOverdue();
+    window.scrollTo(0,0);
+  }catch(err){console.error('Navigation error:',err)}
+}
 function fillSelect(id,arr,first){const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='';if(first!==undefined){const o=document.createElement('option');o.value='';o.textContent=first;el.appendChild(o)}arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});if([...el.options].some(o=>o.value===old))el.value=old}
 function setupYears(){const now=new Date().getFullYear(),years=[];for(let y=now-10;y<=now+10;y++)years.push(String(y));['dashboardYear','reportYear','personReportYear','categoryReportYear'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='';years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;el.appendChild(o)});el.value=years.includes(old)?old:String(now)})}
 function setupMonths(){const months=['January','February','March','April','May','June','July','August','September','October','November','December'];['dashboardMonth','reportMonth','personReportMonth','categoryReportMonth'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';months.forEach((m,i)=>{const o=document.createElement('option');o.value=String(i+1);o.textContent=m;el.appendChild(o)});el.value=String(new Date().getMonth()+1)})}
@@ -973,218 +937,53 @@ function restoreJSON(event){
   const reader=new FileReader();
   reader.onload=function(){
     try{
-      const obj=JSON.parse(reader.result);
-      let restored=(obj&&obj.data&&typeof obj.data==='object')?obj.data:obj;
-      if(!restored||!Array.isArray(restored.expenses))throw new Error('No expenses');
+      const raw=JSON.parse(reader.result);
+      let restored=raw;
+      if(raw && raw.data && typeof raw.data==='object')restored=raw.data;
+      else if(raw && raw.backup && typeof raw.backup==='object')restored=raw.backup;
+      else if(raw && raw.database && typeof raw.database==='object')restored=raw.database;
+      else if(raw && raw.db && typeof raw.db==='object')restored=raw.db;
 
-      /* Accept both the current EVR backup format (banks/bankTransactions)
-         and the newer V4 format (accounts/accountTransactions). */
-      let banks=[];
-      let bankTransactions=[];
+      const expenses=Array.isArray(restored.expenses)?restored.expenses:
+                     Array.isArray(restored.items)?restored.items:
+                     Array.isArray(restored.records)?restored.records:[];
+      const people=Array.isArray(restored.people)?restored.people:
+                   Array.isArray(restored.persons)?restored.persons:['Me'];
+      const categories=Array.isArray(restored.categories)?restored.categories:
+                       Array.isArray(restored.cats)?restored.cats:[...DEFAULT_CATS];
+      const banks=Array.isArray(restored.banks)?restored.banks:
+                  Array.isArray(restored.accounts)?restored.accounts:
+                  [{id:'cash',name:'Cash',balance:0,openingBalance:0}];
+      const bankTransactions=Array.isArray(restored.bankTransactions)?restored.bankTransactions:
+                             Array.isArray(restored.accountTransactions)?restored.accountTransactions:
+                             Array.isArray(restored.transactions)?restored.transactions:[];
 
-      if(Array.isArray(restored.banks)){
-        banks=restored.banks.map(b=>({
-          id:b.id||('b_'+Math.random().toString(36).slice(2)),
-          name:b.name||'Account',
-          balance:Number(b.balance??b.openingBalance??0),
-          openingBalance:Number(b.openingBalance??b.balance??0)
-        }));
-        bankTransactions=Array.isArray(restored.bankTransactions)?restored.bankTransactions:[];
-      }else if(Array.isArray(restored.accounts)){
-        /* Convert EVR_EXPENSES_DATA_V4 accounts into the bank format used by
-           the current app. The balance is calculated once from opening balance
-           plus account transactions, so historical transactions are preserved
-           without changing the restored balance a second time. */
-        const txs=Array.isArray(restored.accountTransactions)?restored.accountTransactions:[];
-        banks=restored.accounts.map(a=>{
-          const txSum=txs.filter(t=>t.accountId===a.id).reduce((s,t)=>s+Number(t.amount||0),0);
-          const opening=Number(a.opening||0);
-          const current=opening+txSum;
-          return {
-            id:a.id||('b_'+Math.random().toString(36).slice(2)),
-            name:a.name||'Account',
-            balance:current,
-            openingBalance:opening
-          };
-        });
-        bankTransactions=txs.map(t=>({
-          id:t.id||('bt_'+Math.random().toString(36).slice(2)),
-          date:t.date||today(),
-          accountId:t.accountId,
-          description:t.note||t.description||'',
-          type:t.type||'',
-          payment:t.payment||'',
-          amount:Number(t.amount||0)
-        }));
-      }
+      if(!expenses.length && !banks.length)throw new Error('No EVR data found');
+      if(!confirm('Restore this backup? Current data in this app will be replaced.'))return;
 
-      if(!banks.length)banks=[{id:'cash',name:'Cash',balance:0,openingBalance:0}];
-      if(!banks.some(b=>b.id==='cash' && String(b.name).toLowerCase()==='cash')){
-        /* Do not force a second Cash account when a user already has one under
-           another id/name. */
-      }
-
-      const people=Array.isArray(restored.people)&&restored.people.length?restored.people:['Me'];
-      const categories=Array.isArray(restored.categories)&&restored.categories.length?restored.categories:[...DEFAULT_CATS];
-
-      /* Convert expense field names used by the V4 build. */
-      const expenses=restored.expenses.map(e=>({
-        id:e.id||('e_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
-        name:e.name||e.expense||'',
-        amount:Number(e.amount||0),
-        category:e.category||'Other',
-        person:e.person||'General',
-        date:e.date||today(),
-        dueDate:e.dueDate||e.due||'',
-        payment:e.payment||e.paymentMode||'Cash',
-        status:e.status||'Pending',
-        accountId:e.accountId||'',
-        notes:e.notes||e.note||''
-      }));
-
-      if(!confirm('Restore this backup? Current browser data will be replaced.'))return;
       db={
-        expenses,
-        people,
-        categories,
-        banks,
-        bankTransactions,
-        version:5,
+        banks:banks.length?banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}],
+        bankTransactions:bankTransactions,
+        expenses:expenses,
+        people:people.length?people:['Me'],
+        categories:categories.length?categories:[...DEFAULT_CATS],
+        version:6,
         updatedAt:new Date().toISOString()
       };
-      saveDB();
+      localStorage.setItem(KEY,JSON.stringify(db));
+      renderAll();
+      page('dashboard',document.querySelector('#mainNav button'));
       toast('Backup restored successfully.');
     }catch(e){
-      alert('This backup is from another EVR version. The new app could not read it. Please use the EVR backup JSON file, not the HTML file.');
-    }finally{
-      event.target.value='';
-    }
+      console.error(e);
+      alert('The selected file is not a readable EVR JSON backup.');
+    }finally{event.target.value=''}
   };
   reader.readAsText(file);
 }
-function saveBackupReminderSettings(){const v=document.getElementById('backupReminderFrequency').value;localStorage.setItem('evr_backup_frequency',v);updateBackupStatus()}
-function resetBackupReminder(){localStorage.removeItem('evr_last_backup');updateBackupStatus()}
-function updateBackupStatus(){const el=document.getElementById('backupStatus'),last=localStorage.getItem('evr_last_backup'),freq=Number(localStorage.getItem('evr_backup_frequency')||7);document.getElementById('backupReminderFrequency').value=String(freq);if(!last){el.textContent='No backup downloaded yet.';return}const d=new Date(last),next=new Date(d);next.setDate(next.getDate()+freq);el.textContent=next<=new Date()?`Backup reminder: your last backup was ${d.toLocaleDateString()}. Please make a new backup.`:`Last backup: ${d.toLocaleString()}. Next reminder: ${next.toLocaleDateString()}.`}
-function clearAll(){if(!confirm('This will permanently delete all expenses, people and categories from this browser. Continue?'))return;localStorage.removeItem(KEY);db=defaultDB();renderAll();toast('All data cleared.')}
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.style.display='none',2200)}
-function renderAll(){fillSelect('filterPerson',db.people,'All People');fillSelect('filterCategory',db.categories,'All Categories');renderDashboard();initDashboardPeriod();renderExpenses();renderUpcoming();renderPeople();renderCategories();renderBanks();renderReports();updateBackupStatus()}
+
+function renderAll(){fillSelect('filterPerson',db.people,'All People');fillSelect('filterCategory',db.categories,'All Categories');renderDashboard();initDashboardPeriod();renderExpenses();renderUpcoming();renderOverdue();renderPeople();renderCategories();renderBanks();renderReports();updateBackupStatus()}
 document.addEventListener('DOMContentLoaded',function(){setupYears();setupMonths();initDates();const now=new Date();document.getElementById('dashboardMonth').value=String(now.getMonth()+1);document.getElementById('dashboardYear').value=String(now.getFullYear());renderAll()})
-
-/* ===== Navigation & Backup compatibility patch ===== */
-document.addEventListener('click', function(ev){
-  const b=ev.target.closest('button');
-  if(!b) return;
-  const onclick=b.getAttribute('onclick')||'';
-  const match=onclick.match(/showPage\(['"]([^'"]+)['"]\)/);
-  if(match){
-    ev.preventDefault();
-    showPage(match[1]);
-  }
-});
-
-function universalRestore(file){
-  const reader=new FileReader();
-  reader.onload=function(){
-    try{
-      let raw=JSON.parse(reader.result);
-      let x=raw;
-
-      /* Accept common EVR backup wrappers */
-      if(raw && raw.data && typeof raw.data==='object') x=raw.data;
-      else if(raw.backup && typeof raw.backup==='object') x=raw.backup;
-      else if(raw.database && typeof raw.database==='object') x=raw.database;
-      else if(raw.db && typeof raw.db==='object') x=raw.db;
-
-      /* Accept old names */
-      if(!Array.isArray(x.expenses)) x.expenses=x.items||x.records||[];
-      if(!Array.isArray(x.people)) x.people=x.persons||[];
-      if(!Array.isArray(x.categories)) x.categories=x.cats||[];
-
-      /* Preserve banks/accounts when present under any common name */
-      if(!Array.isArray(x.accounts)){
-        x.accounts=x.banks||x.bankAccounts||[];
-      }
-      if(!Array.isArray(x.accountTransactions)){
-        x.accountTransactions=x.bankTransactions||x.transactions||[];
-      }
-
-      if(!Array.isArray(x.expenses) && !Array.isArray(x.accounts)){
-        throw new Error('Unrecognized EVR backup');
-      }
-
-      if(!Array.isArray(x.expenses)) x.expenses=[];
-      if(!Array.isArray(x.people)) x.people=[];
-      if(!Array.isArray(x.categories)) x.categories=[];
-      if(!Array.isArray(x.accounts)) x.accounts=[{id:'cash',type:'cash',name:'Cash',opening:0}];
-      if(!Array.isArray(x.accountTransactions)) x.accountTransactions=[];
-
-      /* Normalize account objects */
-      x.accounts=x.accounts.map((a,i)=>({
-        id:a.id||a.accountId||('acc_'+i),
-        type:a.type||a.accountType||'bank',
-        name:a.name||a.bankName||('Account '+(i+1)),
-        opening:Number(a.opening??a.openingBalance??a.balance??0)
-      }));
-
-      if(!x.accounts.some(a=>a.type==='cash' || String(a.name).toLowerCase()==='cash')){
-        x.accounts.unshift({id:'cash',type:'cash',name:'Cash',opening:0});
-      }
-
-      db=x;
-      save();
-      renderAll();
-      showPage('dashboard');
-      alert('Backup restored successfully.');
-    }catch(err){
-      console.error(err);
-      alert('This backup file could not be recognized. Please select an EVR JSON backup file.');
-    }
-  };
-  reader.readAsText(file);
-}
-
-function restoreData(){
-  const input=document.getElementById('restoreFile');
-  if(!input || !input.files || !input.files[0]){
-    alert('Choose a backup file first.');
-    return;
-  }
-  universalRestore(input.files[0]);
-}
-
-
-/* FINAL NAVIGATION FIX */
-(function(){
-  function go(id){
-    var pages=document.querySelectorAll('.page');
-    for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
-    var p=document.getElementById(id);
-    if(p) p.classList.add('active');
-
-    var bs=document.querySelectorAll('.nav button,.bottom-nav button');
-    for(var j=0;j<bs.length;j++) bs[j].classList.remove('active');
-
-    try { if(typeof renderAll==='function') renderAll(); } catch(e) {}
-    window.scrollTo(0,0);
-  }
-
-  document.addEventListener('click',function(e){
-    var el=e.target;
-    while(el && el.tagName!=='BUTTON') el=el.parentElement;
-    if(!el) return;
-
-    var oc=el.getAttribute('onclick') || '';
-    var m=oc.match(/showPage\s*\(\s*['"]([^'"]+)['"]\s*\)/);
-    if(m){
-      e.preventDefault();
-      e.stopPropagation();
-      go(m[1]);
-    }
-  },true);
-
-  window.showPage=go;
-})();
-
 </script>
 </body>
 </html>
