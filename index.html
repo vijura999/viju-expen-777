@@ -316,7 +316,7 @@ shboardUpcoming"></div>
     <div class="buttons"><button class="btn primary" onclick="backupNow()">⬇ Export Full Backup</button><button class="btn secondary" onclick="exportAllCSV()">⬇ Export Expenses CSV</button></div>
     <hr style="margin:22px 0;border:0;border-top:1px solid #ddd">
     <h2>Restore</h2><p>Restore a previously exported EVR JSON backup.</p>
-    <input type="file" id="restoreFile" accept=".json,application/json" onchange="restoreJSON(event)">
+    <input type="file" id="restoreFile" accept=".json,.JSON,application/json,text/json" onchange="restoreJSON(event)">
   </div>
   <div class="card">
     <h2>Backup Reminder</h2>
@@ -932,52 +932,123 @@ function downloadText(text,name,type){const blob=new Blob([text],{type}),url=URL
 function exportAllCSV(){downloadText(rowsCSV(db.expenses),'EVR-Expenses.csv','text/csv;charset=utf-8')}
 function backupNow(){const payload={app:'EVR Personal Expense Manager',version:3,exportedAt:new Date().toISOString(),data:db};downloadText(JSON.stringify(payload,null,2),'EVR-Full-Backup.json','application/json');localStorage.setItem('evr_last_backup',new Date().toISOString());updateBackupStatus();toast('Backup downloaded.')}
 function restoreJSON(event){
-  const file=event.target.files[0];
+  const file=event.target.files && event.target.files[0];
   if(!file)return;
+
   const reader=new FileReader();
   reader.onload=function(){
     try{
-      const raw=JSON.parse(reader.result);
+      let text=String(reader.result||'');
+      // Accept UTF-8 BOM, whitespace, and common pasted/exported JSON wrappers.
+      text=text.replace(/^\uFEFF/,'').trim();
+
+      let raw;
+      try{
+        raw=JSON.parse(text);
+      }catch(firstError){
+        // Some older exports can contain harmless text before/after the JSON.
+        const first=text.indexOf('{');
+        const last=text.lastIndexOf('}');
+        if(first>=0 && last>first) raw=JSON.parse(text.slice(first,last+1));
+        else throw firstError;
+      }
+
+      // Unwrap any known EVR backup container.
       let restored=raw;
-      if(raw && raw.data && typeof raw.data==='object')restored=raw.data;
-      else if(raw && raw.backup && typeof raw.backup==='object')restored=raw.backup;
-      else if(raw && raw.database && typeof raw.database==='object')restored=raw.database;
-      else if(raw && raw.db && typeof raw.db==='object')restored=raw.db;
+      const wrappers=['data','backup','database','db','payload','state'];
+      let changed=true;
+      while(changed && restored && typeof restored==='object' && !Array.isArray(restored)){
+        changed=false;
+        for(const key of wrappers){
+          if(restored[key] && typeof restored[key]==='object'){
+            // Only unwrap if the wrapper looks like a database object.
+            const v=restored[key];
+            if(Array.isArray(v.expenses)||Array.isArray(v.people)||Array.isArray(v.banks)||
+               Array.isArray(v.accounts)||Array.isArray(v.transactions)){
+              restored=v;
+              changed=true;
+              break;
+            }
+          }
+        }
+      }
 
-      const expenses=Array.isArray(restored.expenses)?restored.expenses:
-                     Array.isArray(restored.items)?restored.items:
-                     Array.isArray(restored.records)?restored.records:[];
-      const people=Array.isArray(restored.people)?restored.people:
-                   Array.isArray(restored.persons)?restored.persons:['Me'];
-      const categories=Array.isArray(restored.categories)?restored.categories:
-                       Array.isArray(restored.cats)?restored.cats:[...DEFAULT_CATS];
-      const banks=Array.isArray(restored.banks)?restored.banks:
-                  Array.isArray(restored.accounts)?restored.accounts:
-                  [{id:'cash',name:'Cash',balance:0,openingBalance:0}];
-      const bankTransactions=Array.isArray(restored.bankTransactions)?restored.bankTransactions:
-                             Array.isArray(restored.accountTransactions)?restored.accountTransactions:
-                             Array.isArray(restored.transactions)?restored.transactions:[];
+      // Some backups are a raw expenses array.
+      if(Array.isArray(restored)) restored={expenses:restored};
 
-      if(!expenses.length && !banks.length)throw new Error('No EVR data found');
+      const expenses =
+        Array.isArray(restored.expenses) ? restored.expenses :
+        Array.isArray(restored.expenseList) ? restored.expenseList :
+        Array.isArray(restored.items) ? restored.items :
+        Array.isArray(restored.records) ? restored.records : [];
+
+      const people =
+        Array.isArray(restored.people) ? restored.people :
+        Array.isArray(restored.persons) ? restored.persons :
+        Array.isArray(restored.users) ? restored.users : [];
+
+      const categories =
+        Array.isArray(restored.categories) ? restored.categories :
+        Array.isArray(restored.cats) ? restored.cats : [];
+
+      const banks =
+        Array.isArray(restored.banks) ? restored.banks :
+        Array.isArray(restored.accounts) ? restored.accounts :
+        Array.isArray(restored.bankAccounts) ? restored.bankAccounts : [];
+
+      const bankTransactions =
+        Array.isArray(restored.bankTransactions) ? restored.bankTransactions :
+        Array.isArray(restored.accountTransactions) ? restored.accountTransactions :
+        Array.isArray(restored.transactions) ? restored.transactions : [];
+
+      // Also accept an EVR backup that has only expenses/people/categories.
+      const hasEVRData = expenses.length || people.length || categories.length ||
+                         banks.length || bankTransactions.length;
+      if(!hasEVRData) throw new Error('No recognizable EVR data found');
+
+      const cleanExpenses=expenses.map((e,i)=>({
+        ...e,
+        id:e.id || ('restored_'+Date.now()+'_'+i),
+        name:e.name ?? e.expense ?? e.title ?? '',
+        amount:Number(e.amount ?? e.value ?? 0),
+        category:e.category ?? e.cat ?? 'Other',
+        person:e.person ?? e.personName ?? 'General',
+        date:e.date ?? e.expenseDate ?? '',
+        dueDate:e.dueDate ?? e.due ?? '',
+        payment:e.payment ?? e.paymentMode ?? e.mode ?? 'Other',
+        status:e.status ?? 'Pending',
+        notes:e.notes ?? ''
+      }));
+
+      const cleanPeople=people.length?people:['Me'];
+      const cleanCategories=categories.length?categories:[...DEFAULT_CATS];
+      const cleanBanks=banks.length?banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}];
+
       if(!confirm('Restore this backup? Current data in this app will be replaced.'))return;
 
       db={
-        banks:banks.length?banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}],
+        banks:cleanBanks,
         bankTransactions:bankTransactions,
-        expenses:expenses,
-        people:people.length?people:['Me'],
-        categories:categories.length?categories:[...DEFAULT_CATS],
+        expenses:cleanExpenses,
+        people:cleanPeople,
+        categories:cleanCategories,
         version:6,
         updatedAt:new Date().toISOString()
       };
+
       localStorage.setItem(KEY,JSON.stringify(db));
       renderAll();
-      page('dashboard',document.querySelector('#mainNav button'));
+
+      const home=document.querySelector('#mainNav button');
+      page('dashboard',home);
+
       toast('Backup restored successfully.');
     }catch(e){
-      console.error(e);
-      alert('The selected file is not a readable EVR JSON backup.');
-    }finally{event.target.value=''}
+      console.error('EVR restore error:',e);
+      alert('This backup could not be read. Please select an EVR JSON backup file.');
+    }finally{
+      event.target.value='';
+    }
   };
   reader.readAsText(file);
 }
