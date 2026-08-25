@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EVR Personal Expense Manager</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#20242a}
@@ -649,168 +646,147 @@ function pdfSummary(rows){
   return {total,paid,pending,overdue};
 }
 
-function makePDF(title,subtitle,rows,filename,peopleText=''){
-  if(!window.pdfMake){
-    alert('PDF library is not loaded. Please check your internet connection and try again.');
-    return;
-  }
 
-  rows=sortDateDesc(rows);
-  const s=pdfSummary(rows);
-  const people=peopleText || [...new Set(
-    rows.map(e=>String(e.person||'').trim()).filter(Boolean)
-  )].join(' • ');
+/* =========================================================
+   OFFLINE PDF ENGINE
+   No CDN, no browser Print dialog, no web address.
+   Creates the PDF directly as a downloadable Blob.
+   ========================================================= */
+function pdfSafe(v){
+  return String(v??'')
+    .replace(/₹/g,'Rs.')
+    .replace(/•/g,'-')
+    .replace(/[^\x20-\x7E]/g,'')
+    .replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+}
+function pdfText(cmd,x,y,text,size,bold){
+  const font=bold?'F2':'F1';
+  return `BT /${font} ${size||8} Tf 1 0 0 1 ${x.toFixed(2)} ${y.toFixed(2)} Tm (${pdfSafe(text)}) Tj ET\n`;
+}
+function pdfLine(x1,y1,x2,y2){
+  return `${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S\n`;
+}
+function pdfRect(x,y,w,h,fill){
+  return fill?`${fill} rg ${x} ${y} ${w} ${h} re f\n`:`${x} ${y} ${w} ${h} re S\n`;
+}
+function pdfMakeDocument(pages){
+  const objects=[];
+  const add=o=>{objects.push(o);return objects.length};
 
-  const body=rows.map(e=>[
-    fmtDate(e.date),
-    String(e.name||''),
-    money(e.amount),
-    String(e.category||''),
-    String(e.person||''),
-    String(e.payment||''),
-    e.dueDate ? fmtDate(e.dueDate) : '-',
-    statusOf(e)
-  ]);
+  const catalog=add(null);
+  const pagesObj=add(null);
+  const font1=add(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>`);
+  const font2=add(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>`);
+  const pageRefs=[];
 
-  const summaryCard=(label,value)=>({
-    table:{
-      widths:['*'],
-      body:[[
-        {
-          stack:[
-            {text:label,fontSize:8,color:'#667085',margin:[0,0,0,4]},
-            {text:value,bold:true,fontSize:12,color:'#20242a'}
-          ],
-          margin:[8,7,8,7]
-        }
-      ]]
-    },
-    layout:{
-      hLineColor:'#cfd4dc',
-      vLineColor:'#cfd4dc',
-      hLineWidth:()=>0.8,
-      vLineWidth:()=>0.8,
-      fillColor:()=>'#f8fafc',
-      paddingLeft:()=>0,
-      paddingRight:()=>0,
-      paddingTop:()=>0,
-      paddingBottom:()=>0
-    }
+  pages.forEach(content=>{
+    const stream=`${content}`;
+    const contentObj=add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    const pageObj=add(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 ${font1} 0 R /F2 ${font2} 0 R >> >> /Contents ${contentObj} 0 R >>`);
+    pageRefs.push(pageObj);
   });
 
-  const tableBody=[
-    [
-      {text:'Date',bold:true,color:'#ffffff'},
-      {text:'Expense',bold:true,color:'#ffffff'},
-      {text:'Amount',bold:true,color:'#ffffff'},
-      {text:'Category',bold:true,color:'#ffffff'},
-      {text:'Person',bold:true,color:'#ffffff'},
-      {text:'Payment',bold:true,color:'#ffffff'},
-      {text:'Due',bold:true,color:'#ffffff'},
-      {text:'Status',bold:true,color:'#ffffff'}
-    ],
-    ...body.map(r=>r.map((v,i)=>({
-      text:String(v),
-      fontSize:8,
-      color:'#20242a',
-      bold:i===2
-    })))
-  ];
+  objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageRefs.map(n=>n+' 0 R').join(' ')}] /Count ${pageRefs.length} >>`;
+  objects[catalog-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
 
-  const doc={
-    pageSize:'A4',
-    pageOrientation:'portrait',
-    pageMargins:[36,30,36,30],
-    defaultStyle:{
-      font:'Roboto',
-      fontSize:8,
-      color:'#20242a'
-    },
+  let pdf='%PDF-1.4\n%\xE2\xE3\xCF\xD3\n';
+  const offsets=[0];
+  objects.forEach((o,i)=>{
+    offsets[i+1]=pdf.length;
+    pdf+=`${i+1} 0 obj\n${o}\nendobj\n`;
+  });
+  const xref=pdf.length;
+  pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+  for(let i=1;i<=objects.length;i++) pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
 
-    /* Important: no footer URL, no browser URL, no link field. */
-    content:[
-      {
-        text:title || 'EVR Dashboard',
-        fontSize:21,
-        bold:true,
-        color:'#111827',
-        margin:[0,0,0,7]
-      },
+  return new Blob([pdf],{type:'application/pdf'});
+}
 
-      subtitle ? {
-        text:subtitle,
-        fontSize:10,
-        color:'#111827',
-        margin:[0,0,0,12]
-      } : null,
+function downloadPDFBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename||'EVR-Report.pdf';
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
 
-      {
-        columns:[
-          summaryCard('Total',money(s.total)),
-          summaryCard('Paid',money(s.paid)),
-          summaryCard('Pending',money(s.pending)),
-          summaryCard('Overdue',money(s.overdue))
-        ],
-        columnGap:8,
-        margin:[0,0,0,10]
-      },
+function makePDF(title,subtitle,rows,filename,peopleText=''){
+  rows=sortDateDesc(rows||[]);
+  const s=pdfSummary(rows);
+  const people=peopleText || [...new Set(rows.map(e=>String(e.person||'').trim()).filter(Boolean))].join(' - ');
 
-      people ? {
-        table:{
-          widths:['*'],
-          body:[[
-            {
-              text:[
-                {text:'People: ',bold:true,fontSize:10},
-                ...people.split(' • ').flatMap((p,i)=>[
-                  {text:p,bold:true,fontSize:10,background:'#eef4ff',color:'#173b7a',margin:[2,1,2,1]},
-                  ...(i<people.split(' • ').length-1?[{text:'  •  ',color:'#64748b'}]:[])
-                ])
-              ],
-              margin:[8,6,8,6]
-            }
-          ]]
-        },
-        layout:{
-          hLineColor:'#d4dbe5',
-          vLineColor:'#d4dbe5',
-          hLineWidth:()=>0.8,
-          vLineWidth:()=>0.8,
-          fillColor:()=>'#f8fafc',
-          paddingLeft:()=>0,
-          paddingRight:()=>0,
-          paddingTop:()=>0,
-          paddingBottom:()=>0
-        },
-        margin:[0,0,0,10]
-      } : null,
+  const pages=[];
+  let c='';
+  let y=800;
+  const left=36, right=559, width=523;
 
-      {
-        table:{
-          headerRows:1,
-          widths:['12%','18%','12%','12%','12%','13%','10%','11%'],
-          body:tableBody
-        },
-        layout:{
-          fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f3f6f9':null),
-          hLineColor:'#cfd4dc',
-          vLineColor:'#cfd4dc',
-          hLineWidth:()=>0.7,
-          vLineWidth:()=>0.7,
-          paddingLeft:()=>5,
-          paddingRight:()=>5,
-          paddingTop:()=>4,
-          paddingBottom:()=>4
-        }
-      }
-    ].filter(Boolean)
-  };
+  function newPage(){
+    if(c) pages.push(c);
+    c='';
+    y=800;
+    c+=pdfText('x',left,y,title||'EVR Report',21,true); y-=25;
+    if(subtitle){c+=pdfText('',left,y,subtitle,9,false);y-=20;}
+    // Summary cards
+    const vals=[['Total',money(s.total)],['Paid',money(s.paid)],['Pending',money(s.pending)],['Overdue',money(s.overdue)]];
+    const gap=7, cw=(width-gap*3)/4;
+    vals.forEach((v,i)=>{
+      const x=left+i*(cw+gap);
+      c+='0.96 0.97 0.98 rg '+x+' '+(y-40)+' '+cw+' 40 re f\n';
+      c+='0.78 0.81 0.86 RG '+x+' '+(y-40)+' '+cw+' 40 re S\n';
+      c+=pdfText('',x+7,y-14,v[0],7,false);
+      c+=pdfText('',x+7,y-31,v[1],10,true);
+    });
+    y-=55;
+    if(people){
+      c+='0.95 0.97 1 rg '+left+' '+(y-25)+' '+width+' 25 re f\n';
+      c+='0.78 0.84 0.92 RG '+left+' '+(y-25)+' '+width+' 25 re S\n';
+      c+=pdfText('',left+8,y-16,'People: '+people,8,true);
+      y-=38;
+    }
+    // table header
+    const headers=['Date','Expense','Amount','Category','Person','Payment','Due','Status'];
+    const ws=[58,125,63,66,62,70,50,29];
+    let x=left;
+    c+='0.145 0.39 0.92 rg '+left+' '+(y-20)+' '+width+' 20 re f\n';
+    headers.forEach((h,i)=>{c+=pdfText('',x+3,y-14,h,6,true);x+=ws[i]});
+    y-=20;
+  }
+  function row(e,index){
+    const vals=[fmtDate(e.date),e.name,money(e.amount),e.category,e.person,e.payment,e.dueDate?fmtDate(e.dueDate):'-',statusOf(e)];
+    const ws=[58,125,63,66,62,70,50,29];
+    const h=20;
+    if(y-h<38){newPage();}
+    if(index%2===1){
+      c+='0.96 0.97 0.98 rg '+left+' '+(y-h)+' '+width+' '+h+' re f\n';
+    }
+    c+='0.80 0.83 0.87 RG '+left+' '+(y-h)+' '+width+' '+h+' re S\n';
+    let x=left;
+    vals.forEach((v,i)=>{
+      let t=String(v??'');
+      const max=Math.max(3,Math.floor(ws[i]/4.2));
+      if(t.length>max)t=t.slice(0,max-1)+'...';
+      c+=pdfText('',x+3,y-14,t,6,i===2);
+      x+=ws[i];
+    });
+    y-=h;
+  }
+
+  newPage();
+  rows.forEach((e,i)=>row(e,i));
+  if(!rows.length)c+=pdfText('',left,y-14,'No expenses for this selection.',9,false);
+  pages.push(c);
 
   try{
-    pdfMake.createPdf(doc).download(filename||'EVR-Report.pdf');
+    downloadPDFBlob(pdfMakeDocument(pages),filename||'EVR-Report.pdf');
+    toast('PDF downloaded.');
   }catch(err){
-    console.error(err);
-    alert('PDF could not be created. Please try again.');
+    console.error('PDF error:',err);
+    alert('PDF could not be created.');
   }
 }
 
