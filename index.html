@@ -14,6 +14,10 @@
 .dash-head{display:flex;align-items:baseline;gap:8px}.dash-head .period-label{font-size:12px;color:#64748b}.dashboard-period{margin-top:16px}.period-inline{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.period-inline .group{min-width:150px}.quick-links{display:flex;gap:8px;flex-wrap:wrap}.section-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.bank-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.bank-tabs button.active{background:#1769e8;color:#fff}.bank-sub{display:none}.bank-sub.active{display:block}
 .bottom-nav{position:fixed;left:0;right:0;bottom:0;height:68px;background:#061a3d;color:#fff;display:grid;grid-template-columns:repeat(6,1fr);z-index:90;box-shadow:0 -3px 12px rgba(0,0,0,.18)}.bottom-nav button{border:0;background:transparent;color:#fff;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.bottom-nav button .ico{font-size:17px;line-height:1}.bottom-nav button.active{background:#0d2c61}.menu-panel{position:fixed;top:64px;left:10px;background:#fff;border:1px solid #dbe2ea;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.16);padding:8px;display:none;z-index:80;min-width:190px}.menu-panel.show{display:block}.menu-panel button{width:100%;text-align:left;border:0;background:#fff;padding:10px;border-radius:7px}.menu-panel button:hover{background:#f1f5f9}
 @media(max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr}.currency-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){body{padding-bottom:70px}.container{padding:13px 10px 90px}.stats{grid-template-columns:repeat(2,1fr)}.form-grid,.filters,.report-stats{grid-template-columns:1fr}.currency-grid{grid-template-columns:1fr}.top{height:58px;padding:0 12px}.top .logo::after{font-size:19px}.top-right{font-size:13px}.bottom-nav{height:64px}.bottom-nav button{font-size:9px}.bottom-nav button .ico{font-size:15px}h1{font-size:22px}.card{padding:13px}.table-wrap{margin-left:-4px;margin-right:-4px}.dashboard-period .period-inline .group{min-width:120px}}
+
+.desktop-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border-bottom:1px solid #dbe2ea;padding:10px 14px;position:sticky;top:64px;z-index:45;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.desktop-nav button{border:0;background:#edf1f6;color:#172033;border-radius:8px;padding:10px 13px;font-weight:700;font-size:12px;cursor:pointer}.desktop-nav button:hover{background:#dfe7f2}.desktop-nav .primary-nav{background:#1769e8;color:#fff}.desktop-nav .pdf-nav{background:#16a34a;color:#fff}.desktop-nav .danger-nav{background:#f3f4f6;color:#172033}
+@media(max-width:650px){.desktop-nav{display:none}.top{top:0}}
 </style>
 <style id="evr-backup-pdf-actions">.action-bar .btn{min-height:38px}.btn{min-height:36px}.action-bar button{font-weight:700}</style>
 </head>
@@ -21,6 +25,18 @@
 
 <div id="application">
 <header class="top"><div class="top-left"><button class="hamb" onclick="toggleMenu()">☰</button><div class="logo">EVR</div></div><div class="top-right">Personal</div></header>
+<nav class="desktop-nav" id="desktopNav">
+  <button class="primary-nav" onclick="page('dashboard')">Dashboard</button>
+  <button onclick="page('expenses')">Expenses</button>
+  <button onclick="page('upcoming')">Upcoming</button>
+  <button onclick="page('overdue')">Overdue</button>
+  <button onclick="page('people')">People</button>
+  <button onclick="page('categories')">Categories</button>
+  <button onclick="page('reports')">Reports</button>
+  <button onclick="page('banks')">Cash &amp; Banks</button>
+  <button onclick="page('backup')">Backup / Restore</button>
+  <button class="pdf-nav" onclick="page('reports')">📄 Save PDF</button>
+</nav>
 <div id="menuPanel" class="menu-panel">
   <button onclick="page('categories');toggleMenu()">Categories</button>
   <button onclick="page('backup');toggleMenu()">💾 Backup &amp; Restore</button>
@@ -113,12 +129,12 @@
 <div class="card"><h2>Add Person</h2><div class="group"><label>Person Name</label><input id="newPerson" placeholder="Person name"></div><div class="buttons"><button class="btn success" onclick="addPerson()">Add Person</button></div></div>
 <div class="card"><h2>People List</h2><div id="peopleList"></div></div></div></section>
 
-<section id="categories" class="page"><h1>Categories</h1><div class="grid2">
+<section id="categories" class="page"><div class="section-bar"><h1>Categories</h1><button class="btn success" onclick="saveExpensesPDF()">📄 Save PDF</button></div><div class="grid2">
 <div class="card"><h2>Add Category</h2><div class="group"><label>Category Name</label><input id="newCategory" placeholder="Category name"></div><div class="buttons"><button class="btn success" onclick="addCategory()">Add Category</button></div></div>
 <div class="card"><h2>Category List</h2><div id="categoryList"></div></div></div></section>
 
 <section id="reports" class="page">
-<h1>Reports</h1>
+<div class="section-bar"><h1>Reports</h1><div class="buttons" style="margin-top:0"><button class="btn success" onclick="periodPDF()">📄 Save Current Report PDF</button><button class="btn primary" onclick="allExpensesPDF()">📄 Save All Expenses PDF</button></div></div>
 <div class="card"><h2>Daily / Monthly / Yearly Report</h2>
 <div class="form-grid">
 <div class="group"><label>Report Type</label><select id="reportType" onchange="renderPeriodReport()"><option value="daily">Daily</option><option value="monthly" selected>Monthly</option><option value="yearly">Yearly</option></select></div>
@@ -194,7 +210,7 @@
 <div id="bankSubAtm" class="bank-sub"><div class="card"><h2>8D. ATM Withdrawal</h2><div class="form-grid"><div class="group"><label>From Bank</label><select id="subAtmFrom"></select></div><div class="group"><label>Amount</label><input id="subAtmAmount" type="number" min="0" step="0.01"></div><div class="group"><label>Date</label><input id="subAtmDate" type="date"></div><div class="group full"><label>Notes</label><input id="subAtmNote"></div></div><div class="buttons"><button class="btn primary" onclick="saveBankSubTransaction('atm')">Save</button></div><div class="notice"><b>Important:</b> ATM withdrawal deducts from the bank only. It does NOT automatically increase Cash.</div></div></div>
 </section>
 
-<section id="backup" class="page">
+<section id="backup" class="page"><div class="section-bar"><h1>Backup / Restore</h1><button class="btn success" onclick="allExpensesPDF()">📄 Save All Expenses PDF</button></div>
 <div class="card" style="border-left:4px solid #2563eb">
 <h2>💾 Backup &amp; Restore</h2>
 <p class="subtle">Use these buttons to save all EVR data or restore an earlier EVR backup.</p>
@@ -204,7 +220,7 @@
 <button class="btn light" onclick="importJSON()">Restore Selected Backup</button>
 </div>
 </div>
-<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><h1>Backup / Restore</h1><button class="btn primary" onclick="backupNow()">💾 Backup Now</button></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span></span><button class="btn primary" onclick="backupNow()">💾 Backup Now</button></div>
 <div class="grid2">
 <div class="card"><h2>Export Full Backup JSON</h2><p>Save expenses, people, categories and settings as one JSON backup file.</p><button class="btn primary" onclick="exportJSON()">Download Full Backup JSON</button></div>
 <div class="card"><h2>Import Full Backup JSON</h2><p>Restore a previous complete backup.</p><input id="importFile" type="file" accept=".json,.JSON,application/json,text/json,text/plain"><div class="buttons"><button class="btn success" onclick="importJSON()">Import Full Backup</button></div></div>
@@ -1162,7 +1178,7 @@ function saveBankSubTransaction(kind){ensureBanks();let type=kind,from='',to='',
 const _oldRenderDashboard=renderDashboard;
 renderDashboard=function(){_oldRenderDashboard();ensureBanks();const el=document.getElementById('dashboardBankBalance');if(el)el.textContent=money(db.banks.reduce((s,b)=>s+Number(b.balance||0),0));const m=document.getElementById('dashboardMonth'),y=document.getElementById('dashboardYear');if(m&&y){const now=new Date();if(!m.value)m.value=String(now.getMonth()+1);if(!y.value)y.value=String(now.getFullYear())}};
 const _oldPage=page;
-page=function(id,btn){_oldPage(id,btn);document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));const map={dashboard:0,expenses:1,upcoming:2,people:3,banks:4,reports:5};if(map[id]!=null){const b=document.querySelectorAll('.bottom-nav button')[map[id]];if(b)b.classList.add('active')}if(id==='banks')syncBankSubSelects();if(id==='dashboard')initDashboardPeriod();};
+page=function(id,btn){_oldPage(id,btn);document.querySelectorAll('.desktop-nav button').forEach(b=>b.classList.remove('primary-nav'));const dmap={dashboard:0,expenses:1,upcoming:2,overdue:3,people:4,categories:5,reports:6,banks:7,backup:8};if(dmap[id]!=null){const db=document.querySelectorAll('.desktop-nav button')[dmap[id]];if(db)db.classList.add('primary-nav');}document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));const map={dashboard:0,expenses:1,upcoming:2,people:3,banks:4,reports:5};if(map[id]!=null){const b=document.querySelectorAll('.bottom-nav button')[map[id]];if(b)b.classList.add('active')}if(id==='banks')syncBankSubSelects();if(id==='dashboard')initDashboardPeriod();};
 window.addEventListener('load',function(){syncBankSubSelects();});
 
 // Final dashboard behavior: latest/current month by default; selecting Dashboard Period changes only the dashboard month.
