@@ -2,3476 +2,987 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111827">
-<title>EVR Expenses</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EVR Personal Expense Manager</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
-
-:root{
-  --blue:#2563eb;
-  --blue2:#3b82f6;
-  --dark:#111827;
-  --bg:#f3f6fb;
-  --card:#ffffff;
-  --text:#20242c;
-  --muted:#687386;
-  --border:#d8dee8;
-  --green:#16a34a;
-  --orange:#f59e0b;
-  --red:#dc2626;
-  --purple:#7c3aed;
-}
-
-html,body{
-  margin:0;
-  padding:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
-
-body{
-  min-height:100vh;
-}
-
-button,
-input,
-select,
-textarea{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-.header{
-  background:var(--dark);
-  color:white;
-  min-height:110px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:25px 45px;
-}
-
-.header h1{
-  margin:0;
-  font-size:38px;
-  font-weight:700;
-}
-
-.header span{
-  font-size:25px;
-}
-
-.nav{
-  background:white;
-  border-bottom:1px solid #ddd;
-  display:flex;
-  gap:14px;
-  padding:18px 24px;
-  overflow-x:auto;
-  position:sticky;
-  top:0;
-  z-index:50;
-}
-
-.nav button{
-  border:0;
-  background:#eef1f6;
-  color:var(--blue);
-  padding:15px 28px;
-  border-radius:13px;
-  font-size:20px;
-  white-space:nowrap;
-}
-
-.nav button.active{
-  background:var(--blue);
-  color:white;
-}
-
-.container{
-  max-width:1250px;
-  margin:auto;
-  padding:30px 24px 120px;
-}
-
-.page{
-  display:none;
-}
-
-.page.active{
-  display:block;
-}
-
-.page-title{
-  font-size:48px;
-  margin:10px 0 30px;
-}
-
-.card{
-  background:white;
-  border-radius:22px;
-  padding:28px;
-  margin-bottom:22px;
-  box-shadow:0 5px 22px rgba(20,30,50,.06);
-}
-
-.card h2{
-  margin-top:0;
-  font-size:28px;
-}
-
-.card h3{
-  font-size:22px;
-}
-
-.period{
-  display:flex;
-  gap:20px;
-  align-items:end;
-  flex-wrap:wrap;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  flex:1;
-  min-width:150px;
-}
-
-.field label{
-  font-weight:700;
-  font-size:16px;
-}
-
-input,
-select,
-textarea{
-  width:100%;
-  padding:14px;
-  border:1px solid #cbd3df;
-  border-radius:12px;
-  background:white;
-  outline:none;
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-  border-color:var(--blue);
-  box-shadow:0 0 0 3px rgba(37,99,235,.1);
-}
-
-textarea{
-  min-height:90px;
-  resize:vertical;
-}
-
-.info{
-  background:#eef5ff;
-  border-left:6px solid var(--blue);
-  padding:20px;
-  border-radius:8px;
-  font-size:20px;
-  margin-bottom:25px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-}
-
-.stat{
-  background:white;
-  border-radius:22px;
-  padding:28px;
-  border-left:6px solid var(--blue);
-  box-shadow:0 5px 20px rgba(0,0,0,.05);
-}
-
-.stat.paid{border-left-color:var(--green)}
-.stat.pending{border-left-color:var(--orange)}
-.stat.overdue{border-left-color:var(--red)}
-.stat.people{border-left-color:var(--purple)}
-
-.stat small{
-  color:var(--muted);
-  font-size:18px;
-}
-
-.stat strong{
-  display:block;
-  font-size:30px;
-  margin-top:14px;
-}
-
-.btn{
-  border:0;
-  border-radius:11px;
-  padding:13px 20px;
-  font-weight:700;
-  background:var(--blue);
-  color:white;
-}
-
-.btn:hover{
-  opacity:.9;
-}
-
-.btn.secondary{
-  background:#64748b;
-}
-
-.btn.green{
-  background:var(--green);
-}
-
-.btn.orange{
-  background:var(--orange);
-}
-
-.btn.red{
-  background:var(--red);
-}
-
-.btn.purple{
-  background:var(--purple);
-}
-
-.btn.light{
-  background:#eef1f6;
-  color:#1d4ed8;
-}
-
-.btn.small{
-  padding:8px 12px;
-  font-size:14px;
-}
-
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.table-wrap{
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:950px;
-}
-
-th{
-  background:var(--blue);
-  color:white;
-  padding:13px;
-  text-align:left;
-  font-size:16px;
-}
-
-td{
-  padding:12px;
-  border:1px solid #d5dbe5;
-  background:white;
-}
-
-tr:nth-child(even) td{
-  background:#f8fafc;
-}
-
-.badge{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:700;
-}
-
-.badge.paid{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.badge.pending{
-  background:#fef3c7;
-  color:#92400e;
-}
-
-.badge.overdue{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.badge.other{
-  background:#e2e8f0;
-  color:#334155;
-}
-
-.people-list{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.person{
-  background:#eff6ff;
-  color:#1d4ed8;
-  border-radius:9px;
-  padding:7px 11px;
-  font-weight:700;
-}
-
-.balance-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
-}
-
-.balance-card{
-  border-radius:20px;
-  padding:24px;
-  background:white;
-  border-left:6px solid var(--blue);
-  box-shadow:0 5px 18px rgba(0,0,0,.05);
-}
-
-.balance-card.cash{
-  border-left-color:var(--green);
-}
-
-.balance-card h3{
-  margin:0 0 10px;
-}
-
-.balance{
-  font-size:28px;
-  font-weight:700;
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:200;
-  padding:20px;
-  overflow:auto;
-}
-
-.modal.show{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.modal-box{
-  background:white;
-  width:100%;
-  max-width:700px;
-  border-radius:20px;
-  padding:28px;
-  max-height:90vh;
-  overflow:auto;
-}
-
-.modal-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.close{
-  border:0;
-  background:#eee;
-  border-radius:50%;
-  width:42px;
-  height:42px;
-  font-size:25px;
-}
-
-.form-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-
-.form-full{
-  grid-column:1/-1;
-}
-
-.bottom-nav{
-  display:flex;
-  gap:8px;
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:white;
-  border-top:1px solid #ddd;
-  padding:10px;
-  z-index:100;
-  overflow-x:auto;
-}
-
-.bottom-nav button{
-  flex:1;
-  min-width:90px;
-  border:0;
-  background:#f1f5f9;
-  color:#2563eb;
-  border-radius:10px;
-  padding:10px 8px;
-}
-
-.bottom-nav button.active{
-  background:#2563eb;
-  color:white;
-}
-
-.empty{
-  text-align:center;
-  color:var(--muted);
-  padding:30px;
-}
-
-.search{
-  margin-bottom:18px;
-}
-
-.transfer-arrow{
-  font-size:30px;
-  text-align:center;
-  padding-top:25px;
-}
-
-.success{
-  background:#dcfce7;
-  color:#166534;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
-.warning{
-  background:#fff7ed;
-  color:#9a3412;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
-.danger{
-  background:#fee2e2;
-  color:#991b1b;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-
-.footer-space{
-  height:80px;
-}
-
-/* PRINT / PDF */
-@media print{
-
-  body{
-    background:white;
-  }
-
-  .header,
-  .nav,
-  .bottom-nav,
-  .no-print,
-  .actions,
-  button{
-    display:none !important;
-  }
-
-  .container{
-    max-width:none;
-    padding:0;
-  }
-
-  .page{
-    display:none !important;
-  }
-
-  .page.print-target{
-    display:block !important;
-  }
-
-  .card,
-  .stat,
-  .balance-card{
-    box-shadow:none;
-    border:1px solid #ddd;
-    break-inside:avoid;
-  }
-
-  table{
-    min-width:0;
-    width:100%;
-  }
-
-  th{
-    background:#2563eb !important;
-    color:white !important;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-  }
-
-  @page{
-    size:A4;
-    margin:12mm;
-  }
-
-  /* Important: no website URL/footer is added */
-}
-
-/* MOBILE */
-@media(max-width:800px){
-
-  .header{
-    min-height:95px;
-    padding:20px;
-  }
-
-  .header h1{
-    font-size:30px;
-  }
-
-  .header span{
-    font-size:20px;
-  }
-
-  .nav{
-    padding:12px;
-  }
-
-  .nav button{
-    padding:12px 20px;
-    font-size:17px;
-  }
-
-  .container{
-    padding:22px 16px 110px;
-  }
-
-  .page-title{
-    font-size:40px;
-  }
-
-  .stats{
-    grid-template-columns:1fr;
-  }
-
-  .balance-grid{
-    grid-template-columns:1fr;
-  }
-
-  .form-grid{
-    grid-template-columns:1fr;
-  }
-
-  .form-full{
-    grid-column:auto;
-  }
-
-  .card{
-    padding:22px;
-  }
-
-  .stat{
-    padding:25px;
-  }
-
-  .period{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-
-  .period .field{
-    min-width:0;
-  }
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#20242a}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.top{background:#111827;color:#fff;padding:17px 25px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:bold}
+.nav{background:#fff;padding:12px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid #ddd}
+.nav button{border:0;background:#edf0f4;padding:11px 16px;border-radius:8px;white-space:nowrap}
+.nav button.active{background:#2563eb;color:#fff}
+.container{max-width:1500px;margin:auto;padding:25px}
+.page{display:none}.page.active{display:block}
+.card{background:#fff;border-radius:16px;padding:22px;margin-bottom:22px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
+h1{font-size:34px;margin-top:0}h2{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:15px}
+.stat{background:#fff;padding:20px;border-radius:15px;border-left:5px solid #2563eb}
+.stat.green{border-left-color:#16a34a}.stat.orange{border-left-color:#f59e0b}
+.stat.red{border-left-color:#dc2626}.stat.purple{border-left-color:#7c3aed}
+.stat small{color:#667085}.stat strong{display:block;font-size:25px;margin-top:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.group{display:flex;flex-direction:column;gap:7px}.full{grid-column:1/-1}
+label{font-weight:bold}
+input,select,textarea{padding:12px;border:1px solid #ccd3dc;border-radius:8px;background:#fff}
+textarea{min-height:90px}
+.btn{border:0;border-radius:8px;padding:11px 16px;font-weight:bold}
+.primary{background:#2563eb;color:#fff}.success{background:#16a34a;color:#fff}
+.danger{background:#dc2626;color:#fff}.warning{background:#f59e0b;color:#fff}
+.secondary{background:#667085;color:#fff}.light{background:#edf0f4}
+.buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}
+th:last-child,td:last-child{min-width:210px}
+th{background:#f5f7fa}
+.status{padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
+.paid{background:#d8f7e5;color:#08783b}.pending{background:#fff1cd;color:#935d00}
+.overdue{background:#ffe0e0;color:#b00000}
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.manage-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f5f7fa;border-radius:8px;margin-bottom:8px}
+.report-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}
+.report-stat{background:#f5f7fa;padding:18px;border-radius:12px}
+.report-stat strong{display:block;font-size:24px;margin-top:6px}
+.notice{background:#eef5ff;border-left:4px solid #2563eb;padding:14px;border-radius:7px;margin-bottom:20px}
+.empty{text-align:center;color:#667085;padding:25px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.show{display:flex}
+.modal-box{width:100%;max-width:850px;max-height:94vh;overflow:auto;background:#fff;padding:25px;border-radius:16px}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.close{border:0;background:#edf0f4;width:38px;height:38px;border-radius:50%;font-size:22px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.stats-grid .stat{background:#fff;border:1px solid #ddd;border-radius:12px;padding:12px;border-left:5px solid #2563eb}
+.stats-grid .stat b{display:block;font-size:12px;opacity:.7}
+.stats-grid .stat strong{display:block;font-size:20px;margin-top:4px}
+.action-row{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;flex-wrap:nowrap;white-space:nowrap}
+.action-row .btn{padding:8px 11px;flex:0 0 auto;white-space:nowrap}
+.page-pdf-bottom{display:flex;justify-content:center;align-items:center;width:100%;padding:24px 20px 34px;margin-top:28px}
+.page-pdf-bottom .btn{min-width:280px}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+  .stats,.grid2,.form-grid,.filters,.report-stats{grid-template-columns:1fr}
+  .container{padding:15px}
+  .page-pdf-bottom{padding:20px 14px 28px}
+  .page-pdf-bottom .btn{width:100%;min-width:0}
 }
 </style>
 </head>
 
 <body>
+<header class="top"><div class="logo">EVR Expenses</div><div>Personal</div></header>
 
-<header class="header">
-  <h1>EVR Expenses</h1>
-  <span>Personal</span>
-</header>
-
-<nav class="nav no-print">
-  <button onclick="showPage('dashboard')" id="nav-dashboard">Dashboard</button>
-  <button onclick="showPage('expenses')" id="nav-expenses">Expenses</button>
-  <button onclick="showPage('upcoming')" id="nav-upcoming">Upcoming</button>
-  <button onclick="showPage('overdue')" id="nav-overdue">Overdue</button>
-  <button onclick="showPage('people')" id="nav-people">People</button>
-  <button onclick="showPage('banks')" id="nav-banks">Cash & Banks</button>
-  <button onclick="showPage('transactions')" id="nav-transactions">Transactions</button>
-  <button onclick="showPage('backup')" id="nav-backup">Backup</button>
+<nav class="nav">
+  <button onclick="page('dashboard',this)" class="active">Dashboard</button>
+  <button onclick="page('expenses',this)">Expenses</button>
+  <button onclick="page('upcoming',this)">Upcoming</button>
+  <button onclick="page('people',this)">People</button>
+  <button onclick="page('categories',this)">Categories</button>
+  <button onclick="page('reports',this)">Reports</button><button onclick="page('banks',this)">Cash &amp; Banks</button>
+  <button onclick="page('backup',this)">Backup / Export</button>
 </nav>
 
 <main class="container">
 
-<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="page active">
+<h1>Dashboard</h1>
+<div class="card">
+  <h2>Dashboard Period</h2>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+    <div class="group"><label>Month</label><select id="dashboardMonth" onchange="renderDashboard()"></select></div>
+    <div class="group"><label>Year</label><select id="dashboardYear" onchange="renderDashboard()"></select></div>
+  </div>
+</div>
+<div class="notice">All expenses are recorded in <b>₹ INR</b>. Data is automatically saved in this browser.</div>
+<div class="stats">
+  <div class="stat"><small>Total Expenses</small><strong id="totalAmount">₹0.00</strong></div>
+  <div class="stat green"><small>Paid</small><strong id="paidAmount">₹0.00</strong></div>
+  <div class="stat orange"><small>Pending</small><strong id="pendingAmount">₹0.00</strong></div>
+  <div class="stat red"><small>Overdue</small><strong id="overdueAmount">₹0.00</strong></div>
+  <div class="stat purple"><small>People</small><strong id="peopleCount">0</strong></div>
+</div>
 
-<section id="dashboard" class="page">
 
-  <h1 class="page-title">Dashboard</h1>
+<div class="card" style="margin-top:18px">
+  <div class="section-head">
+    <h2>Latest Transactions — Current Month</h2>
+  </div>
+  <div id="dashboardCurrentPeriod" class="table-wrap" style="margin-top:12px"></div>
 
+</div>
+<div class="card" style="margin-top:18px"><h2>Bank &amp; Cash Available Balances</h2><div id="dashboardBanks" class="stats-grid"></div></div><div class="grid2">
   <div class="card">
-    <h2>Dashboard</h2>
-
-    <div class="info">
-      Showing the latest/current month automatically.
-      Only current-month transactions and overdue expenses are shown on the dashboard.
-      Latest transactions appear first.
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h2>Recent Transactions</h2><button class="btn primary" onclick="openExpense()">+ Add Expense</button>
     </div>
-
-    <div class="period">
-      <div class="field">
-        <label>Month</label>
-        <select id="dashMonth" onchange="renderDashboard()"></select>
-      </div>
-
-      <div class="field">
-        <label>Year</label>
-        <select id="dashYear" onchange="renderDashboard()"></select>
-      </div>
-    </div>
+    <div id="recent"></div>
   </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <small>Total Expenses</small>
-      <strong id="dashTotal">₹0.00</strong>
-    </div>
-
-    <div class="stat paid">
-      <small>Paid</small>
-      <strong id="dashPaid">₹0.00</strong>
-    </div>
-
-    <div class="stat pending">
-      <small>Pending</small>
-      <strong id="dashPending">₹0.00</strong>
-    </div>
-
-    <div class="stat overdue">
-      <small>Overdue</small>
-      <strong id="dashOverdue">₹0.00</strong>
-    </div>
-
-  </div>
-
-  <div class="card" style="margin-top:22px">
-    <h2>Cash & Bank Available Balance</h2>
-    <div id="dashboardBalances" class="balance-grid"></div>
-  </div>
-
   <div class="card">
-    <h2>People</h2>
-    <div id="dashboardPeople" class="people-list"></div>
-  </div>
-
-  <div class="card">
-    <h2>Latest Transactions</h2>
-    <div id="dashboardTransactions"></div>
-  </div>
-
-  <div class="card">
-    <h2>Upcoming — Next 7 Days</h2>
-    <div id="dashboardUpcoming"></div>
-  </div>
-
-  <div class="card">
-    <h2>Overdue</h2>
-    <div id="dashboardOverdue"></div>
-  </div>
-
-  <div class="card no-print">
-    <div class="actions">
-      <button class="btn" onclick="printPage('dashboard')">
-        Save Dashboard as PDF
-      </button>
-
-      <button class="btn secondary" onclick="showPage('transactions')">
-        Bank Transactions
-      </button>
+    <h2>Upcoming Expenses</h2>
+    <div id="upcomingTotal" class="notice">0 expenses · ₹0.00</div>
+    <div id="da
+<div class="card" style="margin-top:18px">
+  <div class="section-head">
+    <h2>Dashboard Period</h2>
+    <div class="buttons">
+      <select id="dashboardPeriodMonth" onchange="renderDashboardPeriod()"></select>
+      <select id="dashboardPeriodYear" onchange="renderDashboardPeriod()"></select>
+      <button class="btn primary" onclick="renderDashboardPeriod()">Show</button>
     </div>
   </div>
-
+  <div id="dashboardPeriod" class="table-wrap" style="margin-top:12px"></div>
+</div>
+shboardUpcoming"></div>
+  </div>
+</div>
+<div class="page-pdf-bottom"><button type="button" class="btn primary" onclick="saveDashboardPDF()">📄 Save Dashboard as PDF</button></div>
 </section>
-
-
-<!-- ================= EXPENSES ================= -->
 
 <section id="expenses" class="page">
-
-  <h1 class="page-title">Expenses</h1>
-
-  <div class="card no-print">
-
-    <div class="actions">
-      <button class="btn" onclick="openExpenseModal()">
-        + Add Expense
-      </button>
-
-      <button class="btn light" onclick="printPage('expenses')">
-        Save Expenses PDF
-      </button>
-    </div>
-
+<h1>Expenses</h1>
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <h2>All Expenses</h2><button class="btn primary" onclick="openExpense()">+ Add Expense</button>
   </div>
-
-  <div class="card no-print">
-
-    <input
-      id="expenseSearch"
-      class="search"
-      placeholder="Search expense, person, category, payment..."
-      oninput="renderExpenses()"
-    >
-
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Person</label>
-        <select id="expenseFilterPerson" onchange="renderExpenses()">
-          <option value="">All People</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Category</label>
-        <select id="expenseFilterCategory" onchange="renderExpenses()">
-          <option value="">All Categories</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Status</label>
-        <select id="expenseFilterStatus" onchange="renderExpenses()">
-          <option value="">All Status</option>
-          <option>Paid</option>
-          <option>Pending</option>
-          <option>Overdue</option>
-        </select>
-      </div>
-
-    </div>
-
+  <br>
+  <div class="filters">
+    <div class="group"><label>Search</label><input id="search" oninput="renderExpenses()" placeholder="Search"></div>
+    <div class="group"><label>Person</label><select id="filterPerson" onchange="renderExpenses()"></select></div>
+    <div class="group"><label>Category</label><select id="filterCategory" onchange="renderExpenses()"></select></div>
+    <div class="group"><label>Status</label><select id="filterStatus" onchange="renderExpenses()"><option value="">All</option><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
   </div>
-
-  <div class="card">
-
-    <div id="expensesTable"></div>
-
+  <div id="expensesSummary" class="stats-grid" style="margin:16px 0"></div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Payment Mode</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="expenseTable"></tbody></table>
   </div>
-
+</div>
+<div class="page-pdf-bottom"><button type="button" class="btn primary" onclick="saveExpensesPDF()">📄 Save Expenses as PDF</button></div>
 </section>
-
-
-<!-- ================= UPCOMING ================= -->
 
 <section id="upcoming" class="page">
-
-  <h1 class="page-title">Upcoming</h1>
-
-  <div class="card">
-
-    <div class="info">
-      This page shows <b>all upcoming expenses</b>, not only the next 7 days.
-    </div>
-
-    <div id="upcomingTable"></div>
-
-  </div>
-
-  <div class="card no-print">
-    <button class="btn" onclick="printPage('upcoming')">
-      Save Upcoming PDF
-    </button>
-  </div>
-
+<h1>Upcoming &amp; Overdue</h1>
+<div class="grid2">
+  <div class="card"><h2>Upcoming</h2><div id="upcomingSummary" class="notice">0 expenses · ₹0.00</div><div id="upcomingList"></div></div>
+  <div class="card"><h2>Overdue</h2><div id="overdueSummary" class="notice">0 expenses · ₹0.00</div><div id="overdueList"></div></div>
+</div>
+<div class="page-pdf-bottom"><button type="button" class="btn primary" onclick="saveUpcomingPDF()">📄 Save Upcoming &amp; Overdue as PDF</button></div>
 </section>
-
-
-<!-- ================= OVERDUE ================= -->
-
-<section id="overdue" class="page">
-
-  <h1 class="page-title">Overdue</h1>
-
-  <div class="card">
-
-    <div id="overdueTable"></div>
-
-  </div>
-
-  <div class="card no-print">
-    <button class="btn" onclick="printPage('overdue')">
-      Save Overdue PDF
-    </button>
-  </div>
-
-</section>
-
-
-<!-- ================= PEOPLE ================= -->
 
 <section id="people" class="page">
-
-  <h1 class="page-title">People</h1>
-
-  <div class="card no-print">
-
-    <div class="actions">
-
-      <button class="btn" onclick="openPersonModal()">
-        + Add Person
-      </button>
-
-    </div>
-
-  </div>
-
-  <div id="peopleList"></div>
-
+<h1>People</h1>
+<div class="grid2">
+  <div class="card"><h2>Add Person</h2><div class="group"><label>Person Name</label><input id="newPerson" placeholder="Person name"></div><div class="buttons"><button class="btn success" onclick="addPerson()">Add Person</button></div></div>
+  <div class="card"><h2>People List</h2><div id="peopleList"></div></div>
+</div>
 </section>
 
+<section id="categories" class="page">
+<h1>Categories</h1>
+<div class="grid2">
+  <div class="card"><h2>Add Category</h2><div class="group"><label>Category Name</label><input id="newCategory" placeholder="Category name"></div><div class="buttons"><button class="btn success" onclick="addCategory()">Add Category</button></div></div>
+  <div class="card"><h2>Category List</h2><div id="categoryList"></div></div>
+</div>
+</section>
 
-<!-- ================= CASH & BANKS ================= -->
+<section id="reports" class="page">
+<h1>Reports</h1>
+
+<div class="card">
+<h2>Period Report</h2>
+<div class="form-grid">
+  <div class="group"><label>Period</label><select id="reportType" onchange="renderPeriodReport()"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="yearly">Yearly</option></select></div>
+  <div class="group" id="reportDateBox"><label>Date</label><input id="reportDate" type="date" onchange="renderPeriodReport()"></div>
+  <div class="group" id="reportMonthBox"><label>Month</label><select id="reportMonth" onchange="renderPeriodReport()"></select></div>
+  <div class="group" id="reportYearBox"><label>Year</label><select id="reportYear" onchange="renderPeriodReport()"></select></div>
+</div>
+<div id="periodReport"></div>
+<div class="page-pdf-bottom"><button class="btn primary" onclick="periodPDF()">📄 Save Period Report as PDF</button></div>
+</div>
+
+<div class="card">
+<h2>Person Report</h2>
+<div class="form-grid">
+  <div class="group"><label>Person</label><select id="personReportPerson" onchange="renderPersonReport()"></select></div>
+  <div class="group"><label>Period</label><select id="personReportType" onchange="renderPersonReport()"><option value="all">All</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+  <div class="group" id="personReportDateWrap"><label>Date</label><input id="personReportDate" type="date" onchange="renderPersonReport()"></div>
+  <div class="group" id="personReportMonthWrap"><label>Month</label><select id="personReportMonth" onchange="renderPersonReport()"></select></div>
+  <div class="group" id="personReportYearWrap"><label>Year</label><select id="personReportYear" onchange="renderPersonReport()"></select></div>
+</div>
+<div id="personReport"></div>
+<div class="page-pdf-bottom"><button class="btn primary" onclick="personPDF()">📄 Save Person Report as PDF</button></div>
+</div>
+
+<div class="card">
+<h2>Category Report</h2>
+<div class="form-grid">
+  <div class="group"><label>Category</label><select id="categoryReportCategory" onchange="renderCategoryReport()"></select></div>
+  <div class="group"><label>Period</label><select id="categoryReportType" onchange="renderCategoryReport()"><option value="all">All</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+  <div class="group" id="categoryReportDateWrap"><label>Date</label><input id="categoryReportDate" type="date" onchange="renderCategoryReport()"></div>
+  <div class="group" id="categoryReportMonthWrap"><label>Month</label><select id="categoryReportMonth" onchange="renderCategoryReport()"></select></div>
+  <div class="group" id="categoryReportYearWrap"><label>Year</label><select id="categoryReportYear" onchange="renderCategoryReport()"></select></div>
+</div>
+<div id="categoryReport"></div>
+<div class="page-pdf-bottom"><button class="btn primary" onclick="categoryPDF()">📄 Save Category Report as PDF</button></div>
+</div>
+
+<div class="card">
+<h2>Upcoming Expenses Report</h2><div id="upcomingReport"></div>
+<div class="page-pdf-bottom"><button class="btn primary" onclick="upcomingReportPDF()">📄 Save Upcoming Report as PDF</button></div>
+</div>
+</section>
 
 <section id="banks" class="page">
-
-  <h1 class="page-title">Cash & Banks</h1>
-
-  <div class="card">
-
-    <h2>Available Balances</h2>
-
-    <div id="balanceCards" class="balance-grid"></div>
-
-  </div>
-
-  <div class="card no-print">
-
-    <h2>Add Bank</h2>
-
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Bank Name</label>
-        <input id="newBankName" placeholder="Example: HDFC Bank">
-      </div>
-
-      <div class="field">
-        <label>Opening / Current Balance</label>
-        <input id="newBankBalance" type="number" step="0.01" placeholder="0">
-      </div>
-
-    </div>
-
-    <br>
-
-    <button class="btn" onclick="addBank()">
-      Add Bank
-    </button>
-
-  </div>
-
-  <div class="card no-print">
-
-    <h2>Manage Banks</h2>
-
-    <div id="manageBanks"></div>
-
-  </div>
-
-  <div class="card no-print">
-
-    <h2>Add Amount / Credit</h2>
-
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Account</label>
-        <select id="creditAccount"></select>
-      </div>
-
-      <div class="field">
-        <label>Amount</label>
-        <input id="creditAmount" type="number" step="0.01">
-      </div>
-
-      <div class="field">
-        <label>Description</label>
-        <input id="creditDescription" placeholder="Salary / Deposit / Credit">
-      </div>
-
-    </div>
-
-    <br>
-
-    <button class="btn green" onclick="addCredit()">
-      Add Amount
-    </button>
-
-  </div>
-
-  <div class="card no-print">
-
-    <h2>Bank to Bank Transfer</h2>
-
-    <div class="form-grid">
-
-      <div class="field">
-        <label>From Bank</label>
-        <select id="transferFrom"></select>
-      </div>
-
-      <div class="transfer-arrow">
-        →
-      </div>
-
-      <div class="field">
-        <label>To Bank</label>
-        <select id="transferTo"></select>
-      </div>
-
-      <div class="field">
-        <label>Amount</label>
-        <input id="transferAmount" type="number" step="0.01">
-      </div>
-
-      <div class="field">
-        <label>Note</label>
-        <input id="transferNote" placeholder="Transfer">
-      </div>
-
-    </div>
-
-    <br>
-
-    <button class="btn purple" onclick="makeTransfer()">
-      Transfer Money
-    </button>
-
-  </div>
-
-  <div class="card no-print">
-
-    <h2>ATM Withdrawal</h2>
-
-    <div class="warning">
-      ATM withdrawal decreases the selected bank balance.
-      It does <b>NOT</b> automatically increase Cash.
-      Add cash manually if you want the cash balance to increase.
-    </div>
-
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Bank</label>
-        <select id="atmBank"></select>
-      </div>
-
-      <div class="field">
-        <label>Amount</label>
-        <input id="atmAmount" type="number" step="0.01">
-      </div>
-
-      <div class="field">
-        <label>Note</label>
-        <input id="atmNote" placeholder="ATM Withdrawal">
-      </div>
-
-    </div>
-
-    <br>
-
-    <button class="btn orange" onclick="atmWithdraw()">
-      Withdraw from ATM
-    </button>
-
-  </div>
-
-  <div class="card no-print">
-
-    <button class="btn" onclick="printPage('banks')">
-      Save Cash & Bank PDF
-    </button>
-
-  </div>
-
+<h1>Cash &amp; Banks</h1>
+<div class="card">
+<h2>Accounts</h2>
+<div id="bankList"></div>
+<div class="buttons">
+<button class="btn primary" onclick="openAddBank()">Add Bank</button>
+<button class="btn light" onclick="openAddAmount()">Add Amount</button>
+<button class="btn light" onclick="openTransfer()">Transfer</button>
+<button class="btn light" onclick="openATM()">ATM Withdrawal</button>
+</div>
+<div class="stat purple" style="margin-top:14px"><small>Total Available Balance</small><strong id="allBankBalance">₹0.00</strong></div>
+</div>
+<div class="card">
+<h2>Transactions</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Date</th><th>Account</th><th>Description</th><th>Type</th><th>Payment</th><th>Amount</th></tr></thead>
+<tbody id="bankHistory"></tbody>
+</table></div>
+</div>
+<div class="card" style="text-align:center">
+<button class="btn primary" onclick="saveBanksPDF()">Save as PDF</button>
+</div>
 </section>
 
+<div id="bankModal" class="modal">
+<div class="modal-box">
+<div class="modal-head"><h2 id="bankModalTitle">Add Bank</h2><button class="icon-btn" onclick="closeBankModal()">×</button></div>
+<div class="form-grid">
+<div class="group"><label>Bank / Account Name</label><input id="bankModalName"></div>
+<div class="group"><label>Available Balance</label><input id="bankModalBalance" type="number" min="0" step="0.01"></div>
+</div>
+<div class="buttons"><button class="btn primary" onclick="saveBank()">Save</button><button class="btn light" onclick="closeBankModal()">Cancel</button></div>
+</div></div>
 
-<!-- ================= TRANSACTIONS ================= -->
-
-<section id="transactions" class="page">
-
-  <h1 class="page-title">Bank Transactions</h1>
-
-  <div class="card">
-
-    <div class="info">
-      This page shows bank/cash balances and all account transactions.
-    </div>
-
-    <div id="transactionBalances" class="balance-grid"></div>
-
-  </div>
-
-  <div class="card">
-
-    <div id="transactionTable"></div>
-
-  </div>
-
-  <div class="card no-print">
-
-    <button class="btn" onclick="printPage('transactions')">
-      Save Bank Transactions PDF
-    </button>
-
-  </div>
-
-</section>
-
-
-<!-- ================= BACKUP ================= -->
+<div id="bankActionModal" class="modal">
+<div class="modal-box">
+<div class="modal-head"><h2 id="bankActionTitle">Add Amount</h2><button class="icon-btn" onclick="closeBankAction()">×</button></div>
+<div class="form-grid">
+<div class="group"><label>Account</label><select id="bankActionAccount"></select></div>
+<div class="group"><label>Amount</label><input id="bankActionAmount" type="number" min="0.01" step="0.01"></div>
+<div class="group"><label>Date</label><input id="bankActionDate" type="date"></div>
+<div class="group"><label>Description</label><input id="bankActionDescription"></div>
+<div class="group" id="bankActionToWrap" style="display:none"><label>To Account</label><select id="bankActionTo"></select></div>
+</div>
+<div class="buttons"><button class="btn primary" onclick="saveBankAction()">Save</button><button class="btn light" onclick="closeBankAction()">Cancel</button></div>
+</div></div>
 
 <section id="backup" class="page">
-
-  <h1 class="page-title">Backup & Restore</h1>
-
+<h1>Backup / Export</h1>
+<div class="grid2">
   <div class="card">
-
-    <h2>Backup All Data</h2>
-
-    <p>
-      Save all your EVR Expenses data to a backup file.
-    </p>
-
-    <button class="btn green" onclick="backupData()">
-      Backup All Data
-    </button>
-
+    <h2>Backup</h2><p>Save all expenses, people and categories as a JSON backup.</p>
+    <div class="buttons"><button class="btn primary" onclick="backupNow()">⬇ Export Full Backup</button><button class="btn secondary" onclick="exportAllCSV()">⬇ Export Expenses CSV</button></div>
+    <hr style="margin:22px 0;border:0;border-top:1px solid #ddd">
+    <h2>Restore</h2><p>Restore a previously exported EVR JSON backup.</p>
+    <input type="file" id="restoreFile" accept=".json,application/json" onchange="restoreJSON(event)">
   </div>
-
   <div class="card">
-
-    <h2>Restore Backup</h2>
-
-    <p>
-      Select an EVR backup JSON file to restore your data.
-    </p>
-
-    <input
-      type="file"
-      id="restoreFile"
-      accept=".json,application/json"
-      onchange="restoreData(event)"
-    >
-
+    <h2>Backup Reminder</h2>
+    <div class="group"><label>Reminder frequency</label><select id="backupReminderFrequency" onchange="saveBackupReminderSettings()"><option value="1">Every day</option><option value="7">Every 7 days</option><option value="14">Every 14 days</option><option value="30">Every 30 days</option></select></div>
+    <p id="backupStatus" class="notice">No backup downloaded yet.</p>
+    <div class="buttons"><button class="btn light" onclick="resetBackupReminder()">Reset reminder</button><button class="btn danger" onclick="clearAll()">Clear all data</button></div>
   </div>
-
-  <div class="card">
-
-    <h2>Data Protection</h2>
-
-    <div class="warning">
-      Restoring a backup replaces the current data in this browser.
-      Make a new backup before restoring if you want to keep the current data.
-    </div>
-
-  </div>
-
-  <div class="card">
-
-    <h2>Reset Application</h2>
-
-    <button class="btn red" onclick="resetApp()">
-      Delete All App Data
-    </button>
-
-  </div>
-
+</div>
 </section>
 
 </main>
 
-
-<!-- ================= BOTTOM NAV ================= -->
-
-<div class="bottom-nav no-print">
-
-  <button onclick="showPage('dashboard')">Home</button>
-  <button onclick="showPage('expenses')">Expenses</button>
-  <button onclick="showPage('upcoming')">Upcoming</button>
-  <button onclick="showPage('overdue')">Overdue</button>
-  <button onclick="showPage('banks')">Cash & Banks</button>
-  <button onclick="showPage('transactions')">Transactions</button>
-  <button onclick="showPage('backup')">Backup</button>
-
-</div>
-
-
-<!-- ================= EXPENSE MODAL ================= -->
-
 <div id="expenseModal" class="modal">
-
   <div class="modal-box">
-
-    <div class="modal-head">
-
-      <h2 id="expenseModalTitle">Add Expense</h2>
-
-      <button class="close" onclick="closeModal('expenseModal')">
-        ×
-      </button>
-
-    </div>
-
+    <div class="modal-head"><h2 id="modalTitle">Add Expense</h2><button class="close" onclick="closeExpense()">×</button></div>
     <div class="form-grid">
-
-      <div class="field">
-        <label>Date</label>
-        <input id="expenseDate" type="date">
-      </div>
-
-      <div class="field">
-        <label>Expense</label>
-        <input id="expenseName" placeholder="House Rent">
-      </div>
-
-      <div class="field">
-        <label>Amount</label>
-        <input id="expenseAmount" type="number" step="0.01">
-      </div>
-
-      <div class="field">
-        <label>Category</label>
-        <input id="expenseCategory" placeholder="Bills / Food / EMI">
-      </div>
-
-      <div class="field">
-        <label>Person</label>
-        <select id="expensePerson"></select>
-      </div>
-
-      <div class="field">
-        <label>Status</label>
-        <select id="expenseStatus" onchange="expenseStatusChanged()">
-          <option>Pending</option>
-          <option>Paid</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Payment Account / Mode</label>
-        <select id="expenseAccount">
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Payment Method</label>
-        <select id="expenseMethod">
-          <option>UPI</option>
-          <option>Cash</option>
-          <option>Debit Card</option>
-          <option>Credit Card</option>
-          <option>Bank Transfer</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Due Date</label>
-        <input id="expenseDueDate" type="date">
-      </div>
-
-      <div class="field form-full">
-        <label>Notes</label>
-        <textarea id="expenseNotes"></textarea>
-      </div>
-
+      <div class="group"><label>Expense</label><input id="eName"></div>
+      <div class="group"><label>Amount</label><input id="eAmount" type="number" min="0" step="0.01"></div>
+      <div class="group"><label>Category</label><select id="eCategory"></select></div>
+      <div class="group"><label>Person</label><select id="ePerson"></select></div>
+      <div class="group"><label>Date</label><input id="eDate" type="date"></div>
+      <div class="group"><label>Due Date</label><input id="eDueDate" type="date"></div>
+      <div class="group"><label>Payment Mode</label><select id="ePayment"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Debit Card</option><option>Credit Card</option><option>Other</option></select></div>
+      <div class="group"><label>Status</label><select id="eStatus"><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
+      <div class="group full"><label>Notes</label><textarea id="eNotes" placeholder="Optional"></textarea></div>
     </div>
-
-    <br>
-
-    <div class="info">
-      <b>Pending:</b> no balance is deducted.
-      <br>
-      <b>Paid:</b> selected Cash/Bank balance is reduced.
-      <br>
-      <b>Other:</b> no Cash/Bank balance changes.
-    </div>
-
-    <div class="actions">
-
-      <button class="btn" onclick="saveExpense()">
-        Save Expense
-      </button>
-
-      <button class="btn secondary" onclick="closeModal('expenseModal')">
-        Cancel
-      </button>
-
-    </div>
-
+    <div class="buttons"><button class="btn primary" onclick="saveExpense()">Save Expense</button><button class="btn light" onclick="closeExpense()">Cancel</button></div>
   </div>
-
 </div>
 
-
-<!-- ================= PERSON MODAL ================= -->
-
-<div id="personModal" class="modal">
-
-  <div class="modal-box">
-
-    <div class="modal-head">
-
-      <h2>Add Person</h2>
-
-      <button class="close" onclick="closeModal('personModal')">
-        ×
-      </button>
-
-    </div>
-
-    <div class="field">
-      <label>Person Name</label>
-      <input id="newPersonName" placeholder="Name">
-    </div>
-
-    <br>
-
-    <div class="actions">
-
-      <button class="btn" onclick="addPerson()">
-        Add Person
-      </button>
-
-      <button class="btn secondary" onclick="closeModal('personModal')">
-        Cancel
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
+<div id="toast" style="position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:13px 17px;border-radius:9px;display:none;z-index:300"></div>
 
 <script>
-
-/* =========================================================
-   EVR EXPENSES
-   SINGLE FILE APPLICATION
-========================================================= */
-
-const STORAGE_KEY = "EVR_EXPENSES_FINAL_V1";
-
-let db = {
-  expenses: [],
-  people: ["Viju"],
-  accounts: [
-    {
-      id:"cash",
-      name:"Cash",
-      type:"cash",
-      balance:0
-    }
-  ],
-  transactions: []
-};
-
-let editingExpenseId = null;
-
-
-/* =========================================================
-   BASIC UTILITIES
-========================================================= */
-
-function uid(prefix="id"){
-  return prefix + "_" +
-    Date.now().toString(36) +
-    "_" +
-    Math.random().toString(36).slice(2,8);
-}
-
-function money(value){
-  return "₹" + Number(value || 0).toLocaleString("en-IN",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
-  });
-}
-
-function todayISO(){
-  const d = new Date();
-  return localDateISO(d);
-}
-
-function localDateISO(date){
-  const y = date.getFullYear();
-  const m = String(date.getMonth()+1).padStart(2,"0");
-  const d = String(date.getDate()).padStart(2,"0");
-  return `${y}-${m}-${d}`;
-}
-
-function formatDate(date){
-  if(!date) return "-";
-
-  const p = date.split("-");
-
-  if(p.length !== 3) return date;
-
-  return `${p[2]}-${p[1]}-${p[0]}`;
-}
-
-function saveDB(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
-}
-
-function loadDB(){
-
-  const saved = localStorage.getItem(STORAGE_KEY);
-
-  if(saved){
-
-    try{
-      const parsed = JSON.parse(saved);
-
-      db = {
-        expenses:Array.isArray(parsed.expenses)
-          ? parsed.expenses : [],
-
-        people:Array.isArray(parsed.people)
-          ? parsed.people : ["Viju"],
-
-        accounts:Array.isArray(parsed.accounts)
-          ? parsed.accounts : [
-              {
-                id:"cash",
-                name:"Cash",
-                type:"cash",
-                balance:0
-              }
-            ],
-
-        transactions:Array.isArray(parsed.transactions)
-          ? parsed.transactions : []
-      };
-
-    }catch(e){
-      console.error(e);
-    }
-
-  }
-
-  if(!db.accounts.some(a=>a.id==="cash")){
-
-    db.accounts.unshift({
-      id:"cash",
-      name:"Cash",
-      type:"cash",
-      balance:0
-    });
-
-  }
-
-  saveDB();
-}
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-function showPage(page){
-
-  document.querySelectorAll(".page").forEach(p=>{
-    p.classList.remove("active");
-    p.classList.remove("print-target");
-  });
-
-  const target = document.getElementById(page);
-
-  if(target){
-    target.classList.add("active");
-  }
-
-  document.querySelectorAll(".nav button").forEach(b=>{
-    b.classList.remove("active");
-  });
-
-  const nav = document.getElementById("nav-"+page);
-
-  if(nav){
-    nav.classList.add("active");
-  }
-
-  renderAll();
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-}
-
-
-/* =========================================================
-   PERIOD
-========================================================= */
-
-function populatePeriods(){
-
-  const month = document.getElementById("dashMonth");
-  const year = document.getElementById("dashYear");
-
-  if(!month || !year) return;
-
-  const now = new Date();
-
-  month.innerHTML = "";
-
-  const months = [
-    "January","February","March","April",
-    "May","June","July","August",
-    "September","October","November","December"
-  ];
-
-  months.forEach((m,i)=>{
-
-    const o = document.createElement("option");
-
-    o.value = i+1;
-    o.textContent = m;
-
-    if(i === now.getMonth()){
-      o.selected = true;
-    }
-
-    month.appendChild(o);
-
-  });
-
-  year.innerHTML = "";
-
-  const currentYear = now.getFullYear();
-
-  for(let y=currentYear-5;y<=currentYear+5;y++){
-
-    const o=document.createElement("option");
-
-    o.value=y;
-    o.textContent=y;
-
-    if(y===currentYear){
-      o.selected=true;
-    }
-
-    year.appendChild(o);
-
-  }
-
-}
-
-
-/* =========================================================
-   ACCOUNTS
-========================================================= */
-
-function accountById(id){
-  return db.accounts.find(a=>a.id===id);
-}
-
-function accountName(id){
-
-  const a = accountById(id);
-
-  return a ? a.name : "Other";
-}
-
+const KEY='evr_personal_expenses_v3';
+const DEFAULT_CATS=['Food','Travel','Rent','Utilities','Shopping','Medical','Education','Entertainment','Bills','Other'];
+let db=loadDB(),editId=null;
+
+function defaultDB(){return{banks:[{id:'cash',name:'Cash',balance:0,openingBalance:0}],bankTransactions:[],expenses:[],people:['Me'],categories:[...DEFAULT_CATS],version:3,updatedAt:new Date().toISOString()}}
+function loadDB(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.expenses)){x.people=Array.isArray(x.people)&&x.people.length?x.people:['Me'];x.categories=Array.isArray(x.categories)&&x.categories.length?x.categories:[...DEFAULT_CATS];return x}}catch(e){}return defaultDB()}
+
+let bankEditId=null, bankActionType=null;
+function bankById(id){return db.banks.find(b=>b.id===id)}
+function bankName(id){const b=bankById(id);return b?b.name:'Other'}
 function accountOptions(includeOther=true){
-
-  let html="";
-
-  db.accounts.forEach(a=>{
-
-    html += `
-      <option value="${a.id}">
-        ${escapeHtml(a.name)}
-      </option>
-    `;
-
-  });
-
-  if(includeOther){
-
-    html += `<option value="other">Other / No Balance Change</option>`;
-
-  }
-
-  return html;
+  let s='<option value="">— Select account —</option>';
+  s+=db.banks.map(b=>`<option value="${esc(b.id)}">${esc(b.name)}</option>`).join('');
+  if(includeOther)s+='<option value="OTHER">Other — no balance change</option>';
+  return s;
 }
-
-function refreshAccountSelects(){
-
-  const ids=[
-    "creditAccount",
-    "transferFrom",
-    "transferTo",
-    "atmBank",
-    "expenseAccount"
-  ];
-
-  ids.forEach(id=>{
-
-    const el=document.getElementById(id);
-
-    if(!el) return;
-
-    const old=el.value;
-
-    el.innerHTML=accountOptions(
-      id==="expenseAccount"
-    );
-
-    if([...el.options].some(o=>o.value===old)){
-      el.value=old;
-    }
-
-  });
-
-  const bankIds = db.accounts
-    .filter(a=>a.type==="bank")
-    .map(a=>a.id);
-
-  ["transferFrom","transferTo","atmBank"].forEach(id=>{
-
-    const el=document.getElementById(id);
-
-    if(!el) return;
-
-    const old=el.value;
-
-    el.innerHTML="";
-
-    bankIds.forEach(bankId=>{
-
-      const a=accountById(bankId);
-
-      const o=document.createElement("option");
-
-      o.value=bankId;
-      o.textContent=a.name;
-
-      el.appendChild(o);
-
-    });
-
-    if([...el.options].some(o=>o.value===old)){
-      el.value=old;
-    }
-
-  });
-
+function bankTx(t){
+  db.bankTransactions.push({id:'bt_'+Date.now()+'_'+Math.random().toString(36).slice(2),date:t.date||today(),accountId:t.accountId,description:t.description||'',type:t.type||'',payment:t.payment||'',amount:Number(t.amount||0)});
 }
-
-
-/* =========================================================
-   BANK MANAGEMENT
-========================================================= */
-
-function addBank(){
-
-  const name=document.getElementById("newBankName").value.trim();
-
-  const balance=Number(
-    document.getElementById("newBankBalance").value
-  );
-
-  if(!name){
-    alert("Please enter bank name.");
-    return;
-  }
-
-  if(balance<0){
-    alert("Balance cannot be negative.");
-    return;
-  }
-
-  db.accounts.push({
-    id:uid("bank"),
-    name,
-    type:"bank",
-    balance
-  });
-
-  if(balance>0){
-
-    db.transactions.push({
-      id:uid("txn"),
-      date:todayISO(),
-      type:"Credit",
-      accountId:db.accounts[db.accounts.length-1].id,
-      accountName:name,
-      amount:balance,
-      note:"Opening balance"
-    });
-
-  }
-
-  saveDB();
-
-  document.getElementById("newBankName").value="";
-  document.getElementById("newBankBalance").value="";
-
-  renderAll();
-
-  alert("Bank added successfully.");
-
+function openAddBank(){
+  bankEditId=null;document.getElementById('bankModalTitle').textContent='Add Bank';
+  document.getElementById('bankModalName').value='';document.getElementById('bankModalBalance').value='';
+  document.getElementById('bankModal').classList.add('show');
 }
-
-
+function editBank(id){
+  const b=bankById(id);if(!b)return;
+  bankEditId=id;document.getElementById('bankModalTitle').textContent='Edit Account';
+  document.getElementById('bankModalName').value=b.name;document.getElementById('bankModalBalance').value=b.balance;
+  document.getElementById('bankModal').classList.add('show');
+}
+function closeBankModal(){document.getElementById('bankModal').classList.remove('show')}
+function saveBank(){
+  const name=document.getElementById('bankModalName').value.trim(),bal=Number(document.getElementById('bankModalBalance').value);
+  if(!name||!Number.isFinite(bal)||bal<0){alert('Enter a valid name and balance.');return}
+  if(bankEditId){const b=bankById(bankEditId);b.name=name;b.balance=bal;b.openingBalance=bal}
+  else{
+    if(db.banks.some(b=>b.name.toLowerCase()===name.toLowerCase())){alert('Account already exists.');return}
+    db.banks.push({id:'b_'+Date.now(),name,balance:bal,openingBalance:bal});
+  }
+  closeBankModal();saveDB();toast('Account saved.');
+}
 function deleteBank(id){
-
-  const bank=accountById(id);
-
-  if(!bank) return;
-
-  if(bank.type!=="bank") return;
-
-  const used = db.expenses.some(e=>e.accountId===id) ||
-               db.transactions.some(t=>t.accountId===id ||
-                                      t.fromAccountId===id ||
-                                      t.toAccountId===id);
-
-  if(used){
-
-    alert(
-      "This bank has transactions and cannot be deleted."
-    );
-
-    return;
-
-  }
-
-  if(!confirm(
-    `Delete ${bank.name}?`
-  )) return;
-
-  db.accounts=db.accounts.filter(a=>a.id!==id);
-
-  saveDB();
-
-  renderAll();
-
+  if(id==='cash'){alert('Cash is a default account and cannot be deleted.');return}
+  if(db.expenses.some(e=>e.accountId===id)||db.bankTransactions.some(t=>t.accountId===id)){alert('This account has transactions and cannot be deleted.');return}
+  if(confirm(`Delete "${bankName(id)}"?`)){db.banks=db.banks.filter(b=>b.id!==id);saveDB()}
 }
-
-
-/* =========================================================
-   CREDITS
-========================================================= */
-
-function addCredit(){
-
-  const accountId=document.getElementById("creditAccount").value;
-
-  const amount=Number(
-    document.getElementById("creditAmount").value
-  );
-
-  const note=document.getElementById("creditDescription").value.trim();
-
-  if(!accountId){
-    alert("Select Cash or Bank.");
-    return;
-  }
-
-  if(accountId==="other"){
-    alert("Please select Cash or a Bank.");
-    return;
-  }
-
-  if(amount<=0){
-    alert("Enter a valid amount.");
-    return;
-  }
-
-  const account=accountById(accountId);
-
-  if(!account){
-    alert("Account not found.");
-    return;
-  }
-
-  account.balance += amount;
-
-  db.transactions.push({
-    id:uid("txn"),
-    date:todayISO(),
-    type:"Credit",
-    accountId,
-    accountName:account.name,
-    amount,
-    note:note || "Amount added"
-  });
-
-  saveDB();
-
-  document.getElementById("creditAmount").value="";
-  document.getElementById("creditDescription").value="";
-
-  renderAll();
-
-  alert("Amount added successfully.");
-
+function openAddAmount(){
+  bankActionType='credit';bankActionSetup('Add Amount',false);
 }
-
-
-/* =========================================================
-   BANK TRANSFER
-========================================================= */
-
-function makeTransfer(){
-
-  const from=document.getElementById("transferFrom").value;
-
-  const to=document.getElementById("transferTo").value;
-
-  const amount=Number(
-    document.getElementById("transferAmount").value
-  );
-
-  const note=document.getElementById("transferNote").value.trim();
-
-  if(!from || !to){
-    alert("Select both banks.");
-    return;
-  }
-
-  if(from===to){
-    alert("From and To bank must be different.");
-    return;
-  }
-
-  if(amount<=0){
-    alert("Enter a valid amount.");
-    return;
-  }
-
-  const fromAccount=accountById(from);
-
-  const toAccount=accountById(to);
-
-  if(!fromAccount || !toAccount){
-    alert("Bank not found.");
-    return;
-  }
-
-  if(fromAccount.balance < amount){
-
-    alert(
-      `Insufficient balance in ${fromAccount.name}.`
-    );
-
-    return;
-
-  }
-
-  fromAccount.balance -= amount;
-
-  toAccount.balance += amount;
-
-  db.transactions.push({
-
-    id:uid("txn"),
-
-    date:todayISO(),
-
-    type:"Transfer",
-
-    fromAccountId:from,
-
-    toAccountId:to,
-
-    accountName:
-      `${fromAccount.name} → ${toAccount.name}`,
-
-    amount,
-
-    note:note || "Bank transfer"
-
-  });
-
-  saveDB();
-
-  document.getElementById("transferAmount").value="";
-  document.getElementById("transferNote").value="";
-
-  renderAll();
-
-  alert("Transfer completed.");
-
+function openTransfer(){
+  bankActionType='transfer';bankActionSetup('Transfer Between Accounts',true);
 }
-
-
-/* =========================================================
-   ATM
-========================================================= */
-
-function atmWithdraw(){
-
-  const bankId=document.getElementById("atmBank").value;
-
-  const amount=Number(
-    document.getElementById("atmAmount").value
-  );
-
-  const note=document.getElementById("atmNote").value.trim();
-
-  const bank=accountById(bankId);
-
-  if(!bank){
-    alert("Select a bank.");
-    return;
-  }
-
-  if(amount<=0){
-    alert("Enter a valid amount.");
-    return;
-  }
-
-  if(bank.balance < amount){
-    alert("Insufficient bank balance.");
-    return;
-  }
-
-  bank.balance -= amount;
-
-  /*
-    IMPORTANT:
-    Cash is NOT increased automatically.
-  */
-
-  db.transactions.push({
-
-    id:uid("txn"),
-
-    date:todayISO(),
-
-    type:"ATM Withdrawal",
-
-    accountId:bankId,
-
-    accountName:bank.name,
-
-    amount,
-
-    note:note || "ATM Withdrawal"
-
-  });
-
-  saveDB();
-
-  document.getElementById("atmAmount").value="";
-  document.getElementById("atmNote").value="";
-
-  renderAll();
-
-  alert(
-    "ATM withdrawal recorded. Cash was NOT automatically increased."
-  );
-
+function openATM(){
+  bankActionType='atm';bankActionSetup('ATM Withdrawal',false);
 }
-
-
-/* =========================================================
-   EXPENSES
-========================================================= */
-
-function openExpenseModal(id=null){
-
-  editingExpenseId=id;
-
-  populatePersonSelect();
-
-  refreshAccountSelects();
-
-  document.getElementById("expenseModalTitle").textContent =
-    id ? "Edit Expense" : "Add Expense";
-
-  if(id){
-
-    const e=db.expenses.find(x=>x.id===id);
-
-    if(!e) return;
-
-    document.getElementById("expenseDate").value=e.date;
-    document.getElementById("expenseName").value=e.name;
-    document.getElementById("expenseAmount").value=e.amount;
-    document.getElementById("expenseCategory").value=e.category;
-    document.getElementById("expensePerson").value=e.person;
-    document.getElementById("expenseStatus").value=e.status;
-    document.getElementById("expenseAccount").value=e.accountId || "other";
-    document.getElementById("expenseMethod").value=e.method || "UPI";
-    document.getElementById("expenseDueDate").value=e.dueDate || "";
-    document.getElementById("expenseNotes").value=e.notes || "";
-
+function bankActionSetup(title,showTo){
+  document.getElementById('bankActionTitle').textContent=title;
+  document.getElementById('bankActionAccount').innerHTML=accountOptions(false);
+  document.getElementById('bankActionToWrap').style.display=showTo?'':'none';
+  if(showTo)document.getElementById('bankActionTo').innerHTML=accountOptions(false);
+  document.getElementById('bankActionDate').value=today();
+  document.getElementById('bankActionAmount').value='';
+  document.getElementById('bankActionDescription').value=title;
+  document.getElementById('bankActionModal').classList.add('show');
+}
+function closeBankAction(){document.getElementById('bankActionModal').classList.remove('show')}
+function saveBankAction(){
+  const from=document.getElementById('bankActionAccount').value,amt=Number(document.getElementById('bankActionAmount').value);
+  const date=document.getElementById('bankActionDate').value||today(),desc=document.getElementById('bankActionDescription').value.trim();
+  const fb=bankById(from);
+  if(!fb||!Number.isFinite(amt)||amt<=0){alert('Choose an account and enter a valid amount.');return}
+  if(bankActionType!=='credit'&&amt>fb.balance){alert(`Insufficient balance in ${fb.name}. Available: ${money(fb.balance)}`);return}
+  if(bankActionType==='credit'){
+    fb.balance+=amt;bankTx({date,accountId:from,description:desc||'Added Amount',type:'Credit',amount:amt});
+  }else if(bankActionType==='atm'){
+    fb.balance-=amt;
+    bankTx({date,accountId:from,description:desc||'ATM Withdrawal',type:'ATM Withdrawal',payment:'ATM',amount:-amt});
+    /* ATM withdrawal does NOT automatically add Cash. */
   }else{
-
-    document.getElementById("expenseDate").value=todayISO();
-    document.getElementById("expenseName").value="";
-    document.getElementById("expenseAmount").value="";
-    document.getElementById("expenseCategory").value="";
-    document.getElementById("expensePerson").value=
-      db.people[0] || "";
-    document.getElementById("expenseStatus").value="Pending";
-    document.getElementById("expenseAccount").value="other";
-    document.getElementById("expenseMethod").value="UPI";
-    document.getElementById("expenseDueDate").value="";
-    document.getElementById("expenseNotes").value="";
-
+    const to=document.getElementById('bankActionTo').value,tb=bankById(to);
+    if(!tb||to===from){alert('Choose a different destination account.');return}
+    fb.balance-=amt;tb.balance+=amt;
+    bankTx({date,accountId:from,description:desc||`Transfer to ${tb.name}`,type:'Transfer Out',payment:'Bank Transfer',amount:-amt});
+    bankTx({date,accountId:to,description:desc||`Transfer from ${fb.name}`,type:'Transfer In',payment:'Bank Transfer',amount:amt});
   }
-
-  document.getElementById("expenseModal").classList.add("show");
-
+  closeBankAction();saveDB();toast('Transaction saved.');
 }
-
-
-function expenseStatusChanged(){
-
-  const status=document.getElementById("expenseStatus").value;
-
-  const account=document.getElementById("expenseAccount");
-
-  if(status==="Pending"){
-
-    account.value="other";
-
-  }
-
-}
-
-
-function saveExpense(){
-
-  const date=document.getElementById("expenseDate").value;
-
-  const name=document.getElementById("expenseName").value.trim();
-
-  const amount=Number(
-    document.getElementById("expenseAmount").value
-  );
-
-  const category=document.getElementById("expenseCategory").value.trim();
-
-  const person=document.getElementById("expensePerson").value;
-
-  const status=document.getElementById("expenseStatus").value;
-
-  const accountId=document.getElementById("expenseAccount").value;
-
-  const method=document.getElementById("expenseMethod").value;
-
-  const dueDate=document.getElementById("expenseDueDate").value;
-
-  const notes=document.getElementById("expenseNotes").value.trim();
-
-
-  if(!date || !name || amount<=0){
-
-    alert(
-      "Please enter date, expense name and valid amount."
-    );
-
-    return;
-
-  }
-
-
-  /* Existing expense */
-  if(editingExpenseId){
-
-    const e=db.expenses.find(x=>x.id===editingExpenseId);
-
-    if(!e) return;
-
-
-    /*
-      Reverse previous balance effect first.
-    */
-
-    if(e.status==="Paid" &&
-       e.accountId &&
-       e.accountId!=="other"){
-
-      const oldAccount=accountById(e.accountId);
-
-      if(oldAccount){
-        oldAccount.balance += Number(e.amount);
-      }
-
-    }
-
-
-    e.date=date;
-    e.name=name;
-    e.amount=amount;
-    e.category=category;
-    e.person=person;
-    e.status=status;
-    e.accountId=
-      status==="Pending" ? "other" : accountId;
-    e.method=method;
-    e.dueDate=dueDate;
-    e.notes=notes;
-
-
-    /*
-      Apply new balance effect.
-    */
-
-    if(e.status==="Paid" &&
-       e.accountId &&
-       e.accountId!=="other"){
-
-      const account=accountById(e.accountId);
-
-      if(account){
-
-        if(account.balance < amount){
-
-          /*
-            Restore original state before stopping.
-          */
-
-          account.balance -= amount;
-
-          alert(
-            `Insufficient balance in ${account.name}.`
-          );
-
-          /*
-            Since old balance was restored and new deduction
-            failed, leave this as Other.
-          */
-
-          e.accountId="other";
-
-          saveDB();
-
-          closeModal("expenseModal");
-
-          renderAll();
-
-          return;
-        }
-
-        account.balance -= amount;
-
-      }
-
-    }
-
-
-    saveDB();
-
-    closeModal("expenseModal");
-
-    renderAll();
-
-    return;
-
-  }
-
-
-  /* New expense */
-
-  const e={
-
-    id:uid("expense"),
-
-    date,
-
-    name,
-
-    amount,
-
-    category,
-
-    person,
-
-    status,
-
-    accountId:
-      status==="Pending" ? "other" : accountId,
-
-    method,
-
-    dueDate,
-
-    notes,
-
-    createdAt:Date.now()
-
-  };
-
-
-  /*
-    Paid + real Cash/Bank account
-    means deduct immediately.
-  */
-
-  if(status==="Paid" &&
-     e.accountId &&
-     e.accountId!=="other"){
-
-    const account=accountById(e.accountId);
-
-    if(!account){
-
-      alert("Account not found.");
-
-      return;
-
-    }
-
-    if(account.balance < amount){
-
-      alert(
-        `Insufficient balance in ${account.name}.`
-      );
-
-      return;
-
-    }
-
-    account.balance -= amount;
-
-  }
-
-
-  db.expenses.push(e);
-
-  saveDB();
-
-  closeModal("expenseModal");
-
-  renderAll();
-
-}
-
-
-function deleteExpense(id){
-
-  const e=db.expenses.find(x=>x.id===id);
-
-  if(!e) return;
-
-  if(!confirm(
-    `Delete "${e.name}"?`
-  )) return;
-
-
-  /*
-    Return money to account if this paid expense
-    previously deducted a balance.
-  */
-
-  if(e.status==="Paid" &&
-     e.accountId &&
-     e.accountId!=="other"){
-
-    const account=accountById(e.accountId);
-
-    if(account){
-      account.balance += Number(e.amount);
-    }
-
-  }
-
-  db.expenses=db.expenses.filter(x=>x.id!==id);
-
-  saveDB();
-
-  renderAll();
-
-}
-
-
-function markPaid(id){
-
-  const e=db.expenses.find(x=>x.id===id);
-
-  if(!e) return;
-
-  openExpenseModal(id);
-
-}
-
-
-/* =========================================================
-   PEOPLE
-========================================================= */
-
-function populatePersonSelect(){
-
-  const el=document.getElementById("expensePerson");
-
-  if(!el) return;
-
-  el.innerHTML="";
-
-  db.people.forEach(p=>{
-
-    const o=document.createElement("option");
-
-    o.value=p;
-    o.textContent=p;
-
-    el.appendChild(o);
-
-  });
-
-}
-
-
-function openPersonModal(){
-
-  document.getElementById("newPersonName").value="";
-
-  document.getElementById("personModal").classList.add("show");
-
-}
-
-
-function addPerson(){
-
-  const name=document
-    .getElementById("newPersonName")
-    .value
-    .trim();
-
-  if(!name){
-    alert("Enter a name.");
-    return;
-  }
-
-  if(db.people.some(p=>p.toLowerCase()===name.toLowerCase())){
-
-    alert("This person already exists.");
-
-    return;
-
-  }
-
-  db.people.push(name);
-
-  saveDB();
-
-  closeModal("personModal");
-
-  renderAll();
-
-}
-
-
-function deletePerson(name){
-
-  const used=db.expenses.some(e=>e.person===name);
-
-  if(used){
-
-    alert(
-      "This person has expenses and cannot be deleted."
-    );
-
-    return;
-
-  }
-
-  if(!confirm(`Delete ${name}?`)) return;
-
-  db.people=db.people.filter(p=>p!==name);
-
-  saveDB();
-
-  renderAll();
-
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function statusOf(e){
-
-  if(e.status==="Paid") return "Paid";
-
-  if(e.dueDate){
-
-    const today=todayISO();
-
-    if(e.dueDate < today){
-
-      return "Overdue";
-
-    }
-
-  }
-
-  return "Pending";
-
-}
-
-
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
-function renderDashboard(){
-
-  const month=Number(
-    document.getElementById("dashMonth").value
-  );
-
-  const year=Number(
-    document.getElementById("dashYear").value
-  );
-
-
-  const monthRows=db.expenses.filter(e=>{
-
-    const d=new Date(e.date);
-
-    return d.getMonth()+1===month &&
-           d.getFullYear()===year;
-
-  });
-
-
-  const overdue=db.expenses.filter(e=>
-    statusOf(e)==="Overdue"
-  );
-
-
-  /*
-    Dashboard totals:
-    current selected month + overdue
-  */
-
-  const dashboardRows=[
-    ...monthRows,
-    ...overdue.filter(o=>
-      !monthRows.some(m=>m.id===o.id)
-    )
-  ];
-
-
-  const total=dashboardRows.reduce(
-    (s,e)=>s+Number(e.amount||0),0
-  );
-
-  const paid=dashboardRows
-    .filter(e=>statusOf(e)==="Paid")
-    .reduce((s,e)=>s+Number(e.amount||0),0);
-
-  const pending=dashboardRows
-    .filter(e=>statusOf(e)==="Pending")
-    .reduce((s,e)=>s+Number(e.amount||0),0);
-
-  const overdueTotal=overdue.reduce(
-    (s,e)=>s+Number(e.amount||0),0
-  );
-
-
-  document.getElementById("dashTotal").textContent=
-    money(total);
-
-  document.getElementById("dashPaid").textContent=
-    money(paid);
-
-  document.getElementById("dashPending").textContent=
-    money(pending);
-
-  document.getElementById("dashOverdue").textContent=
-    money(overdueTotal);
-
-
-  renderDashboardBalances();
-
-  renderDashboardPeople();
-
-  /*
-    Latest transactions first
-  */
-
-  const latest=[...dashboardRows]
-    .sort((a,b)=>{
-
-      const ad=a.createdAt || new Date(a.date).getTime();
-      const bd=b.createdAt || new Date(b.date).getTime();
-
-      return bd-ad;
-
-    });
-
-
-  document.getElementById("dashboardTransactions").innerHTML=
-    expenseTable(latest,true);
-
-
-  /*
-    Next 7 days
-  */
-
-  const today=new Date();
-
-  today.setHours(0,0,0,0);
-
-  const end=new Date(today);
-
-  end.setDate(end.getDate()+7);
-
-  const next7=db.expenses
-    .filter(e=>{
-
-      if(statusOf(e)==="Paid") return false;
-
-      if(!e.dueDate) return false;
-
-      const d=new Date(e.dueDate+"T00:00:00");
-
-      return d>=today && d<=end;
-
-    })
-    .sort((a,b)=>
-      a.dueDate.localeCompare(b.dueDate)
-    );
-
-  document.getElementById("dashboardUpcoming").innerHTML=
-    expenseTable(next7,true);
-
-
-  document.getElementById("dashboardOverdue").innerHTML=
-    expenseTable(
-      overdue.sort((a,b)=>
-        (a.dueDate||"").localeCompare(b.dueDate||"")
-      ),
-      true
-    );
-
-}
-
-
-/* =========================================================
-   DASHBOARD BALANCES
-========================================================= */
-
-function renderDashboardBalances(){
-
-  const el=document.getElementById("dashboardBalances");
-
-  if(!el) return;
-
-  el.innerHTML=db.accounts.map(a=>`
-
-    <div class="balance-card ${a.type==="cash"?"cash":""}">
-
-      <h3>${escapeHtml(a.name)}</h3>
-
-      <div class="balance">
-        ${money(a.balance)}
-      </div>
-
-    </div>
-
-  `).join("");
-
-}
-
-
-/* =========================================================
-   PEOPLE DASHBOARD
-========================================================= */
-
-function renderDashboardPeople(){
-
-  const el=document.getElementById("dashboardPeople");
-
-  if(!el) return;
-
-  el.innerHTML=db.people.length
-
-    ? db.people.map(p=>
-        `<span class="person">${escapeHtml(p)}</span>`
-      ).join("")
-
-    : `<div class="empty">No people added.</div>`;
-
-}
-
-
-/* =========================================================
-   EXPENSE TABLE
-========================================================= */
-
-function expenseTable(rows, compact=false){
-
-  if(!rows.length){
-
-    return `
-      <div class="empty">
-        No expenses found.
-      </div>
-    `;
-
-  }
-
-
-  return `
-
-  <div class="table-wrap">
-
-  <table>
-
-    <thead>
-
-      <tr>
-
-        <th>Date</th>
-        <th>Expense</th>
-        <th>Amount</th>
-        <th>Category</th>
-        <th>Person</th>
-        <th>Payment</th>
-        <th>Due</th>
-        <th>Status</th>
-
-        ${compact ? "" : "<th>Actions</th>"}
-
-      </tr>
-
-    </thead>
-
-    <tbody>
-
-      ${rows.map(e=>{
-
-        const st=statusOf(e);
-
-        return `
-
-        <tr>
-
-          <td>${formatDate(e.date)}</td>
-
-          <td>${escapeHtml(e.name)}</td>
-
-          <td><b>${money(e.amount)}</b></td>
-
-          <td>${escapeHtml(e.category||"-")}</td>
-
-          <td>${escapeHtml(e.person||"-")}</td>
-
-          <td>
-            ${escapeHtml(
-              e.method || "-"
-            )}
-            <br>
-            <small>
-              ${escapeHtml(
-                e.accountId==="other"
-                  ? "Other"
-                  : accountName(e.accountId)
-              )}
-            </small>
-          </td>
-
-          <td>${formatDate(e.dueDate)}</td>
-
-          <td>
-            <span class="badge ${st.toLowerCase()}">
-              ${st}
-            </span>
-          </td>
-
-          ${
-            compact
-              ? ""
-              :
-              `<td>
-                <div class="actions">
-
-                  <button
-                    class="btn small"
-                    onclick="openExpenseModal('${e.id}')">
-                    Edit
-                  </button>
-
-                  <button
-                    class="btn red small"
-                    onclick="deleteExpense('${e.id}')">
-                    Delete
-                  </button>
-
-                </div>
-              </td>`
-          }
-
-        </tr>
-
-        `;
-
-      }).join("")}
-
-    </tbody>
-
-  </table>
-
-  </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   EXPENSES PAGE
-========================================================= */
-
-function renderExpenses(){
-
-  const search=(document
-    .getElementById("expenseSearch")
-    ?.value || "")
-    .toLowerCase();
-
-  const person=document
-    .getElementById("expenseFilterPerson")
-    ?.value || "";
-
-  const category=document
-    .getElementById("expenseFilterCategory")
-    ?.value || "";
-
-  const status=document
-    .getElementById("expenseFilterStatus")
-    ?.value || "";
-
-
-  let rows=db.expenses.filter(e=>{
-
-    const hay=[
-      e.name,
-      e.person,
-      e.category,
-      e.method,
-      accountName(e.accountId),
-      e.notes
-    ].join(" ").toLowerCase();
-
-    if(search && !hay.includes(search)){
-      return false;
-    }
-
-    if(person && e.person!==person){
-      return false;
-    }
-
-    if(category && e.category!==category){
-      return false;
-    }
-
-    if(status && statusOf(e)!==status){
-      return false;
-    }
-
-    return true;
-
-  });
-
-
-  rows.sort((a,b)=>{
-
-    const ad=a.createdAt || new Date(a.date).getTime();
-    const bd=b.createdAt || new Date(b.date).getTime();
-
-    return bd-ad;
-
-  });
-
-
-  document.getElementById("expensesTable").innerHTML=
-    expenseTable(rows,false);
-
-}
-
-
-/* =========================================================
-   FILTERS
-========================================================= */
-
-function refreshFilters(){
-
-  const person=document.getElementById("expenseFilterPerson");
-
-  if(person){
-
-    const old=person.value;
-
-    person.innerHTML=
-      `<option value="">All People</option>`+
-      db.people.map(p=>
-        `<option value="${escapeAttr(p)}">
-          ${escapeHtml(p)}
-        </option>`
-      ).join("");
-
-    person.value=old;
-
-  }
-
-
-  const categories=[
-    ...new Set(
-      db.expenses
-        .map(e=>e.category)
-        .filter(Boolean)
-    )
-  ];
-
-
-  const category=document.getElementById(
-    "expenseFilterCategory"
-  );
-
-  if(category){
-
-    const old=category.value;
-
-    category.innerHTML=
-      `<option value="">All Categories</option>`+
-      categories.map(c=>
-        `<option value="${escapeAttr(c)}">
-          ${escapeHtml(c)}
-        </option>`
-      ).join("");
-
-    category.value=old;
-
-  }
-
-}
-
-
-/* =========================================================
-   UPCOMING
-========================================================= */
-
-function renderUpcoming(){
-
-  const rows=db.expenses
-    .filter(e=>{
-
-      if(statusOf(e)==="Paid") return false;
-
-      return e.dueDate &&
-             e.dueDate>=todayISO();
-
-    })
-    .sort((a,b)=>
-      a.dueDate.localeCompare(b.dueDate)
-    );
-
-  document.getElementById("upcomingTable").innerHTML=
-    expenseTable(rows,false);
-
-}
-
-
-/* =========================================================
-   OVERDUE
-========================================================= */
-
-function renderOverdue(){
-
-  const rows=db.expenses
-    .filter(e=>statusOf(e)==="Overdue")
-    .sort((a,b)=>
-      (a.dueDate||"").localeCompare(b.dueDate||"")
-    );
-
-  document.getElementById("overdueTable").innerHTML=
-    expenseTable(rows,false);
-
-}
-
-
-/* =========================================================
-   PEOPLE PAGE
-========================================================= */
-
-function renderPeople(){
-
-  const el=document.getElementById("peopleList");
-
-  if(!el) return;
-
-  el.innerHTML=db.people.map(person=>{
-
-    const rows=db.expenses.filter(
-      e=>e.person===person
-    );
-
-    const total=rows.reduce(
-      (s,e)=>s+Number(e.amount||0),0
-    );
-
-    return `
-
-      <div class="card">
-
-        <div style="
-          display:flex;
-          justify-content:space-between;
-          gap:15px;
-          align-items:center;
-          flex-wrap:wrap;
-        ">
-
-          <div>
-
-            <h2>${escapeHtml(person)}</h2>
-
-            <p>
-              ${rows.length} expense(s)
-              · Total ${money(total)}
-            </p>
-
-          </div>
-
-          <div class="actions">
-
-            <button
-              class="btn"
-              onclick="personPDF('${escapeAttr(person)}')">
-              Save Person PDF
-            </button>
-
-            <button
-              class="btn red"
-              onclick="deletePerson('${escapeAttr(person)}')">
-              Delete
-            </button>
-
-          </div>
-
-        </div>
-
-        ${expenseTable(rows,false)}
-
-      </div>
-
-    `;
-
-  }).join("");
-
-}
-
-
-/* =========================================================
-   BANK PAGE
-========================================================= */
-
 function renderBanks(){
-
-  const cards=document.getElementById("balanceCards");
-
-  if(cards){
-
-    cards.innerHTML=db.accounts.map(a=>`
-
-      <div class="balance-card ${a.type==="cash"?"cash":""}">
-
-        <h3>${escapeHtml(a.name)}</h3>
-
-        <div class="balance">
-          ${money(a.balance)}
-        </div>
-
-        <small>
-          ${a.type==="cash" ? "Cash" : "Bank"}
-        </small>
-
-      </div>
-
-    `).join("");
-
-  }
-
-
-  const manage=document.getElementById("manageBanks");
-
-  if(manage){
-
-    const banks=db.accounts.filter(
-      a=>a.type==="bank"
-    );
-
-    manage.innerHTML=banks.length
-
-      ? banks.map(a=>`
-
-          <div class="card"
-            style="margin-bottom:10px;border:1px solid #ddd">
-
-            <div style="
-              display:flex;
-              justify-content:space-between;
-              align-items:center;
-              gap:15px;
-            ">
-
-              <div>
-
-                <b>${escapeHtml(a.name)}</b>
-
-                <br>
-
-                <span>
-                  ${money(a.balance)}
-                </span>
-
-              </div>
-
-              <button
-                class="btn red small"
-                onclick="deleteBank('${a.id}')">
-                Delete
-              </button>
-
-            </div>
-
-          </div>
-
-        `).join("")
-
-      : `<div class="empty">No banks added.</div>`;
-
-  }
-
+  const total=(db.banks||[]).reduce((s,b)=>s+Number(b.balance||0),0);
+  const totalEl=document.getElementById('allBankBalance');if(totalEl)totalEl.textContent=money(total);
+  const list=document.getElementById('bankList');if(!list)return;
+  list.innerHTML=(db.banks||[]).map(b=>`<div class="manage-row"><div><b>${b.name==='Cash'?'💵':'🏦'} ${esc(b.name)}</b><br><small>Available Balance</small></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><strong>${money(b.balance)}</strong><button class="btn light" onclick="openAddAmountFor('${b.id}')">Add Amount</button><button class="btn light" onclick="editBank('${b.id}')">Edit</button><button class="btn danger" onclick="deleteBank('${b.id}')">Delete</button></div></div>`).join('');
+  const body=document.getElementById('bankHistory');if(!body)return;
+  const tx=sortDateDesc(db.bankTransactions||[]);
+  body.innerHTML=tx.length?tx.map(t=>`<tr><td>${fmtDate(t.date)}</td><td>${esc(bankName(t.accountId))}</td><td>${esc(t.description)}</td><td>${esc(t.type)}</td><td>${esc(t.payment||'—')}</td><td>${money(t.amount)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No transactions yet.</td></tr>';
+}
+function openAddAmountFor(id){openAddAmount();document.getElementById('bankActionAccount').value=id}
+function saveBanksPDF(){
+  const rows=(db.bankTransactions||[]).map(t=>({date:t.date,name:t.description,amount:t.amount,category:t.type,person:bankName(t.accountId),payment:t.payment,dueDate:'',status:t.amount<0?'Debit':'Credit'}));
+  const balances=(db.banks||[]).map(b=>`${b.name}: ${money(b.balance)}`).join(' • ');
+  makePDF('EVR Cash & Banks',`Available Balances — ${balances}`,rows,'EVR-Cash-and-Banks.pdf',balances);
 }
 
+function saveDB(){db.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function money(n){return'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(s){if(!s)return'-';const p=String(s).split('-');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:s}
+function statusOf(e){if(e.status==='Paid')return'Paid';if(e.status==='Overdue')return'Overdue';if(e.dueDate&&e.dueDate<today())return'Overdue';return'Pending'}
+function statusBadge(s){return`<span class="status ${s.toLowerCase()}">${s}</span>`}
+function page(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');if(id==='reports')renderReports()}
+function fillSelect(id,arr,first){const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='';if(first!==undefined){const o=document.createElement('option');o.value='';o.textContent=first;el.appendChild(o)}arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});if([...el.options].some(o=>o.value===old))el.value=old}
+function setupYears(){const now=new Date().getFullYear(),years=[];for(let y=now-10;y<=now+10;y++)years.push(String(y));['dashboardYear','reportYear','personReportYear','categoryReportYear'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='';years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;el.appendChild(o)});el.value=years.includes(old)?old:String(now)})}
+function setupMonths(){const months=['January','February','March','April','May','June','July','August','September','October','November','December'];['dashboardMonth','reportMonth','personReportMonth','categoryReportMonth'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';months.forEach((m,i)=>{const o=document.createElement('option');o.value=String(i+1);o.textContent=m;el.appendChild(o)});el.value=String(new Date().getMonth()+1)})}
+function initDates(){['reportDate','personReportDate','categoryReportDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today()})}
+function sortDateDesc(rows){return[...rows].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))}
+function sortByDueAsc(rows){return[...rows].sort((a,b)=>String(a.dueDate||'').localeCompare(String(b.dueDate||'')))} 
+function updateDashboardPeriod(){
+ const m=Number(document.getElementById('dashboardMonth').value),y=Number(document.getElementById('dashboardYear').value);
+ const selected=db.expenses.filter(e=>{const d=new Date((e.date||'')+'T00:00:00');return d.getMonth()+1===m&&d.getFullYear()===y});
+ const total=selected.reduce((s,e)=>s+Number(e.amount||0),0),paid=selected.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0),pending=selected.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0),overdue=selected.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);
+ document.getElementById('totalAmount').textContent=money(total);document.getElementById('paidAmount').textContent=money(paid);document.getElementById('pendingAmount').textContent=money(pending);document.getElementById('overdueAmount').textContent=money(overdue);document.getElementById('peopleCount').textContent=db.people.length;
+ const up=db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()),upTotal=up.reduce((s,e)=>s+Number(e.amount||0),0);
+ document.getElementById('upcomingTotal').textContent=`${up.length} expenses · ${money(upTotal)}`;
+ document.getElementById('dashboardUpcoming').innerHTML=up.length?sortByDueAsc(up).slice(0,8).map(e=>`<div class="manage-row"><div><b>${esc(e.name)}</b><br><small>${fmtDate(e.dueDate)} · ${esc(e.person)}</small></div><b>${money(e.amount)}</b></div>`).join(''):'<div class="empty">No upcoming expenses.</div>'
+}
 
-/* =========================================================
-   TRANSACTIONS
-========================================================= */
+function initDashboardPeriod(){
+  const m=document.getElementById('dashboardPeriodMonth'),y=document.getElementById('dashboardPeriodYear');
+  if(!m||!y)return;
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now=new Date(),cy=now.getFullYear();
+  m.innerHTML=months.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+  const years=new Set([cy]);
+  (db.expenses||[]).forEach(e=>{const d=new Date(e.date);if(!isNaN(d))years.add(d.getFullYear())});
+  (db.bankTransactions||[]).forEach(t=>{const d=new Date(t.date);if(!isNaN(d))years.add(d.getFullYear())});
+  y.innerHTML=[...years].sort((a,b)=>b-a).map(v=>`<option value="${v}">${v}</option>`).join('');
+  m.value=String(now.getMonth());y.value=String(cy);
+  renderCurrentMonthTransactions();
+  renderDashboardPeriod();
+}
+function dashboardRowsFor(month,year){
+  const ex=(db.expenses||[]).filter(e=>{const d=new Date(e.date);return !isNaN(d)&&d.getMonth()===month&&d.getFullYear()===year});
+  const bt=(db.bankTransactions||[]).filter(t=>{const d=new Date(t.date);return !isNaN(d)&&d.getMonth()===month&&d.getFullYear()===year});
+  return [
+    ...ex.map(e=>({date:e.date,desc:e.name,type:'Expense',amount:-Number(e.amount||0),person:e.person||'',status:e.status||''})),
+    ...bt.map(t=>({date:t.date,desc:t.description||'',type:t.type||'Transaction',amount:Number(t.amount||0),person:bankName(t.accountId),status:''}))
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+function renderCurrentMonthTransactions(){
+  const box=document.getElementById('dashboardCurrentPeriod');if(!box)return;
+  const now=new Date(),rows=dashboardRowsFor(now.getMonth(),now.getFullYear());
+  const latest=rows.slice(0,10);
+  box.innerHTML=latest.length?`<table>
+    <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Account / Person</th><th>Status</th><th>Amount</th></tr></thead>
+    <tbody>${latest.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${esc(r.desc)}</td><td>${esc(r.type)}</td><td>${esc(r.person)}</td><td>${esc(r.status)}</td><td>${money(r.amount)}</td></tr>`).join('')}</tbody>
+  </table>`:'<div class="empty">No transactions this month.</div>';
+}
+function renderDashboardPeriod(){
+  const m=document.getElementById('dashboardPeriodMonth'),y=document.getElementById('dashboardPeriodYear'),box=document.getElementById('dashboardPeriod');
+  if(!m||!y||!box)return;
+  const month=Number(m.value),year=Number(y.value),rows=dashboardRowsFor(month,year);
+  const ex=(db.expenses||[]).filter(e=>{const d=new Date(e.date);return !isNaN(d)&&d.getMonth()===month&&d.getFullYear()===year});
+  const totalExp=ex.reduce((s,e)=>s+Number(e.amount||0),0);
+  const paid=ex.filter(e=>e.status==='Paid').reduce((s,e)=>s+Number(e.amount||0),0);
+  const pending=ex.filter(e=>e.status!=='Paid').reduce((s,e)=>s+Number(e.amount||0),0);
+  box.innerHTML=`
+    <div class="stats-grid" style="margin-bottom:12px">
+      <div class="stat"><small>Expenses</small><strong>${money(totalExp)}</strong></div>
+      <div class="stat"><small>Paid</small><strong>${money(paid)}</strong></div>
+      <div class="stat"><small>Pending</small><strong>${money(pending)}</strong></div>
+      <div class="stat"><small>Transactions</small><strong>${rows.length}</strong></div>
+    </div>
+    <table>
+      <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Account / Person</th><th>Status</th><th>Amount</th></tr></thead>
+      <tbody>${rows.length?rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${esc(r.desc)}</td><td>${esc(r.type)}</td><td>${esc(r.person)}</td><td>${esc(r.status)}</td><td>${money(r.amount)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No transactions for this period.</td></tr>'}</tbody>
+    </table>`;
+}
 
-function renderTransactions(){
+function renderDashboard(){const x=document.getElementById('dashboardBanks');if(x)x.innerHTML=(db.banks||[]).map(b=>`<div class="stat"><small>${esc(b.name)}</small><strong>${money(b.balance)}</strong></div>`).join('');
+ updateDashboardPeriod();
+ const recent=sortDateDesc(db.expenses).slice(0,10);
+ document.getElementById('recent').innerHTML=recent.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Status</th></tr></thead><tbody>${recent.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${statusBadge(statusOf(e))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No expenses yet.</div>'
+}
+function renderExpenses(){
+ const search=(document.getElementById('search')?.value||'').toLowerCase(),person=document.getElementById('filterPerson')?.value||'',cat=document.getElementById('filterCategory')?.value||'',stat=document.getElementById('filterStatus')?.value||'';
+ const rows=sortDateDesc(db.expenses.filter(e=>{const hay=[e.name,e.person,e.category,e.payment,e.notes].join(' ').toLowerCase();return(!search||hay.includes(search))&&(!person||e.person===person)&&(!cat||e.category===cat)&&(!stat||statusOf(e)===stat)}));
+ const sums={all:0,paid:0,pending:0,overdue:0};rows.forEach(e=>{sums.all+=Number(e.amount||0);sums[statusOf(e).toLowerCase()]+=Number(e.amount||0)});
+ document.getElementById('expensesSummary').innerHTML=`<div class="stat"><b>All Categories</b><strong>${money(sums.all)}</strong></div><div class="stat" style="border-left-color:#16a34a"><b>Paid</b><strong>${money(sums.paid)}</strong></div><div class="stat" style="border-left-color:#f59e0b"><b>Pending</b><strong>${money(sums.pending)}</strong></div><div class="stat" style="border-left-color:#dc2626"><b>Overdue</b><strong>${money(sums.overdue)}</strong></div>`;
+ const tbody=document.getElementById('expenseTable');if(!rows.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No expenses found.</td></tr>';return}
+ tbody.innerHTML=rows.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.category)}</td><td>${esc(e.person)}</td><td>${esc(e.payment)}</td><td>${fmtDate(e.dueDate)}</td><td>${statusBadge(statusOf(e))}</td><td><div class="action-row">${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid('${e.id}')">Paid</button>`:''}<button class="btn light" onclick="editExpense('${e.id}')">Edit</button><button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button></div></td></tr>`).join('')
+}
+function expenseActionTable(rows){return`<div class="table-wrap"><table><thead><tr><th>Due</th><th>Expense</th><th>Amount</th><th>Person</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${fmtDate(e.dueDate)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.person)}</td><td>${statusBadge(statusOf(e))}</td><td><div class="action-row">${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid('${e.id}')">Paid</button>`:''}<button class="btn light" onclick="editExpense('${e.id}')">Edit</button><button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button></div></td></tr>`).join('')}</tbody></table></div>`}
+function renderUpcoming(){
+ const up=sortByDueAsc(db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()));
+ const overdue=sortByDueAsc(db.expenses.filter(e=>statusOf(e)==='Overdue'));
+ const upTotal=up.reduce((s,e)=>s+Number(e.amount||0),0),ovTotal=overdue.reduce((s,e)=>s+Number(e.amount||0),0);
+ document.getElementById('upcomingSummary').textContent=`${up.length} expenses · ${money(upTotal)}`;document.getElementById('overdueSummary').textContent=`${overdue.length} expenses · ${money(ovTotal)}`;
+ document.getElementById('upcomingList').innerHTML=up.length?expenseActionTable(up):'<div class="empty">No upcoming expenses.</div>';document.getElementById('overdueList').innerHTML=overdue.length?expenseActionTable(overdue):'<div class="empty">No overdue expenses.</div>'
+}
+function paymentStateChanged(){
+ const s=document.getElementById('eStatus')?.value,el=document.getElementById('eAccount');if(!el)return;
+ el.disabled=s!=='Paid';if(s!=='Paid')el.value='';
+}
+function openExpense(){
+ editId=null;document.getElementById('modalTitle').textContent='Add Expense';
+ fillSelect('eCategory',db.categories);fillSelect('ePerson',db.people);
+ document.getElementById('eAccount').innerHTML=accountOptions(true);document.getElementById('eAccount').value='';
+ document.getElementById('eName').value='';document.getElementById('eAmount').value='';document.getElementById('eDate').value=today();
+ document.getElementById('eDueDate').value='';document.getElementById('ePayment').value='Cash';document.getElementById('eStatus').value='Paid';
+ document.getElementById('eNotes').value='';document.getElementById('expenseModal').classList.add('show');paymentStateChanged();
+}
+function closeExpense(){document.getElementById('expenseModal').classList.remove('show')}
+function editExpense(id){
+ const e=db.expenses.find(x=>x.id===id);if(!e)return;editId=id;
+ document.getElementById('modalTitle').textContent='Edit Expense';fillSelect('eCategory',db.categories);fillSelect('ePerson',db.people);
+ document.getElementById('eAccount').innerHTML=accountOptions(true);document.getElementById('eAccount').value=e.accountId||'';
+ document.getElementById('eCategory').value=e.category||'';document.getElementById('ePerson').value=e.person||'';document.getElementById('eName').value=e.name||'';
+ document.getElementById('eAmount').value=e.amount||'';document.getElementById('eDate').value=e.date||today();document.getElementById('eDueDate').value=e.dueDate||'';
+ document.getElementById('ePayment').value=e.payment||'Cash';document.getElementById('eStatus').value=e.status||'Pending';document.getElementById('eNotes').value=e.notes||'';
+ document.getElementById('expenseModal').classList.add('show');paymentStateChanged();
+}
+function saveExpense(){
+ const name=document.getElementById('eName').value.trim(),amount=Number(document.getElementById('eAmount').value),status=document.getElementById('eStatus').value;
+ if(!name||!Number.isFinite(amount)||amount<0){alert('Enter a valid expense name and amount.');return}
+ const accountId=status==='Paid'?(document.getElementById('eAccount').value||''):'';
+ if(status==='Paid'&&!accountId){alert('For Paid, choose a bank/cash account or Other.');return}
+ const old=editId?db.expenses.find(x=>x.id===editId):null;
+ if(old&&old.status==='Paid'&&old.accountId&&old.accountId!=='OTHER'){const b=bankById(old.accountId);if(b)b.balance+=Number(old.amount||0)}
+ if(status==='Paid'&&accountId!=='OTHER'){
+   const b=bankById(accountId);if(!b){alert('Account not found.');return}
+   if(amount>b.balance){if(old&&old.status==='Paid'&&old.accountId&&old.accountId!=='OTHER'){const ob=bankById(old.accountId);if(ob)ob.balance-=Number(old.amount||0)}alert(`Insufficient balance in ${b.name}. Available: ${money(b.balance)}`);return}
+   b.balance-=amount;
+ }
+ const data={id:editId||('e_'+Date.now()),name,amount,category:document.getElementById('eCategory').value,person:document.getElementById('ePerson').value,date:document.getElementById('eDate').value||today(),dueDate:document.getElementById('eDueDate').value||'',payment:document.getElementById('ePayment').value,status,accountId,notes:document.getElementById('eNotes').value.trim()};
+ if(editId){const i=db.expenses.findIndex(x=>x.id===editId);if(i>=0)db.expenses[i]=data}else db.expenses.push(data);
+ closeExpense();saveDB();toast(editId?'Expense updated.':'Expense saved.');
+}
+function markPaid(id){const e=db.expenses.find(x=>x.id===id);if(!e)return;e.status='Paid';saveDB();toast('Expense marked as Paid.')}
+function deleteExpense(id){const e=db.expenses.find(x=>x.id===id);if(!e)return;if(!confirm(`Delete "${e.name}"?`))return;db.expenses=db.expenses.filter(x=>x.id!==id);saveDB();toast('Expense deleted.')}
+function addPerson(){const v=document.getElementById('newPerson').value.trim();if(!v)return;if(!db.people.includes(v))db.people.push(v);document.getElementById('newPerson').value='';saveDB()}
+function deletePerson(v){if(v==='Me'){alert('Me cannot be deleted.');return}if(db.expenses.some(e=>e.person===v)){alert('This person is used by expenses. Edit those expenses first.');return}db.people=db.people.filter(x=>x!==v);saveDB()}
+function renderPeople(){document.getElementById('peopleList').innerHTML=db.people.map(v=>`<div class="manage-row"><span>${esc(v)}</span><button class="btn danger" onclick="deletePerson(${JSON.stringify(v)})">Delete</button></div>`).join('')}
+function addCategory(){const v=document.getElementById('newCategory').value.trim();if(!v)return;if(!db.categories.includes(v))db.categories.push(v);document.getElementById('newCategory').value='';saveDB()}
+function deleteCategory(v){if(db.expenses.some(e=>e.category===v)){alert('This category is used by expenses. Edit those expenses first.');return}db.categories=db.categories.filter(x=>x!==v);saveDB()}
+function renderCategories(){document.getElementById('categoryList').innerHTML=db.categories.map(v=>`<div class="manage-row"><span>${esc(v)}</span><button class="btn danger" onclick="deleteCategory(${JSON.stringify(v)})">Delete</button></div>`).join('')}
 
-  const balances=
-    document.getElementById("transactionBalances");
+function inWeek(dateStr,baseStr){if(!dateStr||!baseStr)return false;const d=new Date(dateStr+'T00:00:00'),start=new Date(baseStr+'T00:00:00'),day=start.getDay();start.setDate(start.getDate()-(day===0?6:day-1));const end=new Date(start);end.setDate(start.getDate()+6);return d>=start&&d<=end}
+function filterByPeriod(rows,type,date,month,year){return rows.filter(e=>{const d=new Date((e.date||'')+'T00:00:00');if(type==='all')return true;if(type==='daily')return e.date===date;if(type==='weekly')return inWeek(e.date,date);if(type==='monthly')return d.getMonth()+1===month&&d.getFullYear()===year;if(type==='yearly')return d.getFullYear()===year;return true})}
+function periodExpenses(){return filterByPeriod(db.expenses,document.getElementById('reportType').value,document.getElementById('reportDate').value,Number(document.getElementById('reportMonth').value),Number(document.getElementById('reportYear').value))}
+function summaryHTML(rows){const total=rows.reduce((s,e)=>s+Number(e.amount||0),0),paid=rows.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0),pending=rows.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0),overdue=rows.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);return`<div class="report-stats"><div class="report-stat"><b>Total</b><strong>${money(total)}</strong></div><div class="report-stat"><b>Paid</b><strong>${money(paid)}</strong></div><div class="report-stat"><b>Pending</b><strong>${money(pending)}</strong></div><div class="report-stat"><b>Overdue</b><strong>${money(overdue)}</strong></div></div>`}
+function reportTable(rows){const sorted=sortDateDesc(rows);if(!sorted.length)return'<div class="empty">No expenses for this selection.</div>';return`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Expense</th><th>Amount</th><th>Category</th><th>Person</th><th>Status</th></tr></thead><tbody>${sorted.map(e=>`<tr><td>${fmtDate(e.date)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.category)}</td><td>${esc(e.person)}</td><td>${statusBadge(statusOf(e))}</td></tr>`).join('')}</tbody></table></div>`}
+function renderPeriodReport(){const type=document.getElementById('reportType').value;document.getElementById('reportDateBox').style.display=type==='daily'||type==='weekly'?'flex':'none';document.getElementById('reportMonthBox').style.display=type==='monthly'?'flex':'none';document.getElementById('reportYearBox').style.display=type==='monthly'||type==='yearly'?'flex':'none';const rows=periodExpenses();document.getElementById('periodReport').innerHTML=summaryHTML(rows)+reportTable(rows)}
+function personRows(){return filterByPeriod(db.expenses.filter(e=>e.person===document.getElementById('personReportPerson').value),document.getElementById('personReportType').value,document.getElementById('personReportDate').value,Number(document.getElementById('personReportMonth').value),Number(document.getElementById('personReportYear').value))}
+function renderPersonReport(){const type=document.getElementById('personReportType').value;document.getElementById('personReportDateWrap').style.display=type==='daily'||type==='weekly'?'flex':'none';document.getElementById('personReportMonthWrap').style.display=type==='monthly'?'flex':'none';document.getElementById('personReportYearWrap').style.display=type==='monthly'||type==='yearly'?'flex':'none';const rows=personRows(),p=document.getElementById('personReportPerson').value||'';document.getElementById('personReport').innerHTML=`<div style="font-weight:600;margin:4px 0 7px"><b>People:</b> ${esc(p)}</div>`+summaryHTML(rows)+reportTable(rows)}
+function categoryRows(){return filterByPeriod(db.expenses.filter(e=>e.category===document.getElementById('categoryReportCategory').value),document.getElementById('categoryReportType').value,document.getElementById('categoryReportDate').value,Number(document.getElementById('categoryReportMonth').value),Number(document.getElementById('categoryReportYear').value))}
+function renderCategoryReport(){const type=document.getElementById('categoryReportType').value;document.getElementById('categoryReportDateWrap').style.display=type==='daily'||type==='weekly'?'flex':'none';document.getElementById('categoryReportMonthWrap').style.display=type==='monthly'?'flex':'none';document.getElementById('categoryReportYearWrap').style.display=type==='monthly'||type==='yearly'?'flex':'none';const rows=categoryRows(),c=document.getElementById('categoryReportCategory').value||'';document.getElementById('categoryReport').innerHTML=`<div style="font-weight:600;margin:4px 0 7px"><b>Category:</b> ${esc(c)}</div>`+summaryHTML(rows)+reportTable(rows)}
+function renderUpcomingReport(){const rows=sortByDueAsc(db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()));document.getElementById('upcomingReport').innerHTML=rows.length?expenseActionTable(rows):'<div class="empty">No upcoming expenses.</div>'}
+function renderReports(){fillSelect('personReportPerson',db.people);fillSelect('categoryReportCategory',db.categories);renderPeriodReport();renderPersonReport();renderCategoryReport();renderUpcomingReport()}
 
-  if(balances){
+/* PDF generation — matches the compact EVR PDF layout shown in the reference:
+   portrait A4, compact heading, summary cards, highlighted People row,
+   blue table header, alternating rows, ₹ amounts, and NO web address/footer URL. */
+function pdfSummary(rows){
+  const total=rows.reduce((s,e)=>s+Number(e.amount||0),0);
+  const paid=rows.filter(e=>statusOf(e)==='Paid').reduce((s,e)=>s+Number(e.amount||0),0);
+  const pending=rows.filter(e=>statusOf(e)==='Pending').reduce((s,e)=>s+Number(e.amount||0),0);
+  const overdue=rows.filter(e=>statusOf(e)==='Overdue').reduce((s,e)=>s+Number(e.amount||0),0);
+  return {total,paid,pending,overdue};
+}
 
-    balances.innerHTML=db.accounts.map(a=>`
-
-      <div class="balance-card ${a.type==="cash"?"cash":""}">
-
-        <h3>${escapeHtml(a.name)}</h3>
-
-        <div class="balance">
-          ${money(a.balance)}
-        </div>
-
-      </div>
-
-    `).join("");
-
-  }
-
-
-  const rows=[...db.transactions].sort(
-    (a,b)=>
-      (b.date||"").localeCompare(a.date||"")
-  );
-
-
-  const table=document.getElementById(
-    "transactionTable"
-  );
-
-  if(!table) return;
-
-
-  if(!rows.length){
-
-    table.innerHTML=
-      `<div class="empty">No account transactions yet.</div>`;
-
+function makePDF(title,subtitle,rows,filename,peopleText=''){
+  if(!window.pdfMake){
+    alert('PDF library is not loaded. Please check your internet connection and try again.');
     return;
-
   }
 
+  rows=sortDateDesc(rows);
+  const s=pdfSummary(rows);
+  const people=peopleText || [...new Set(
+    rows.map(e=>String(e.person||'').trim()).filter(Boolean)
+  )].join(' • ');
 
-  table.innerHTML=`
+  const body=rows.map(e=>[
+    fmtDate(e.date),
+    String(e.name||''),
+    money(e.amount),
+    String(e.category||''),
+    String(e.person||''),
+    String(e.payment||''),
+    e.dueDate ? fmtDate(e.dueDate) : '-',
+    statusOf(e)
+  ]);
 
-    <div class="table-wrap">
+  const summaryCard=(label,value)=>({
+    table:{
+      widths:['*'],
+      body:[[
+        {
+          stack:[
+            {text:label,fontSize:8,color:'#667085',margin:[0,0,0,4]},
+            {text:value,bold:true,fontSize:12,color:'#20242a'}
+          ],
+          margin:[8,7,8,7]
+        }
+      ]]
+    },
+    layout:{
+      hLineColor:'#cfd4dc',
+      vLineColor:'#cfd4dc',
+      hLineWidth:()=>0.8,
+      vLineWidth:()=>0.8,
+      fillColor:()=>'#f8fafc',
+      paddingLeft:()=>0,
+      paddingRight:()=>0,
+      paddingTop:()=>0,
+      paddingBottom:()=>0
+    }
+  });
 
-      <table>
+  const tableBody=[
+    [
+      {text:'Date',bold:true,color:'#ffffff'},
+      {text:'Expense',bold:true,color:'#ffffff'},
+      {text:'Amount',bold:true,color:'#ffffff'},
+      {text:'Category',bold:true,color:'#ffffff'},
+      {text:'Person',bold:true,color:'#ffffff'},
+      {text:'Payment',bold:true,color:'#ffffff'},
+      {text:'Due',bold:true,color:'#ffffff'},
+      {text:'Status',bold:true,color:'#ffffff'}
+    ],
+    ...body.map(r=>r.map((v,i)=>({
+      text:String(v),
+      fontSize:8,
+      color:'#20242a',
+      bold:i===2
+    })))
+  ];
 
-        <thead>
+  const doc={
+    pageSize:'A4',
+    pageOrientation:'portrait',
+    pageMargins:[36,30,36,30],
+    defaultStyle:{
+      font:'Roboto',
+      fontSize:8,
+      color:'#20242a'
+    },
 
-          <tr>
+    /* Important: no footer URL, no browser URL, no link field. */
+    content:[
+      {
+        text:title || 'EVR Dashboard',
+        fontSize:21,
+        bold:true,
+        color:'#111827',
+        margin:[0,0,0,7]
+      },
 
-            <th>Date</th>
-            <th>Type</th>
-            <th>Account</th>
-            <th>Amount</th>
-            <th>Details</th>
+      subtitle ? {
+        text:subtitle,
+        fontSize:10,
+        color:'#111827',
+        margin:[0,0,0,12]
+      } : null,
 
-          </tr>
+      {
+        columns:[
+          summaryCard('Total',money(s.total)),
+          summaryCard('Paid',money(s.paid)),
+          summaryCard('Pending',money(s.pending)),
+          summaryCard('Overdue',money(s.overdue))
+        ],
+        columnGap:8,
+        margin:[0,0,0,10]
+      },
 
-        </thead>
-
-        <tbody>
-
-          ${rows.map(t=>{
-
-            let account="";
-
-            if(t.type==="Transfer"){
-
-              account=
-                `${accountName(t.fromAccountId)}
-                 → ${accountName(t.toAccountId)}`;
-
-            }else{
-
-              account=t.accountName || accountName(t.accountId);
-
+      people ? {
+        table:{
+          widths:['*'],
+          body:[[
+            {
+              text:[
+                {text:'People: ',bold:true,fontSize:10},
+                ...people.split(' • ').flatMap((p,i)=>[
+                  {text:p,bold:true,fontSize:10,background:'#eef4ff',color:'#173b7a',margin:[2,1,2,1]},
+                  ...(i<people.split(' • ').length-1?[{text:'  •  ',color:'#64748b'}]:[])
+                ])
+              ],
+              margin:[8,6,8,6]
             }
+          ]]
+        },
+        layout:{
+          hLineColor:'#d4dbe5',
+          vLineColor:'#d4dbe5',
+          hLineWidth:()=>0.8,
+          vLineWidth:()=>0.8,
+          fillColor:()=>'#f8fafc',
+          paddingLeft:()=>0,
+          paddingRight:()=>0,
+          paddingTop:()=>0,
+          paddingBottom:()=>0
+        },
+        margin:[0,0,0,10]
+      } : null,
 
-            return `
-
-              <tr>
-
-                <td>${formatDate(t.date)}</td>
-
-                <td>
-                  <span class="badge other">
-                    ${escapeHtml(t.type)}
-                  </span>
-                </td>
-
-                <td>${escapeHtml(account)}</td>
-
-                <td>${money(t.amount)}</td>
-
-                <td>${escapeHtml(t.note||"-")}</td>
-
-              </tr>
-
-            `;
-
-          }).join("")}
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   BACKUP / RESTORE
-========================================================= */
-
-function backupData(){
-
-  const backup={
-
-    app:"EVR Expenses",
-
-    version:1,
-
-    exportedAt:new Date().toISOString(),
-
-    data:db
-
+      {
+        table:{
+          headerRows:1,
+          widths:['12%','18%','12%','12%','12%','13%','10%','11%'],
+          body:tableBody
+        },
+        layout:{
+          fillColor:(rowIndex)=>rowIndex===0?'#2563eb':(rowIndex%2===0?'#f3f6f9':null),
+          hLineColor:'#cfd4dc',
+          vLineColor:'#cfd4dc',
+          hLineWidth:()=>0.7,
+          vLineWidth:()=>0.7,
+          paddingLeft:()=>5,
+          paddingRight:()=>5,
+          paddingTop:()=>4,
+          paddingBottom:()=>4
+        }
+      }
+    ].filter(Boolean)
   };
 
-
-  const blob=new Blob(
-    [JSON.stringify(backup,null,2)],
-    {type:"application/json"}
-  );
-
-
-  const url=URL.createObjectURL(blob);
-
-  const a=document.createElement("a");
-
-  const date=todayISO();
-
-  a.href=url;
-
-  a.download=`EVR-Expenses-Backup-${date}.json`;
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  a.remove();
-
-  URL.revokeObjectURL(url);
-
-}
-
-
-function restoreData(event){
-
-  const file=event.target.files[0];
-
-  if(!file) return;
-
-  const reader=new FileReader();
-
-  reader.onload=function(){
-
-    try{
-
-      const backup=JSON.parse(reader.result);
-
-      const restored=backup.data || backup;
-
-      if(!restored ||
-         !Array.isArray(restored.expenses) ||
-         !Array.isArray(restored.accounts)){
-
-        throw new Error("Invalid backup.");
-
-      }
-
-
-      if(!confirm(
-        "Restore this backup? Current data will be replaced."
-      )){
-
-        event.target.value="";
-
-        return;
-
-      }
-
-
-      db={
-
-        expenses:restored.expenses || [],
-
-        people:restored.people || ["Viju"],
-
-        accounts:restored.accounts || [],
-
-        transactions:restored.transactions || []
-
-      };
-
-
-      if(!db.accounts.some(a=>a.id==="cash")){
-
-        db.accounts.unshift({
-          id:"cash",
-          name:"Cash",
-          type:"cash",
-          balance:0
-        });
-
-      }
-
-
-      saveDB();
-
-      renderAll();
-
-      alert("Backup restored successfully.");
-
-    }catch(e){
-
-      alert(
-        "Could not restore backup. Please select a valid EVR backup file."
-      );
-
-    }
-
-    event.target.value="";
-
-  };
-
-  reader.readAsText(file);
-
-}
-
-
-function resetApp(){
-
-  if(!confirm(
-    "DELETE ALL EVR EXPENSES DATA?\n\nThis cannot be undone unless you have a backup."
-  )) return;
-
-  localStorage.removeItem(STORAGE_KEY);
-
-  location.reload();
-
-}
-
-
-/* =========================================================
-   PDF
-========================================================= */
-
-function printPage(pageId){
-
-  document.querySelectorAll(".page").forEach(p=>{
-    p.classList.remove("print-target");
-  });
-
-  const page=document.getElementById(pageId);
-
-  if(!page) return;
-
-  page.classList.add("print-target");
-
-  /*
-    Browser print dialog:
-    On phone choose Share/Print/Save to Files or Save PDF.
-  */
-
-  setTimeout(()=>{
-
-    window.print();
-
-    setTimeout(()=>{
-      page.classList.remove("print-target");
-    },1000);
-
-  },150);
-
-}
-
-
-/*
-  Individual person PDF.
-  IMPORTANT:
-  It deliberately does NOT include bank balances.
-*/
-
-function personPDF(person){
-
-  const rows=db.expenses.filter(
-    e=>e.person===person
-  );
-
-  const oldPages=[...document.querySelectorAll(".page")];
-
-  oldPages.forEach(p=>{
-    p.classList.remove("print-target");
-  });
-
-
-  const temp=document.createElement("section");
-
-  temp.className="page print-target";
-
-  temp.innerHTML=`
-
-    <div style="padding:10px">
-
-      <h1 style="font-size:32px">
-        EVR Expenses
-      </h1>
-
-      <h2>
-        Person Report — ${escapeHtml(person)}
-      </h2>
-
-      <p>
-        Total:
-        <b>
-          ${money(
-            rows.reduce(
-              (s,e)=>s+Number(e.amount||0),0
-            )
-          )}
-        </b>
-      </p>
-
-      ${expenseTable(rows,true)}
-
-    </div>
-
-  `;
-
-
-  document.querySelector("main").appendChild(temp);
-
-
-  setTimeout(()=>{
-
-    window.print();
-
-    setTimeout(()=>{
-      temp.remove();
-    },1000);
-
-  },150);
-
-}
-
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-function closeModal(id){
-
-  const el=document.getElementById(id);
-
-  if(el){
-    el.classList.remove("show");
+  try{
+    pdfMake.createPdf(doc).download(filename||'EVR-Report.pdf');
+  }catch(err){
+    console.error(err);
+    alert('PDF could not be created. Please try again.');
   }
-
 }
 
+function saveDashboardPDF(){
+  const m=Number(document.getElementById('dashboardMonth').value);
+  const y=Number(document.getElementById('dashboardYear').value);
+  const month=document.getElementById('dashboardMonth').selectedOptions[0].text;
 
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-function escapeAttr(value){
-
-  return escapeHtml(value);
-
-}
-
-
-/* =========================================================
-   RENDER ALL
-========================================================= */
-
-function renderAll(){
-
-  refreshFilters();
-
-  refreshAccountSelects();
-
-  populatePersonSelect();
-
-  renderDashboard();
-
-  renderExpenses();
-
-  renderUpcoming();
-
-  renderOverdue();
-
-  renderPeople();
-
-  renderBanks();
-
-  renderTransactions();
-
-}
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-function init(){
-
-  loadDB();
-
-  populatePeriods();
-
-  refreshAccountSelects();
-
-  populatePersonSelect();
-
-  /*
-    Dashboard automatically opens on current month.
-  */
-
-  showPage("dashboard");
-
-}
-
-
-document.addEventListener(
-  "DOMContentLoaded",
-  init
-);
-
-
-/* =========================================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
-========================================================= */
-
-document.querySelectorAll(".modal").forEach(modal=>{
-
-  modal.addEventListener("click",function(e){
-
-    if(e.target===modal){
-      modal.classList.remove("show");
-    }
-
+  const rows=db.expenses.filter(e=>{
+    const d=new Date((e.date||'')+'T00:00:00');
+    return d.getMonth()+1===m && d.getFullYear()===y;
   });
 
-});
+  makePDF(
+    'EVR Dashboard',
+    `${month} ${y} · Total ${money(rows.reduce((s,e)=>s+Number(e.amount||0),0))}`,
+    rows,
+    'EVR-Dashboard.pdf'
+  );
+}
 
+function saveExpensesPDF(){
+  const search=(document.getElementById('search').value||'').toLowerCase();
+  const person=document.getElementById('filterPerson').value;
+  const cat=document.getElementById('filterCategory').value;
+  const stat=document.getElementById('filterStatus').value;
+
+  const rows=db.expenses.filter(e=>{
+    const hay=[e.name,e.person,e.category,e.payment,e.notes].join(' ').toLowerCase();
+    return (!search||hay.includes(search)) &&
+           (!person||e.person===person) &&
+           (!cat||e.category===cat) &&
+           (!stat||statusOf(e)===stat);
+  });
+
+  const people=[...new Set(
+    rows.map(e=>String(e.person||'').trim()).filter(Boolean)
+  )].join(' • ');
+
+  const s=pdfSummary(rows);
+
+  makePDF(
+    'EVR Expenses',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Expenses.pdf',
+    people
+  );
+}
+
+function saveUpcomingPDF(){
+  const rows=sortByDueAsc(
+    db.expenses.filter(e=>
+      (statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today()) ||
+      statusOf(e)==='Overdue'
+    )
+  );
+  makePDF(
+    'EVR Upcoming & Overdue Expenses',
+    'Upcoming and overdue expenses',
+    rows,
+    'EVR-Upcoming-Overdue.pdf'
+  );
+}
+
+function periodPDF(){
+  const rows=periodExpenses();
+  const s=pdfSummary(rows);
+  const type=document.getElementById('reportType').value;
+  makePDF(
+    'EVR Period Report',
+    `${type} · Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Period-Report.pdf'
+  );
+}
+
+function personPDF(){
+  const p=document.getElementById('personReportPerson').value;
+  const rows=personRows();
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Person Report',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Person-Report.pdf',
+    p
+  );
+}
+
+function categoryPDF(){
+  const c=document.getElementById('categoryReportCategory').value;
+  const rows=categoryRows();
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Category Report',
+    `Total ${money(s.total)} · Paid ${money(s.paid)} · Pending ${money(s.pending)} · Overdue ${money(s.overdue)}`,
+    rows,
+    'EVR-Category-Report.pdf'
+  );
+}
+
+function upcomingReportPDF(){
+  const rows=sortByDueAsc(
+    db.expenses.filter(e=>statusOf(e)==='Pending'&&e.dueDate&&e.dueDate>=today())
+  );
+  const s=pdfSummary(rows);
+  makePDF(
+    'EVR Upcoming Expenses Report',
+    `Total ${money(s.total)} · Pending ${money(s.pending)}`,
+    rows,
+    'EVR-Upcoming-Report.pdf'
+  );
+}
+
+function csvEscape(v){return'"'+String(v??'').replace(/"/g,'""')+'"'}
+function rowsCSV(rows){const head=['Date','Expense','Amount','Category','Person','Payment Mode','Due Date','Status','Notes'];return[head.map(csvEscape).join(','),...sortDateDesc(rows).map(e=>[e.date,e.name,e.amount,e.category,e.person,e.payment,e.dueDate,statusOf(e),e.notes].map(csvEscape).join(','))].join('\n')}
+function downloadText(text,name,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportAllCSV(){downloadText(rowsCSV(db.expenses),'EVR-Expenses.csv','text/csv;charset=utf-8')}
+function backupNow(){const payload={app:'EVR Personal Expense Manager',version:3,exportedAt:new Date().toISOString(),data:db};downloadText(JSON.stringify(payload,null,2),'EVR-Full-Backup.json','application/json');localStorage.setItem('evr_last_backup',new Date().toISOString());updateBackupStatus();toast('Backup downloaded.')}
+function restoreJSON(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const obj=JSON.parse(reader.result);
+      let restored=(obj&&obj.data&&typeof obj.data==='object')?obj.data:obj;
+      if(!restored||!Array.isArray(restored.expenses))throw new Error('No expenses');
+
+      /* Accept both the current EVR backup format (banks/bankTransactions)
+         and the newer V4 format (accounts/accountTransactions). */
+      let banks=[];
+      let bankTransactions=[];
+
+      if(Array.isArray(restored.banks)){
+        banks=restored.banks.map(b=>({
+          id:b.id||('b_'+Math.random().toString(36).slice(2)),
+          name:b.name||'Account',
+          balance:Number(b.balance??b.openingBalance??0),
+          openingBalance:Number(b.openingBalance??b.balance??0)
+        }));
+        bankTransactions=Array.isArray(restored.bankTransactions)?restored.bankTransactions:[];
+      }else if(Array.isArray(restored.accounts)){
+        /* Convert EVR_EXPENSES_DATA_V4 accounts into the bank format used by
+           the current app. The balance is calculated once from opening balance
+           plus account transactions, so historical transactions are preserved
+           without changing the restored balance a second time. */
+        const txs=Array.isArray(restored.accountTransactions)?restored.accountTransactions:[];
+        banks=restored.accounts.map(a=>{
+          const txSum=txs.filter(t=>t.accountId===a.id).reduce((s,t)=>s+Number(t.amount||0),0);
+          const opening=Number(a.opening||0);
+          const current=opening+txSum;
+          return {
+            id:a.id||('b_'+Math.random().toString(36).slice(2)),
+            name:a.name||'Account',
+            balance:current,
+            openingBalance:opening
+          };
+        });
+        bankTransactions=txs.map(t=>({
+          id:t.id||('bt_'+Math.random().toString(36).slice(2)),
+          date:t.date||today(),
+          accountId:t.accountId,
+          description:t.note||t.description||'',
+          type:t.type||'',
+          payment:t.payment||'',
+          amount:Number(t.amount||0)
+        }));
+      }
+
+      if(!banks.length)banks=[{id:'cash',name:'Cash',balance:0,openingBalance:0}];
+      if(!banks.some(b=>b.id==='cash' && String(b.name).toLowerCase()==='cash')){
+        /* Do not force a second Cash account when a user already has one under
+           another id/name. */
+      }
+
+      const people=Array.isArray(restored.people)&&restored.people.length?restored.people:['Me'];
+      const categories=Array.isArray(restored.categories)&&restored.categories.length?restored.categories:[...DEFAULT_CATS];
+
+      /* Convert expense field names used by the V4 build. */
+      const expenses=restored.expenses.map(e=>({
+        id:e.id||('e_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
+        name:e.name||e.expense||'',
+        amount:Number(e.amount||0),
+        category:e.category||'Other',
+        person:e.person||'General',
+        date:e.date||today(),
+        dueDate:e.dueDate||e.due||'',
+        payment:e.payment||e.paymentMode||'Cash',
+        status:e.status||'Pending',
+        accountId:e.accountId||'',
+        notes:e.notes||e.note||''
+      }));
+
+      if(!confirm('Restore this backup? Current browser data will be replaced.'))return;
+      db={
+        expenses,
+        people,
+        categories,
+        banks,
+        bankTransactions,
+        version:5,
+        updatedAt:new Date().toISOString()
+      };
+      saveDB();
+      toast('Backup restored successfully.');
+    }catch(e){
+      alert('This backup is from another EVR version. The new app could not read it. Please use the EVR backup JSON file, not the HTML file.');
+    }finally{
+      event.target.value='';
+    }
+  };
+  reader.readAsText(file);
+}
+function saveBackupReminderSettings(){const v=document.getElementById('backupReminderFrequency').value;localStorage.setItem('evr_backup_frequency',v);updateBackupStatus()}
+function resetBackupReminder(){localStorage.removeItem('evr_last_backup');updateBackupStatus()}
+function updateBackupStatus(){const el=document.getElementById('backupStatus'),last=localStorage.getItem('evr_last_backup'),freq=Number(localStorage.getItem('evr_backup_frequency')||7);document.getElementById('backupReminderFrequency').value=String(freq);if(!last){el.textContent='No backup downloaded yet.';return}const d=new Date(last),next=new Date(d);next.setDate(next.getDate()+freq);el.textContent=next<=new Date()?`Backup reminder: your last backup was ${d.toLocaleDateString()}. Please make a new backup.`:`Last backup: ${d.toLocaleString()}. Next reminder: ${next.toLocaleDateString()}.`}
+function clearAll(){if(!confirm('This will permanently delete all expenses, people and categories from this browser. Continue?'))return;localStorage.removeItem(KEY);db=defaultDB();renderAll();toast('All data cleared.')}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.style.display='none',2200)}
+function renderAll(){fillSelect('filterPerson',db.people,'All People');fillSelect('filterCategory',db.categories,'All Categories');renderDashboard();initDashboardPeriod();renderExpenses();renderUpcoming();renderPeople();renderCategories();renderBanks();renderReports();updateBackupStatus()}
+document.addEventListener('DOMContentLoaded',function(){setupYears();setupMonths();initDates();const now=new Date();document.getElementById('dashboardMonth').value=String(now.getMonth()+1);document.getElementById('dashboardYear').value=String(now.getFullYear());renderAll()})
 </script>
-
 </body>
 </html>
