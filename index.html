@@ -475,10 +475,15 @@ function loadDB(){
     if(x && Array.isArray(x.expenses)){
       x.people=Array.isArray(x.people)&&x.people.length?x.people:['Me'];
       x.categories=Array.isArray(x.categories)&&x.categories.length?x.categories:[...DEFAULT_CATS];
-      x.expenses=x.expenses.map((e,i)=>({
-        ...e,
-        id:(e && e.id!=null && String(e.id)!=='') ? String(e.id) : ('e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2))
-      }));
+      // Ensure every expense has a stable ID so Edit/Delete/Paid work with old backups too.
+      const usedIds=new Set();
+      x.expenses=x.expenses.map((e,i)=>{
+        const id=(e&&e.id!==undefined&&e.id!==null&&String(e.id).trim()!=='')?String(e.id):('e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2));
+        let safeId=id;
+        while(usedIds.has(safeId)) safeId='e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2);
+        usedIds.add(safeId);
+        return {...(e||{}),id:safeId};
+      });
       return x;
     }
   }catch(e){}
@@ -495,10 +500,6 @@ function esc(s){
   return String(s??'').replace(/[&<>"']/g,m=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
   }[m]));
-}
-
-function jsArg(v){
-  return JSON.stringify(String(v==null?'':v));
 }
 
 function money(n){
@@ -683,9 +684,9 @@ function renderExpenses(){
       <td>${statusBadge(statusOf(e))}</td>
       <td>
         <div class="action-row">
-          ${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid(${jsArg(e.id)})">Paid</button>`:''}
-          <button class="btn light" onclick="editExpense(${jsArg(e.id)})">Edit</button>
-          <button class="btn danger" onclick="deleteExpense(${jsArg(e.id)})">Delete</button>
+          ${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid('${e.id}')">Paid</button>`:''}
+          <button class="btn light" onclick="editExpense('${e.id}')">Edit</button>
+          <button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button>
         </div>
       </td>
     </tr>`).join('');
@@ -713,9 +714,9 @@ function expenseActionTable(rows){
       <td>${fmtDate(e.dueDate)}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td>
       <td>${esc(e.person)}</td><td>${statusBadge(statusOf(e))}</td>
       <td><div class="action-row">
-        ${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid(${jsArg(e.id)})">Paid</button>`:''}
-        <button class="btn light" onclick="editExpense(${jsArg(e.id)})">Edit</button>
-        <button class="btn danger" onclick="deleteExpense(${jsArg(e.id)})">Delete</button>
+        ${statusOf(e)!=='Paid'?`<button class="btn success" onclick="markPaid('${e.id}')">Paid</button>`:''}
+        <button class="btn light" onclick="editExpense('${e.id}')">Edit</button>
+        <button class="btn danger" onclick="deleteExpense('${e.id}')">Delete</button>
       </div></td>
     </tr>`).join('')
   }</tbody></table></div>`;
@@ -741,13 +742,10 @@ function closeExpense(){
 }
 
 function editExpense(id){
-  const key=String(id==null?'':id);
-  const e=db.expenses.find(x=>String(x.id)===key);
-  if(!e){
-    toast('Expense could not be found.');
-    return;
-  }
-  editId=e.id;
+  id=String(id);
+  const e=db.expenses.find(x=>String(x.id)===id);
+  if(!e)return;
+  editId=id;
   document.getElementById('modalTitle').textContent='Edit Expense';
   fillSelect('eCategory',db.categories);
   fillSelect('ePerson',db.people);
@@ -784,23 +782,21 @@ function saveExpense(){
     notes:document.getElementById('eNotes').value.trim()
   };
 
-  const wasEdit=editId!==null;
-  if(wasEdit){
-    const i=db.expenses.findIndex(x=>String(x.id)===String(editId));
-    if(i>=0)db.expenses[i]={...db.expenses[i],...data};
-    else db.expenses.push(data);
+  if(editId){
+    const i=db.expenses.findIndex(x=>x.id===editId);
+    if(i>=0)db.expenses[i]=data;
   }else{
     db.expenses.push(data);
   }
 
-  editId=null;
   closeExpense();
   saveDB();
-  toast(wasEdit?'Expense updated.':'Expense saved.');
+  toast(editId?'Expense updated.':'Expense saved.');
 }
 
 function markPaid(id){
-  const e=db.expenses.find(x=>x.id===id);
+  id=String(id);
+  const e=db.expenses.find(x=>String(x.id)===id);
   if(!e)return;
   e.status='Paid';
   saveDB();
@@ -808,7 +804,8 @@ function markPaid(id){
 }
 
 function deleteExpense(id){
-  const e=db.expenses.find(x=>x.id===id);
+  id=String(id);
+  const e=db.expenses.find(x=>String(x.id)===id);
   if(!e)return;
   if(!confirm(`Delete "${e.name}"?`))return;
   db.expenses=db.expenses.filter(x=>x.id!==id);
@@ -1204,11 +1201,16 @@ function restoreJSON(event){
         throw new Error('Invalid EVR backup');
       }
       if(!confirm('Restore this backup? Current browser data will be replaced.'))return;
+      const usedIds=new Set();
+      const restoredExpenses=restored.expenses.map((e,i)=>{
+        const base=(e&&e.id!==undefined&&e.id!==null&&String(e.id).trim()!=='')?String(e.id):('e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2));
+        let id=base;
+        while(usedIds.has(id)) id='e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2);
+        usedIds.add(id);
+        return {...(e||{}),id};
+      });
       db={
-        expenses:restored.expenses.map((e,i)=>({
-          ...e,
-          id:(e && e.id!=null && String(e.id)!=='') ? String(e.id) : ('e_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2))
-        })),
+        expenses:restoredExpenses,
         people:restored.people.length?restored.people:['Me'],
         categories:restored.categories.length?restored.categories:[...DEFAULT_CATS],
         version:3,
