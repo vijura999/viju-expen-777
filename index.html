@@ -685,82 +685,45 @@ function periodCSV(){downloadCSV(reportData(),'EVR-'+document.getElementById('re
 function personCSV(){let p=document.getElementById('personReportPerson').value;downloadCSV(getExpenses().filter(e=>e.person===p),'EVR-'+p.replace(/\s+/g,'-')+'-report.csv')}
 
 
-function pdfEscapeText(text){
-  return String(text??"").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)").replace(/\r/g," ").replace(/\n/g," ");
-}
-
-function wrapPdfText(text,maxChars){
-  const words=String(text??"").split(/\s+/),lines=[];
-  let current="";
-  for(const word of words){
-    const test=current?current+" "+word:word;
-    if(test.length>maxChars && current){lines.push(current);current=word;}
-    else current=test;
-  }
-  if(current)lines.push(current);
-  return lines.length?lines:[""];
-}
-
-function createPdf(title,rows){
-  const pageW=595,pageH=842,margin=36,lineH=12;
-  const src=[title,"EVR Personal Expense Manager","Generated: "+new Date().toLocaleString(),""];
+function pdfEscapeText(text){return String(text??"").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)").replace(/\r/g," ").replace(/\n/g," ");}
+function pdfText(s,x,y,size,font="F1"){return `BT\n/${font} ${size} Tf\n1 0 0 1 ${x} ${y} Tm (${pdfEscapeText(s)}) Tj\nET\n`;}
+function pdfRect(x,y,w,h,fill){return `${fill} rg\n${x} ${y} ${w} ${h} re\nf\n`;}
+function pdfFit(text,maxChars){const t=String(text??"");return t.length>maxChars?t.slice(0,Math.max(0,maxChars-1))+"…":t;}
+function createStyledPdf(title,rows,opts={}){
+  const W=595,H=842,margin=48,contentW=W-margin*2,people=opts.people||"";
   const total=rows.reduce((s,e)=>s+Number(e.amount||0),0);
-  src.push("Total: INR "+total.toFixed(2)+"    Expenses: "+rows.length,"");
-  src.push("Date | Expense | Amount | Category | Person | Payment | Status");
-  src.push("----------------------------------------------------------------");
-  if(!rows.length)src.push("No expenses found.");
-  rows.forEach(e=>{
-    src.push(`${e.date||""} | ${e.name||""} | INR ${Number(e.amount||0).toFixed(2)} | ${e.category||""} | ${e.person||""} | ${e.payment||""} | ${statusOf(e)}`);
-    if(e.dueDate)src.push("Due Date: "+e.dueDate);
-    if(e.notes)src.push("Notes: "+e.notes);
-    src.push("");
-  });
-
-  const lines=[];
-  src.forEach(s=>wrapPdfText(s,92).forEach(x=>lines.push(x)));
-  const perPage=58,pages=[];
-  for(let i=0;i<lines.length;i+=perPage)pages.push(lines.slice(i,i+perPage));
-  if(!pages.length)pages.push([""]);
-
-  const objects=[];
-  const catalog=1,pagesObj=2,font=3;
+  const paid=rows.filter(e=>statusOf(e)==="Paid").reduce((s,e)=>s+Number(e.amount||0),0);
+  const pending=rows.filter(e=>statusOf(e)==="Pending").reduce((s,e)=>s+Number(e.amount||0),0);
+  const overdue=rows.filter(e=>statusOf(e)==="Overdue").reduce((s,e)=>s+Number(e.amount||0),0);
+  const objects=[]; const catalog=1,pagesObj=2,font=3,bold=4;
   objects[font-1]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+  objects[bold-1]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
   const pageIds=[];
-
-  function addObject(obj){objects.push(obj);return objects.length;}
-
-  pages.forEach(page=>{
-    let stream="BT\n",y=pageH-margin;
-    page.forEach((line,i)=>{
-      stream+=`/F1 ${i===0?16:9} Tf\n1 0 0 1 ${margin} ${y} Tm (${pdfEscapeText(line)}) Tj\n`;
-      y-=lineH;
-    });
-    stream+="ET";
-    const contentId=addObject(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-    const pageId=addObject(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents ${contentId} 0 R >>`);
-    pageIds.push(pageId);
-  });
-
-  objects[catalog-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;
-  objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageIds.map(x=>x+" 0 R").join(" ")}] /Count ${pageIds.length} >>`;
-
-  let pdf="%PDF-1.4\n",offsets=[0];
-  objects.forEach((obj,i)=>{offsets[i+1]=pdf.length;pdf+=(i+1)+" 0 obj\n"+obj+"\nendobj\n";});
-  const xref=pdf.length;
-  pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
-  for(let i=1;i<=objects.length;i++)pdf+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";
-  pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return pdf;
+  const rowH=20;
+  const cols=[['Date',70],['Expense',95],['Amount',78],['Category',82],['Person',65],['Payment',72],['Due',61]];
+  const moneyPdf=n=>"INR "+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  function makePage(pageRows,pageNo,pageCount){
+    let s='';
+    s+=pdfText(people?"EVR Person Report":title,margin,H-margin-20,18,'F2');
+    if(people)s+=pdfText(people,margin,H-margin-42,10,'F1');
+    const gap=8,boxW=(contentW-gap*3)/4,boxY=H-margin-92;
+    [['Total',total],['Paid',paid],['Pending',pending],['Overdue',overdue]].forEach((v,i)=>{const x=margin+i*(boxW+gap);s+=`0.82 0.84 0.88 RG\n${x} ${boxY} ${boxW} 42 re\nS\n`;s+=pdfText(v[0],x+8,boxY+26,8);s+=pdfText(moneyPdf(v[1]),x+8,boxY+10,10,'F2');});
+    let y0=boxY-50;
+    if(people){const py=boxY-32;s+=pdfRect(margin,py,contentW,24,'0.94 0.96 0.99');s+=pdfText('People: '+people,margin+8,py+8,9,'F2');y0=boxY-68;}
+    s+=pdfRect(margin,y0,contentW,rowH,'0.18 0.36 0.86');let x=margin;cols.forEach(c=>{s+=pdfText(c[0],x+5,y0+6,8,'F2');x+=c[1];});
+    let y=y0-rowH;
+    pageRows.forEach((e,ri)=>{if(ri%2===0)s+=pdfRect(margin,y,contentW,rowH,'0.97 0.98 0.99');s+=`0.82 0.84 0.88 RG\n${margin} ${y} ${contentW} ${rowH} re\nS\n`;let xx=margin;[fmtDate(e.date||''),pdfFit(e.name||'',17),moneyPdf(e.amount),pdfFit(e.category||'',15),pdfFit(e.person||'',12),pdfFit(e.payment||'',13),fmtDate(e.dueDate||'')||'-'].forEach((v,j)=>{s+=pdfText(String(v),xx+5,y+6,7.4);xx+=cols[j][1];});y-=rowH;});
+    if(!pageRows.length)s+=pdfText('No expenses found.',margin,y-4,9);
+    s+=pdfText(`${pageNo} / ${pageCount}`,W-margin-35,20,7);
+    return s;
+  }
+  const chunks=[];let i=0;while(i<rows.length){const cap=chunks.length?32:30;chunks.push(rows.slice(i,i+cap));i+=cap;}if(!chunks.length)chunks.push([]);
+  chunks.forEach((chunk,idx)=>{const stream=makePage(chunk,idx+1,chunks.length);const contentId=objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);const pageId=objects.push(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${font} 0 R /F2 ${bold} 0 R >> >> /Contents ${contentId} 0 R >>`);pageIds.push(pageId);});
+  objects[catalog-1]=`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`;objects[pagesObj-1]=`<< /Type /Pages /Kids [${pageIds.map(x=>x+' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
+  let pdf='%PDF-1.4\n',offsets=[0];objects.forEach((obj,i)=>{offsets[i+1]=pdf.length;pdf+=(i+1)+' 0 obj\n'+obj+'\nendobj\n';});const xref=pdf.length;pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;for(let j=1;j<=objects.length;j++)pdf+=String(offsets[j]).padStart(10,'0')+' 00000 n \n';pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;return pdf;
 }
-
-function saveArrayPDF(title,rows,filename){
-  const pdf=createPdf(title,rows);
-  const blob=new Blob([pdf],{type:"application/pdf"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-
+function createPdf(title,rows){return createStyledPdf(title,rows,{});}
+function saveArrayPDF(title,rows,filename,opts={}){const pdf=createStyledPdf(title,rows,opts);const blob=new Blob([pdf],{type:'application/pdf'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function reportData(){
   const type=document.getElementById("reportType").value;
   if(type==="daily"){
@@ -810,7 +773,8 @@ function personPDF(){
   saveArrayPDF(
     "Person Report - "+person,
     rows,
-    "EVR-Person-"+person.replace(/[^a-z0-9_-]+/gi,"-")+".pdf"
+    "EVR-Person-"+person.replace(/[^a-z0-9_-]+/gi,"-")+".pdf",
+    {people:person}
   );
 }
 
